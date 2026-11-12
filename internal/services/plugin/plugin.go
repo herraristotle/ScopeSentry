@@ -432,8 +432,8 @@ func (s *service) Reinstall(ctx *gin.Context, req *models.PluginReinstallRequest
 		// It means this is a server-side plugin
 		plg, flag := plugins.GlobalPluginManager.GetPlugin(req.Hash)
 		if !flag {
-			logger.Error(fmt.Sprintf("<UNK> plugin %s <UNK>", req.Hash))
-			return fmt.Errorf("<UNK> plugin %s <UNK>", req.Hash)
+			logger.Error(fmt.Sprintf("Failed to get plugin %s", req.Hash))
+			return fmt.Errorf("Failed to get plugin %s", req.Hash)
 		}
 		plg.Install()
 	} else {

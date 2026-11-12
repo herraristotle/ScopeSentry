@@ -75,12 +75,12 @@ func IconHandle(ctx context.Context) {
 				filepath := path.Join(config.GlobalConfig.System.IconDir, fmt.Sprintf("%v.png", fav3))
 				decoded, err := base64.StdEncoding.DecodeString(content)
 				if err != nil {
-					logger.Error(fmt.Sprintf("<UNK> icon base64 decode <UNK>: %v %v\n", err, content))
+					logger.Error(fmt.Sprintf("Failed to decode icon base64: %v %v\n", err, content))
 					continue
 				}
 				err = utils.WriteFile(filepath, decoded)
 				if err != nil {
-					logger.Error(fmt.Sprintf("<UNK> icon WriteFile<UNK>: %v\n", err))
+					logger.Error(fmt.Sprintf("Failed to write icon file: %v\n", err))
 					continue
 				}
 

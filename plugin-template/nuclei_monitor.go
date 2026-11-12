@@ -236,7 +236,7 @@ func Execute(op options.PluginOption) error {
 						}
 						templateID, err := op.TemplateService.Save(context.Background(), "", &template)
 						if err != nil {
-							op.Log(fmt.Sprintf("<UNK> TemplateId <UNK>: %s, <UNK>: %s", pocID, err.Error()), "e")
+							op.Log(fmt.Sprintf("Failed to save TemplateId: %s, error: %s", pocID, err.Error()), "e")
 							return err
 						}
 
@@ -299,7 +299,7 @@ func fetchPocTemplates(offset, limit int) ([]templateResult, error) {
 
 	// Set request headers
 	req.Header.Set("accept", "*/*")
-	req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
+	req.Header.Set("accept-language", "en-US,en;q=0.9")
 	req.Header.Set("content-type", "application/json")
 	req.Header.Set("origin", "https://cloud.projectdiscovery.io")
 	req.Header.Set("priority", "u=1, i")

@@ -211,7 +211,7 @@ func Execute(op options.PluginOption) error {
 			}
 			templateID, err := op.TemplateService.Save(context.Background(), "", &template)
 			if err != nil {
-				op.Log(fmt.Sprintf("<UNK> Create Template error <UNK>: %s", err.Error()), "e")
+				op.Log(fmt.Sprintf("Failed to create template: %s", err.Error()), "e")
 				return err
 			}
 			taskTemplateId = templateID
@@ -415,7 +415,7 @@ func processSubdomains(ctx context.Context, op options.PluginOption, taskTemplat
 		}
 		_, err := op.TaskCommonService.Insert(context.Background(), &task)
 		if err != nil {
-			op.Log(fmt.Sprintf("[<UNK>] create task error <UNK>: %v", err), "e")
+			op.Log(fmt.Sprintf("[CT Monitor] failed to create task: %v", err), "e")
 			return
 		}
 
@@ -436,7 +436,7 @@ func processSubdomains(ctx context.Context, op options.PluginOption, taskTemplat
 
 func TaskEnd(task models.Task, plgHash string) error {
 	if CTSDK == nil {
-		OP.Log("<UNK>CTSDK is null<UNK>...")
+		OP.Log("CTSDK is null, cannot continue...")
 		return fmt.Errorf("CTSDK is null")
 	}
 	// Tasks created by the plugin usually already have data, so no need to create again
@@ -461,7 +461,7 @@ func TaskEnd(task models.Task, plgHash string) error {
 	}
 	err = CTSDK.AddDomains(domains)
 	if err != nil {
-		OP.Log(fmt.Sprintf("<UNK>CTSDK add domain error<UNK>: %v", err), "e")
+		OP.Log(fmt.Sprintf("CTSDK failed to add domain: %v", err), "e")
 		return err
 	}
 	OP.Log(fmt.Sprintf("CT monitor added %v domains of interest", len(domains)))
