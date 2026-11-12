@@ -12,17 +12,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// WithAuth 添加认证中间件
+// WithAuth adds the authentication middleware
 func WithAuth() []gin.HandlerFunc {
 	return []gin.HandlerFunc{middleware.AuthMiddleware()}
 }
 
-// WithPermission 添加权限中间件
+// WithPermission adds the permission middleware
 func WithPermission(permission string) []gin.HandlerFunc {
 	return []gin.HandlerFunc{middleware.PermissionMiddleware(permission)}
 }
 
-// WithAuthAndPermission 添加认证和权限中间件
+// WithAuthAndPermission adds the authentication and permission middleware
 func WithAuthAndPermission(permission string) []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		middleware.AuthMiddleware(),

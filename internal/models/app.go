@@ -6,24 +6,24 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// App 表示一个应用程序
+// App represents an application
 type App struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name        string             `bson:"name" json:"name"`                 // 应用名称
-	PackageName string             `bson:"package_name" json:"package_name"` // 包名
-	Version     string             `bson:"version" json:"version"`           // 版本号
-	Platform    string             `bson:"platform" json:"platform"`         // 平台（android/ios）
-	Size        int64              `bson:"size" json:"size"`                 // 应用大小（字节）
-	Icon        string             `bson:"icon" json:"icon"`                 // 应用图标URL
-	Description string             `bson:"description" json:"description"`   // 应用描述
-	Developer   string             `bson:"developer" json:"developer"`       // 开发者
-	Category    string             `bson:"category" json:"category"`         // 应用分类
-	Tags        []string           `bson:"tags" json:"tags"`                 // 标签
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`     // 创建时间
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`     // 更新时间
+	Name        string             `bson:"name" json:"name"`                 // Application name
+	PackageName string             `bson:"package_name" json:"package_name"` // Package name
+	Version     string             `bson:"version" json:"version"`           // Version number
+	Platform    string             `bson:"platform" json:"platform"`         // Platform (android/ios)
+	Size        int64              `bson:"size" json:"size"`                 // Application size (bytes)
+	Icon        string             `bson:"icon" json:"icon"`                 // Application icon URL
+	Description string             `bson:"description" json:"description"`   // Application description
+	Developer   string             `bson:"developer" json:"developer"`       // Developer
+	Category    string             `bson:"category" json:"category"`         // Application category
+	Tags        []string           `bson:"tags" json:"tags"`                 // Tags
+	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`     // Creation time
+	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`     // Update time
 }
 
-// AppResult 应用结果
+// AppResult application result
 type AppResult struct {
 	ID          primitive.ObjectID `bson:"_id" json:"id"`
 	Name        string             `bson:"name" json:"name"`
@@ -39,7 +39,7 @@ type AppResult struct {
 	URL         string             `bson:"url" json:"url"`
 }
 
-// AppResponse 应用响应
+// AppResponse application response
 type AppResponse struct {
 	List  []AppResult `json:"list"`
 	Total int64       `json:"total"`

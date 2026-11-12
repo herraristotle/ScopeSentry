@@ -27,7 +27,7 @@ import (
 var Symbols = map[string]map[string]reflect.Value{}
 
 func init() {
-	// 注册常用标准库
+	// Register commonly used standard libraries
 	for pkg, symbols := range map[string]string{
 		"os/exec": "os/exec",
 	} {

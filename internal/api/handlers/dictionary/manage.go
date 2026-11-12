@@ -17,14 +17,14 @@ func init() {
 	manageService = dictservice.NewManageService()
 }
 
-// DeleteRequest 删除请求
+// DeleteRequest delete request
 type DeleteRequest struct {
 	IDs []string `json:"ids" binding:"required"`
 }
 
-// List 获取所有字典元数据
-// @Summary 获取字典文件列表
-// @Tags 字典管理
+// List get all dictionary metadata
+// @Summary Get dictionary file list
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=object{list=[]DictionaryMeta}}
@@ -43,14 +43,14 @@ func List(c *gin.Context) {
 	response.Success(c, resp, "api.success")
 }
 
-// Create 新增一个字典文件
-// @Summary 新增字典文件
-// @Tags 字典管理
+// Create add a dictionary file
+// @Summary Add dictionary file
+// @Tags Dictionary Management
 // @Accept mpfd
 // @Produce json
-// @Param file formData file true "文件"
-// @Param name formData string true "名称"
-// @Param category formData string true "分类，如 dir、subdomain"
+// @Param file formData file true "File"
+// @Param name formData string true "Name"
+// @Param category formData string true "Category, e.g. dir, subdomain"
 // @Success 200 {object} response.Response{data=object{message=string,code=int}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -69,7 +69,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	// 读取文件内容
+	// Read the file content
 	opened, err := fileHeader.Open()
 	if err != nil {
 		response.BadRequest(c, "api.bad_request", err)
@@ -89,12 +89,12 @@ func Create(c *gin.Context) {
 	response.Success(c, gin.H{"message": "file added successfully", "code": 200}, "api.success")
 }
 
-// Download 下载字典文件
-// @Summary 下载字典文件
-// @Tags 字典管理
+// Download download a dictionary file
+// @Summary Download dictionary file
+// @Tags Dictionary Management
 // @Accept json
 // @Produce application/octet-stream
-// @Param id query string true "文件ID"
+// @Param id query string true "File ID"
 // @Security ApiKeyAuth
 // @Router /api/dictionary/manage/download [get]
 func Download(c *gin.Context) {
@@ -114,12 +114,12 @@ func Download(c *gin.Context) {
 	c.Data(200, "application/octet-stream", data)
 }
 
-// Delete 删除多个字典文件
-// @Summary 删除字典文件
-// @Tags 字典管理
+// Delete delete multiple dictionary files
+// @Summary Delete dictionary files
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
-// @Param request body DeleteRequest true "请求参数"
+// @Param request body DeleteRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=object{message=string,code=int}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -143,13 +143,13 @@ func Delete(c *gin.Context) {
 	response.Success(c, gin.H{"code": 200, "message": "delete file successful"}, "api.success")
 }
 
-// Save 替换指定字典文件内容
-// @Summary 更新字典文件
-// @Tags 字典管理
+// Save replace the content of a specified dictionary file
+// @Summary Update dictionary file
+// @Tags Dictionary Management
 // @Accept mpfd
 // @Produce json
-// @Param id query string true "文件ID"
-// @Param file formData file true "文件"
+// @Param id query string true "File ID"
+// @Param file formData file true "File"
 // @Success 200 {object} response.Response{data=object{message=string,code=int}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response

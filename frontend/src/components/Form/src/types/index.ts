@@ -17,7 +17,7 @@ import {
   DatePickerProps,
   FormItemProps as ElFormItemProps,
   FormProps as ElFormProps,
-  ISelectProps,
+  SelectProps,
   UploadProps
 } from 'element-plus'
 import { IEditorConfig } from '@wangeditor/editor'
@@ -125,9 +125,9 @@ export interface SelectOption {
   [key: string]: any
 }
 
-export interface SelectComponentProps extends Omit<Partial<ISelectProps>, 'options'> {
+export interface SelectComponentProps extends Omit<Partial<SelectProps>, 'options' | 'props'> {
   /**
-   * 数据源的字段别名
+   * Field alias of the data source
    */
   props?: {
     key?: string
@@ -284,7 +284,7 @@ export interface RadioOption {
 export interface RadioGroupComponentProps extends Partial<RadioGroupProps> {
   options?: RadioOption[]
   /**
-   * 数据源的字段别名
+   * Field alias of the data source
    */
   props?: {
     label?: string
@@ -303,7 +303,7 @@ export interface RadioGroupComponentProps extends Partial<RadioGroupProps> {
 export interface RadioButtonComponentProps extends Partial<RadioButtonProps> {
   options?: RadioOption[]
   /**
-   * 数据源的字段别名
+   * Field alias of the data source
    */
   props?: {
     label?: string
@@ -340,7 +340,7 @@ export interface CheckboxOption {
 export interface CheckboxGroupComponentProps extends Partial<CheckboxGroupProps> {
   options?: CheckboxOption[]
   /**
-   * 数据源的字段别名
+   * Field alias of the data source
    */
   props?: {
     label?: string
@@ -586,22 +586,22 @@ export interface TreeSelectComponentProps
 
 export interface FormSchema {
   /**
-   * 唯一标识
+   * Unique identifier
    */
   field: string
 
   /**
-   * 标题
+   * Title
    */
   label?: string
 
   /**
-   * col组件属性
+   * col component props
    */
   colProps?: ColProps
 
   /**
-   * 表单组件属性，具体可以查看element-plus文档
+   * Form component props; see the element-plus docs for details
    */
   componentProps?:
     | InputComponentProps
@@ -627,32 +627,32 @@ export interface FormSchema {
     | any
 
   /**
-   * formItem组件属性，具体可以查看element-plus文档
+   * formItem component props; see the element-plus docs for details
    */
   formItemProps?: FormItemProps
 
   /**
-   * 渲染的组件名称
+   * Name of the rendered component
    */
   component?: ComponentName
 
   /**
-   * 初始值
+   * Initial value
    */
   value?: any
 
   /**
-   * 是否隐藏，如果为true，会连同值一同删除，类似v-if
+   * Whether hidden; if true, the value is deleted as well, similar to v-if
    */
   remove?: boolean
 
   /**
-   * 样式隐藏，不会把值一同删掉，类似v-show
+   * Hidden by style only, the value is not deleted, similar to v-show
    */
   hidden?: boolean
 
   /**
-   * @returns 远程加载下拉项
+   * @returns Remotely loaded dropdown options
    */
   optionApi?: any
 }

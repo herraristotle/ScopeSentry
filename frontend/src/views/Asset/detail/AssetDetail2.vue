@@ -32,21 +32,21 @@ const detailJson = ref('')
 const getAssetDetail = async () => {
   const res = await getAssetDetailApi(props.id)
   if (res.code == 200) {
-    // 格式化 JSON，使用 2 个空格缩进
+    // Format the JSON with 2-space indentation
     detailJson.value = JSON.stringify(res.data, null, 2)
   }
 }
 getAssetDetail()
 
 const assetChangeLog = ref<AssetChangeLog[]>([])
-// 获取资产变更日志
+// Get asset change logs
 const getAssetChangeLog = async () => {
   const res = await getAssetChangeLogApi(props.id)
   if (res.code === 200) {
-    // 在获取到数据后，添加 isExpanded 属性
+    // After the data is fetched, add the isExpanded property
     assetChangeLog.value = res.data.map((log) => ({
-      ...log, // 保留原始的 log 数据
-      isExpanded: false // 添加 isExpanded 属性，默认是 false
+      ...log, // Keep the original log data
+      isExpanded: false // Add the isExpanded property, false by default
     }))
   }
 }
@@ -61,7 +61,7 @@ const handleImageClick = (screenshot: string) => {
 
 <template>
   <ElTabs type="border-card" tab-position="left">
-    <ElTabPane label="原始数据">
+    <ElTabPane label="Raw data">
       <Codemirror
         v-model="detailJson"
         :extensions="extensions"
@@ -71,7 +71,7 @@ const handleImageClick = (screenshot: string) => {
         :style="{ height: '550px', width: '100%' }"
       />
     </ElTabPane>
-    <ElTabPane label="资产变更">
+    <ElTabPane label="Asset changes">
       <ElRow style="margin-bottom: 20px">
         <ElCol :offset="2">
           <ElSpace>
@@ -84,7 +84,7 @@ const handleImageClick = (screenshot: string) => {
       <ElRow>
         <ElCol>
           <ElTimeline>
-            <!-- 动态渲染每个变更 -->
+            <!-- Dynamically render each change -->
             <ElTimelineItem
               v-for="(log, index) in assetChangeLog"
               :key="index"
@@ -97,7 +97,7 @@ const handleImageClick = (screenshot: string) => {
                   style="display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1"
                   @click="log.isExpanded = !log.isExpanded"
                 >
-                  <!-- 添加箭头图标，控制展开收起 -->
+                  <!-- Add an arrow icon to toggle expand/collapse -->
                   <ElIcon :style="{ marginLeft: '10px' }">
                     <ArrowRight v-if="!log.isExpanded" />
                     <ArrowDown v-if="log.isExpanded" />
@@ -114,16 +114,16 @@ const handleImageClick = (screenshot: string) => {
 
                 <div class="p-6" v-if="log.isExpanded">
                   <div class="grid grid-cols-2 gap-6">
-                    <!-- 旧值部分 -->
+                    <!-- Old value section -->
                     <div class="space-y-2">
                       <div class="el-card border-gray-200" style="border-radius: 12px">
                         <div
                           class="px-4 py-2 bg-gray-100 border-b border-gray-200 font-medium text-sm"
                         >
-                          旧值
+                          Old value
                         </div>
                         <div class="p-4 text-sm whitespace-pre-wrap">
-                          <!-- 遍历并输出 fieldname: old -->
+                          <!-- Iterate and output fieldname: old -->
                           <div v-for="(change, index) in log.change" :key="'old-' + index">
                             <strong>{{ change.fieldname }}:</strong>
                             <template v-if="change.fieldname === 'Screenshot'">
@@ -142,16 +142,16 @@ const handleImageClick = (screenshot: string) => {
                       </div>
                     </div>
 
-                    <!-- 新值部分 -->
+                    <!-- New value section -->
                     <div class="space-y-2">
                       <div class="el-card border-gray-200" style="border-radius: 12px">
                         <div
                           class="px-4 py-2 bg-blue-100 border-b border-blue-200 font-medium text-sm"
                         >
-                          新值
+                          New value
                         </div>
                         <div class="p-4 text-sm whitespace-pre-wrap">
-                          <!-- 遍历并输出 fieldname: new -->
+                          <!-- Iterate and output fieldname: new -->
                           <div v-for="(change, index) in log.change" :key="'new-' + index">
                             <strong>{{ change.fieldname }}:</strong>
                             <template v-if="change.fieldname === 'Screenshot'">

@@ -18,10 +18,10 @@ var dedupService *configuration.Service
 
 type saveDedupRequest struct {
 	RunNow bool `json:"runNow"`
-	// 其他字段动态接收，因此用 map 承载
+	// Other fields are received dynamically, hence carried by a map
 }
 
-// GetDeduplicationConfig @Summary 获取去重配置
+// GetDeduplicationConfig @Summary Get deduplication config
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -36,12 +36,12 @@ func GetDeduplicationConfig(c *gin.Context) {
 	response.Success(c, data, "api.success")
 }
 
-// SaveDeduplicationConfig @Summary 保存去重配置
+// SaveDeduplicationConfig @Summary Save deduplication config
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "去重配置"
+// @Param       body body map[string]interface{} true "Deduplication config"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/deduplication/save [post]
 func SaveDeduplicationConfig(c *gin.Context) {

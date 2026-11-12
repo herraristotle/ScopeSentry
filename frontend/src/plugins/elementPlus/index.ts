@@ -1,6 +1,6 @@
 import type { App } from 'vue'
 
-// 需要全局引入一些组件，如ElScrollbar，不然一些下拉项样式有问题
+// Some components, such as ElScrollbar, must be registered globally, otherwise some dropdown item styles will be wrong
 import { ElLoading, ElScrollbar } from 'element-plus'
 
 const plugins = [ElLoading]

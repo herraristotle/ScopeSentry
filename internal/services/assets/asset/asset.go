@@ -16,7 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Service 定义资产服务接口
+// Service defines the asset service interface
 type Service interface {
 	GetAssets(ctx *gin.Context, query models.SearchRequest) ([]models.Asset, error)
 	GetAssetByIDs(ctx *gin.Context, ids []string) ([]models.Asset, error)
@@ -35,14 +35,14 @@ type Service interface {
 	GetAssetsByHost(ctx *gin.Context, host string, pageIndex, pageSize int) ([]models.Asset, int64, error)
 }
 
-// 全局 bodyhash 缓存实例，TTL 为 30 秒（可通过 NewCache 参数自定义）
+// Global bodyhash cache instance, TTL is 30 seconds (customizable via the NewCache parameter)
 var globalBodyHashCache = helper.NewCache(30 * time.Second)
 
 type service struct {
 	assetRepo asset.Repository
 }
 
-// NewService 创建资产服务实例
+// NewService creates an asset service instance
 func NewService() Service {
 	return &service{
 		assetRepo: asset.NewRepository(),
@@ -53,13 +53,13 @@ func (s *service) ReplaceBodyQuery(ctx context.Context, query map[string]interfa
 	return s.replaceBodyRecursively(ctx, query).(map[string]interface{})
 }
 
-// convertToInterfaceSlice 将各种类型的数组转换为 []interface{}
+// convertToInterfaceSlice converts arrays of various types to []interface{}
 func convertToInterfaceSlice(v interface{}) []interface{} {
 	if v == nil {
 		return nil
 	}
 
-	// 使用反射处理各种数组类型
+	// Use reflection to handle various array types
 	rv := reflect.ValueOf(v)
 	if rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array {
 		result := make([]interface{}, rv.Len())
@@ -69,7 +69,7 @@ func convertToInterfaceSlice(v interface{}) []interface{} {
 		return result
 	}
 
-	// 如果已经是 []interface{}，直接返回
+	// If it is already []interface{}, return it directly
 	if arr, ok := v.([]interface{}); ok {
 		return arr
 	}
@@ -77,15 +77,15 @@ func convertToInterfaceSlice(v interface{}) []interface{} {
 	return nil
 }
 
-// replaceBodyRecursively 内部递归处理函数
+// replaceBodyRecursively is the internal recursive processing function
 func (s *service) replaceBodyRecursively(ctx context.Context, query any) any {
 	switch q := query.(type) {
 	case map[string]interface{}:
 		newMap := make(map[string]interface{})
 		for k, v := range q {
-			// 逻辑操作符递归处理
+			// Recursively process logical operators
 			if k == "$and" || k == "$or" || k == "$nor" {
-				// 处理多种可能的数组类型
+				// Handle the various possible array types
 				arr := convertToInterfaceSlice(v)
 				if arr != nil {
 					newArr := []interface{}{}
@@ -97,18 +97,18 @@ func (s *service) replaceBodyRecursively(ctx context.Context, query any) any {
 				}
 			}
 
-			// ✅ 特殊处理 body 字段
+			// ✅ Special handling for the body field
 			if k == "body" {
 				cond := s.convertBodyToBodyhash(ctx, v)
-				// 将转换后的条件合并到 newMap 中
-				// 如果 cond 为空（否定查询且无匹配），不添加任何条件，表示不限制
+				// Merge the converted conditions into newMap
+				// If cond is empty (a negated query with no match), add no condition, meaning no restriction
 				for hk, hv := range cond {
 					newMap[hk] = hv
 				}
 				continue
 			}
 
-			// 普通字段递归
+			// Recurse for regular fields
 			newMap[k] = s.replaceBodyRecursively(ctx, v)
 		}
 		return newMap
@@ -125,7 +125,7 @@ func (s *service) replaceBodyRecursively(ctx context.Context, query any) any {
 	}
 }
 
-// convertBodyToBodyhash 将 body 条件转成 bodyhash 查询（含全局缓存与 != 支持）
+// convertBodyToBodyhash converts body conditions into bodyhash queries (with global cache and != support)
 func (s *service) convertBodyToBodyhash(ctx context.Context, v interface{}) map[string]interface{} {
 	result := map[string]interface{}{}
 
@@ -141,13 +141,13 @@ func (s *service) convertBodyToBodyhash(ctx context.Context, v interface{}) map[
 		bodyHashes []string
 	)
 
-	// ✅ body = "xxx" 或 body: { "$regex": "xxx", "$options": "i" }
+	// ✅ body = "xxx" or body: { "$regex": "xxx", "$options": "i" }
 	if regex, ok := m["$regex"].(string); ok {
 		regexVal = regex
 		cacheKey = fmt.Sprintf("eq|%s", regexVal)
 		isNegation = false
 	} else if not, ok := m["$not"].(map[string]interface{}); ok {
-		// ✅ body != "xxx" 或 body: { "$not": { "$regex": "xxx", "$options": "i" } }
+		// ✅ body != "xxx" or body: { "$not": { "$regex": "xxx", "$options": "i" } }
 		if regex, ok := not["$regex"].(string); ok {
 			regexVal = regex
 			isNegation = true
@@ -156,25 +156,25 @@ func (s *service) convertBodyToBodyhash(ctx context.Context, v interface{}) map[
 	}
 
 	if regexVal == "" {
-		// 无法识别的 body 查询格式，返回空结果
+		// Unrecognized body query format; return an empty result
 		return result
 	}
 
-	// 先查全局缓存
+	// Check the global cache first
 	if hashes, ok := globalBodyHashCache.GetStringSlice(cacheKey); ok {
 		bodyHashes = hashes
 	} else {
-		// 没缓存才去数据库查
+		// Only query the database when not cached
 		filter := bson.M{"content": bson.M{"$regex": regexVal, "$options": "i"}}
 		opts := options.Find().SetProjection(bson.M{"hash": 1}).SetLimit(1000)
 
 		bodies, err := s.assetRepo.FindBodyWithOptions(ctx, filter, opts)
 		if err != nil {
-			// 查询出错时，对于否定查询返回空（表示不限制），对于正向查询返回不匹配的条件
+			// On query error, return empty for negated queries (meaning no restriction) and a non-matching condition for positive queries
 			if isNegation {
 				return map[string]interface{}{}
 			}
-			// 正向查询出错时，返回一个不可能匹配的条件
+			// When a positive query fails, return a condition that can never match
 			return map[string]interface{}{"bodyhash": bson.M{"$in": []string{}}}
 		}
 
@@ -184,18 +184,18 @@ func (s *service) convertBodyToBodyhash(ctx context.Context, v interface{}) map[
 			}
 		}
 
-		// 存入全局缓存
+		// Store in the global cache
 		globalBodyHashCache.SetStringSlice(cacheKey, bodyHashes)
 	}
 
-	// 构建返回条件
+	// Build the returned condition
 	if len(bodyHashes) == 0 {
 		if isNegation {
-			// 没匹配到内容，否定查询表示 bodyhash 可以是任意值（包括不存在的）
-			// 返回空 map，不添加任何限制条件
+			// No content matched; a negated query means bodyhash can be any value (including non-existent)
+			// Return an empty map, adding no restrictive conditions
 			return map[string]interface{}{}
 		}
-		// 没匹配到正向内容，返回一个不可能匹配的条件（空数组 $in）
+		// No positive content matched; return a condition that can never match (empty array $in)
 		return map[string]interface{}{"bodyhash": bson.M{"$in": []string{}}}
 	}
 
@@ -222,27 +222,27 @@ func (s *service) GetAssetByIDs(ctx *gin.Context, ids []string) ([]models.Asset,
 	return s.assetRepo.GetAssetByIDs(ctx, ids)
 }
 
-// GetAssets 获取资产列表
+// GetAssets gets the asset list
 func (s *service) GetAssets(ctx *gin.Context, query models.SearchRequest) ([]models.Asset, error) {
-	// 构建查询条件
+	// Build query conditions
 	searchQuery, err := s.BuildSearchQuery(query)
 	if err != nil {
 		return nil, err
 	}
 	filter := bson.M(searchQuery)
 
-	// 分页查询
+	// Paginated query
 	skip := (query.PageIndex - 1) * query.PageSize
 	limit := query.PageSize
 
-	// 构建排序
+	// Build the sort
 	sort := bson.D{
 		{
 			Key: "time", Value: -1,
 		},
 	}
 
-	// 构建投影
+	// Build the projection
 	projection := bson.M{
 		"_id":          1,
 		"host":         1,
@@ -262,7 +262,7 @@ func (s *service) GetAssets(ctx *gin.Context, query models.SearchRequest) ([]mod
 		"bodyhash":     1,
 	}
 
-	// 执行查询
+	// Execute the query
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64(skip)).
@@ -272,7 +272,7 @@ func (s *service) GetAssets(ctx *gin.Context, query models.SearchRequest) ([]mod
 	return s.assetRepo.FindWithOptions(ctx.Request.Context(), filter, opts)
 }
 
-// GetAssetByID 根据ID获取资产
+// GetAssetByID gets an asset by ID
 func (s *service) GetAssetByID(ctx *gin.Context, id string) (*models.Asset, error) {
 	assetByID, err := s.assetRepo.GetAssetByID(ctx.Request.Context(), id)
 	if err != nil {
@@ -286,39 +286,39 @@ func (s *service) GetAssetByID(ctx *gin.Context, id string) (*models.Asset, erro
 	return assetByID, nil
 }
 
-// CreateAsset 创建资产
+// CreateAsset creates an asset
 func (s *service) CreateAsset(ctx *gin.Context, asset *models.Asset) error {
 	return s.assetRepo.CreateAsset(ctx.Request.Context(), asset)
 }
 
-// UpdateAsset 更新资产
+// UpdateAsset updates an asset
 func (s *service) UpdateAsset(ctx *gin.Context, id string, asset *models.Asset) error {
 	return s.assetRepo.UpdateAsset(ctx.Request.Context(), id, asset)
 }
 
-// DeleteAsset 删除资产
+// DeleteAsset deletes an asset
 func (s *service) DeleteAsset(ctx *gin.Context, id string) error {
 	return s.assetRepo.DeleteAsset(ctx.Request.Context(), id)
 }
 
-// GetScreenshot 获取资产截图
+// GetScreenshot gets the asset screenshot
 func (s *service) GetScreenshot(ctx *gin.Context, id string) (string, error) {
 	return s.assetRepo.GetScreenshot(ctx.Request.Context(), id)
 }
 
-// GetChangeLog 获取资产变更日志
+// GetChangeLog gets the asset change log
 func (s *service) GetChangeLog(ctx *gin.Context, id string) ([]models.AssetChangeLog, error) {
 	return s.assetRepo.GetChangeLog(ctx.Request.Context(), id)
 }
 
-// DeduplicateAssets 资产去重
+// DeduplicateAssets deduplicates assets
 func (s *service) DeduplicateAssets(ctx *gin.Context, assetType string, filter bson.M, groupFields []string) error {
 	return s.assetRepo.DeduplicateAssets(ctx.Request.Context(), assetType, filter, groupFields)
 }
 
-// GetAssetCardData 获取资产卡片数据
+// GetAssetCardData gets asset card data
 func (s *service) GetAssetCardData(ctx *gin.Context, query models.SearchRequest) ([]models.Asset, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "asset"
 	searchQuery, err := s.BuildSearchQuery(query)
 	if err != nil {
@@ -326,18 +326,18 @@ func (s *service) GetAssetCardData(ctx *gin.Context, query models.SearchRequest)
 	}
 	filter := bson.M(searchQuery)
 
-	// 分页查询
+	// Paginated query
 	skip := (query.PageIndex - 1) * query.PageSize
 	limit := query.PageSize
 
-	// 构建排序
+	// Build the sort
 	sort := bson.D{
 		{
 			Key: "time", Value: -1,
 		},
 	}
 
-	// 构建投影
+	// Build the projection
 	projection := bson.M{
 		"_id":        1,
 		"host":       1,
@@ -350,7 +350,7 @@ func (s *service) GetAssetCardData(ctx *gin.Context, query models.SearchRequest)
 		"bodyhash":   1,
 	}
 
-	// 执行查询
+	// Execute the query
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64(skip)).
@@ -380,7 +380,7 @@ func (s *service) GetTaskTarget(ctx context.Context, query models.SearchRequest)
 		"type":    1,
 	}
 
-	// 执行查询
+	// Execute the query
 	opts := options.Find().
 		SetProjection(projection)
 
@@ -433,11 +433,11 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 	return targets, nil
 }
 
-// GetHostsByRootDomain 根据 rootDomain 查询并返回去重后的 host 列表
+// GetHostsByRootDomain queries by rootDomain and returns a deduplicated host list
 func (s *service) GetHostsByRootDomain(ctx *gin.Context, rootDomain string, pageIndex, pageSize int) ([]string, int64, error) {
-	// 设置分页参数
+	// Set pagination parameters
 	if pageSize <= 0 {
-		pageSize = 10 // 默认大小是10
+		pageSize = 10 // default size is 10
 	}
 	if pageIndex <= 0 {
 		pageIndex = 1
@@ -445,7 +445,7 @@ func (s *service) GetHostsByRootDomain(ctx *gin.Context, rootDomain string, page
 	skip := int64((pageIndex - 1) * pageSize)
 	limit := int64(pageSize)
 
-	// 使用聚合管道在数据库层面去重，返回真实的去重后数据
+	// Use an aggregation pipeline to deduplicate at the database level, returning the truly deduplicated data
 	hosts, total, err := s.assetRepo.GetDistinctHostsByRootDomain(ctx.Request.Context(), rootDomain, skip, limit)
 	if err != nil {
 		return nil, 0, err
@@ -457,11 +457,11 @@ func (s *service) GetHostsByRootDomain(ctx *gin.Context, rootDomain string, page
 	return hosts, total, nil
 }
 
-// GetAssetsByHost 根据 host 查询资产列表
+// GetAssetsByHost queries the asset list by host
 func (s *service) GetAssetsByHost(ctx *gin.Context, host string, pageIndex, pageSize int) ([]models.Asset, int64, error) {
-	// 设置分页参数
+	// Set pagination parameters
 	if pageSize <= 0 {
-		pageSize = 10 // 默认大小是10
+		pageSize = 10 // default size is 10
 	}
 	if pageIndex <= 0 {
 		pageIndex = 1
@@ -469,7 +469,7 @@ func (s *service) GetAssetsByHost(ctx *gin.Context, host string, pageIndex, page
 	skip := int64((pageIndex - 1) * pageSize)
 	limit := int64(pageSize)
 
-	// 查询资产列表
+	// Query the asset list
 	assets, total, err := s.assetRepo.GetAssetsByHost(ctx.Request.Context(), host, skip, limit)
 	if err != nil {
 		return nil, 0, err

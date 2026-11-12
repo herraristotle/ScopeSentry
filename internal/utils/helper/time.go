@@ -12,11 +12,11 @@ import (
 	"time"
 )
 
-// GetNowTimeString 获取当前时间字符串，按指定时区
+// GetNowTimeString returns the current time string for the given timezone
 func GetNowTimeString() string {
 	loc, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 	if err != nil {
-		// 若时区加载失败，使用 UTC 作为默认回退
+		// If the timezone fails to load, fall back to UTC as the default
 		loc = time.UTC
 	}
 	now := time.Now().In(loc)
@@ -26,13 +26,13 @@ func GetNowTimeString() string {
 func GetNowTime() time.Time {
 	loc, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 	if err != nil {
-		// 若时区加载失败，使用 UTC 作为默认回退
+		// If the timezone fails to load, fall back to UTC as the default
 		loc = time.UTC
 	}
 	return time.Now().In(loc)
 }
 
-// FormatTime 将 time.Time 格式化为字符串，使用全局配置的时区
+// FormatTime formats a time.Time into a string using the globally configured timezone
 func FormatTime(t time.Time) string {
 	loc, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 	if err != nil {

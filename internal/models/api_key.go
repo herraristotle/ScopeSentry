@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ApiKey API Key 模型，用于 MCP 等外部集成认证
+// ApiKey API Key model, used for authentication of external integrations such as MCP
 type ApiKey struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name       string             `bson:"name" json:"name"`
@@ -18,12 +18,12 @@ type ApiKey struct {
 	LastUsedAt *time.Time         `bson:"lastUsedAt,omitempty" json:"lastUsedAt,omitempty"`
 }
 
-// CreateApiKeyRequest 创建 API Key 请求
+// CreateApiKeyRequest API Key creation request
 type CreateApiKeyRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// CreateApiKeyResponse 创建 API Key 响应（明文 key 仅返回一次）
+// CreateApiKeyResponse API Key creation response (the plaintext key is returned only once)
 type CreateApiKeyResponse struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -32,7 +32,7 @@ type CreateApiKeyResponse struct {
 	CreatedAt string `json:"createdAt"`
 }
 
-// DeleteApiKeyRequest 删除 API Key 请求
+// DeleteApiKeyRequest API Key deletion request
 type DeleteApiKeyRequest struct {
 	ID string `json:"id" binding:"required"`
 }

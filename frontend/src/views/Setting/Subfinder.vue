@@ -1,8 +1,8 @@
 <script setup lang="tsx">
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, reactive, h } from 'vue'
-import { ElButton, ElCol, ElInput, ElRow, ElText, ElTag } from 'element-plus'
+import { ref, reactive } from 'vue'
+import { ElButton, ElCol, ElInput, ElRow, ElText } from 'element-plus'
 import { Table, TableColumn } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -44,11 +44,9 @@ const nodeColums = reactive<TableColumn[]>([
 ])
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
-    const { currentPage, pageSize } = tableState
-    const res = await getNodeDataApi(search.value, currentPage.value, pageSize.value)
+    const res = await getNodeDataApi()
     return {
-      list: res.data.list,
-      total: res.data.total
+      list: res.data.list
     }
   }
 })

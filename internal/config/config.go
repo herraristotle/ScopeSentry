@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config 全局配置结构体
+// Config global configuration struct
 type Config struct {
 	System  SystemConfig  `mapstructure:"system"`
 	Server  ServerConfig  `mapstructure:"server"`
@@ -22,7 +22,7 @@ type Config struct {
 	Log     LogConfig     `mapstructure:"logs"`
 }
 
-// SystemConfig 系统配置
+// SystemConfig system configuration
 type SystemConfig struct {
 	Timezone      string `mapstructure:"timezone"`
 	PluginKey     string `mapstructure:"plugin_key"`
@@ -34,7 +34,7 @@ type SystemConfig struct {
 	ImgDir        string `yaml:"-"`
 }
 
-// ServerConfig 服务器配置
+// ServerConfig server configuration
 type ServerConfig struct {
 	Port         int           `mapstructure:"port"`
 	Mode         string        `mapstructure:"mode"`
@@ -42,7 +42,7 @@ type ServerConfig struct {
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
 }
 
-// MongoDBConfig MongoDB配置
+// MongoDBConfig MongoDB configuration
 type MongoDBConfig struct {
 	IP       string `mapstructure:"ip"`
 	Port     int    `mapstructure:"port"`
@@ -51,35 +51,35 @@ type MongoDBConfig struct {
 	Password string `mapstructure:"password"`
 }
 
-// RedisConfig Redis配置
+// RedisConfig Redis configuration
 type RedisConfig struct {
 	IP       string `mapstructure:"ip"`
 	Port     string `mapstructure:"port"`
 	Password string `mapstructure:"password"`
 }
 
-// JWTConfig JWT配置
+// JWTConfig JWT configuration
 type JWTConfig struct {
 	Secret string        `mapstructure:"secret"`
 	Expire time.Duration `mapstructure:"expire"`
 }
 
-// LogConfig 日志配置
+// LogConfig logging configuration
 type LogConfig struct {
 	TotalLogs int    `mapstructure:"total_logs"`
 	Filename  string `mapstructure:"file_name"`
 	Level     string `mapstructure:"leval"`
 }
 
-// GlobalConfig 全局配置实例
+// GlobalConfig global configuration instance
 var GlobalConfig Config
 
-// init 加载配置
+// init loads configuration
 func init() {
-	// 设置默认值
+	// Set default values
 	setDefaults()
 
-	// 设置配置文件路径
+	// Set config file path
 	exePath, err := os.Executable()
 	if err != nil {
 		fmt.Println(err)
@@ -94,13 +94,13 @@ func init() {
 		return
 	}
 
-	// 创建上传目录
+	// Create uploads directory
 	err = utils.EnsureDir(filepath.Join(exeDir, "uploads"))
 	if err != nil {
 		fmt.Printf("Error creating uploads directory: %s\n", err)
 		return
 	}
-	// 创建图片目录
+	// Create images directory
 	GlobalConfig.System.ImgDir = filepath.Join(exeDir, "images")
 	err = utils.EnsureDir(GlobalConfig.System.ImgDir)
 	if err != nil {
@@ -124,7 +124,7 @@ func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 
-	// 设置环境变量前缀和分隔符
+	// Set environment variable prefix and separator
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -134,16 +134,16 @@ func init() {
 			return
 		}
 	}
-	// 从环境变量加载配置
+	// Load configuration from environment variables
 	loadFromEnv()
 
-	// 解析配置到结构体
+	// Unmarshal configuration into struct
 	if err := viper.Unmarshal(&GlobalConfig); err != nil {
 		fmt.Printf("error unmarshaling config: %v\n", err)
 		return
 	}
 
-	// 处理插件密钥
+	// Handle plugin key
 	if err := handlePluginKey(); err != nil {
 		fmt.Println(err)
 		return
@@ -156,45 +156,45 @@ func init() {
 	return
 }
 
-// setDefaults 设置默认配置
+// setDefaults sets the default configuration
 func setDefaults() {
-	// 系统配置
+	// System configuration
 	viper.SetDefault("system.timezone", "Asia/Shanghai")
 	viper.SetDefault("system.debug", false)
 
 	viper.SetDefault("jwt.secret", random.GenerateString(32))
 	viper.SetDefault("jwt.expire", time.Duration(24)*time.Hour)
-	// 服务器配置
+	// Server configuration
 	viper.SetDefault("server.port", 8082)
 	viper.SetDefault("server.mode", "info")
 	viper.SetDefault("server.read_timeout", 60*time.Second)
 	viper.SetDefault("server.write_timeout", 60*time.Second)
 
-	// MongoDB配置
+	// MongoDB configuration
 	viper.SetDefault("mongodb.ip", "127.0.0.1")
 	viper.SetDefault("mongodb.port", 27017)
 	viper.SetDefault("mongodb.database", "ScopeSentry")
 	viper.SetDefault("mongodb.username", "")
 	viper.SetDefault("mongodb.password", "")
 
-	// Redis配置
+	// Redis configuration
 	viper.SetDefault("redis.ip", "127.0.0.1")
 	viper.SetDefault("redis.port", "6379")
 	viper.SetDefault("redis.password", "")
 
-	// 日志配置
+	// Logging configuration
 	viper.SetDefault("logs.total_logs", 1000)
 	viper.SetDefault("logs.level", "info")
 }
 
-// loadFromEnv 从环境变量加载配置
+// loadFromEnv loads configuration from environment variables
 func loadFromEnv() {
-	// 时区配置
+	// Timezone configuration
 	if timezone := os.Getenv("TIMEZONE"); timezone != "" {
 		viper.Set("system.timezone", timezone)
 	}
 
-	// MongoDB 配置
+	// MongoDB configuration
 	if ip := os.Getenv("MONGODB_IP"); ip != "" {
 		viper.Set("mongodb.ip", ip)
 	}
@@ -211,7 +211,7 @@ func loadFromEnv() {
 		viper.Set("mongodb.password", password)
 	}
 
-	// Redis 配置
+	// Redis configuration
 	if ip := os.Getenv("REDIS_IP"); ip != "" {
 		viper.Set("redis.ip", ip)
 	}
@@ -223,24 +223,24 @@ func loadFromEnv() {
 	}
 }
 
-// createConfigFile 创建配置文件
+// createConfigFile creates the config file
 func createConfigFile() error {
-	// 获取可执行文件所在目录
+	// Get the directory containing the executable
 	exePath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("error getting executable path: %v", err)
 	}
 	exeDir := filepath.Dir(exePath)
 
-	// 设置配置文件路径
+	// Set config file path
 	configPath := filepath.Join(exeDir, "config.yaml")
 
-	// 确保配置目录存在
+	// Ensure the config directory exists
 	if err := os.MkdirAll(exeDir, 0755); err != nil {
 		return fmt.Errorf("error creating config directory: %v", err)
 	}
 
-	// 写入配置文件
+	// Write the config file
 	if err := viper.WriteConfigAs(configPath); err != nil {
 		return fmt.Errorf("error writing config file: %v", err)
 	}
@@ -248,18 +248,18 @@ func createConfigFile() error {
 	return nil
 }
 
-// handlePluginKey 处理插件密钥
+// handlePluginKey handles the plugin key
 func handlePluginKey() error {
 	pluginKeyFile := "PLUGINKEY"
 	if _, err := os.Stat(pluginKeyFile); err == nil {
-		// 文件存在，读取密钥
+		// File exists, read the key
 		data, err := os.ReadFile(pluginKeyFile)
 		if err != nil {
 			return err
 		}
 		GlobalConfig.System.PluginKey = string(data)
 	} else {
-		// 文件不存在，生成新密钥
+		// File does not exist, generate a new key
 		key := random.GeneratePluginKey()
 		if err := os.WriteFile(pluginKeyFile, []byte(key), 0644); err != nil {
 			return err
@@ -269,7 +269,7 @@ func handlePluginKey() error {
 	return nil
 }
 
-// GetMongoURI 获取MongoDB连接URI
+// GetMongoURI returns the MongoDB connection URI
 func GetMongoURI() string {
 	uri := GlobalConfig.MongoDB.IP + ":" + string(GlobalConfig.MongoDB.Port)
 	if GlobalConfig.MongoDB.Username != "" && GlobalConfig.MongoDB.Password != "" {
@@ -278,27 +278,27 @@ func GetMongoURI() string {
 	return uri
 }
 
-// GetRedisAddr 获取Redis连接地址
+// GetRedisAddr returns the Redis connection address
 func GetRedisAddr() string {
 	return GlobalConfig.Redis.IP + ":" + GlobalConfig.Redis.Port
 }
 
-// GetPluginKey 获取插件密钥
+// GetPluginKey returns the plugin key
 func GetPluginKey() string {
 	return GlobalConfig.System.PluginKey
 }
 
-// GetSecretKey 获取密钥
+// GetSecretKey returns the secret key
 func GetSecretKey() string {
 	return GlobalConfig.System.SecretKey
 }
 
-// GetTimezone 获取时区
+// GetTimezone returns the timezone
 func GetTimezone() string {
 	return GlobalConfig.System.Timezone
 }
 
-// GetTotalLogs 获取日志总数限制
+// GetTotalLogs returns the total log limit
 func GetTotalLogs() int {
 	return GlobalConfig.Log.TotalLogs
 }

@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterPocRoutes 注册POC相关路由
+// RegisterPocRoutes registers POC-related routes
 func RegisterPocRoutes(api *gin.RouterGroup) {
-	// 定义POC路由组
+	// Define the POC route group
 	pocRoutes := models.RouteGroup{
 		Path: "/poc",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+			// Routes requiring authentication and user:read permission
 			{
 				Method:      "POST",
 				Path:        "",
@@ -59,6 +59,6 @@ func RegisterPocRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册POC路由组
+	// Register the POC route group
 	common.RegisterRouteGroup(api, pocRoutes)
 }

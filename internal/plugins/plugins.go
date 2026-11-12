@@ -29,9 +29,9 @@ func init() {
 }
 
 func LoadPlugin(code string, plgHash string) (interfaces.Plugin, error) {
-	// 初始化 yaegi 解释器
+	// Initialize the yaegi interpreter
 	interp := interp.New(interp.Options{})
-	// 加载标准库和符号
+	// Load the standard library and symbols
 	err := interp.Use(stdlib.Symbols)
 	if err != nil {
 		return nil, err
@@ -56,14 +56,14 @@ func LoadPlugin(code string, plgHash string) (interfaces.Plugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	// 获取Execute
+	// Get Execute
 	v, err := interp.Eval("plugin.Execute")
 	if err != nil {
 		return nil, err
 	}
 	executeFunc := v.Interface().(func(op options.PluginOption) error)
 
-	// 获取TaskEnd
+	// Get TaskEnd
 	v, err = interp.Eval("plugin.TaskEnd")
 	taskEndFunc := func(task models.Task, plgHash string) error { return nil }
 	if err != nil {
@@ -71,21 +71,21 @@ func LoadPlugin(code string, plgHash string) (interfaces.Plugin, error) {
 		taskEndFunc = v.Interface().(func(task models.Task, plgHash string) error)
 	}
 
-	// 获取Cycle
+	// Get Cycle
 	v, err = interp.Eval("plugin.Cycle")
 	if err != nil {
 		return nil, err
 	}
 	cycleFunc := v.Interface().(func() string)
 
-	// 获取Cycle
+	// Get Cycle
 	v, err = interp.Eval("plugin.Install")
 	if err != nil {
 		return nil, err
 	}
 	installFunc := v.Interface().(func() error)
 
-	// 获取Cycle
+	// Get Cycle
 	v, err = interp.Eval("plugin.GetName")
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func LoadPlugin(code string, plgHash string) (interfaces.Plugin, error) {
 }
 
 type PluginManager struct {
-	plugins map[string]interfaces.Plugin // 存储插件，按模块和名称索引
+	plugins map[string]interfaces.Plugin // Store plugins, indexed by module and name
 	mu      sync.RWMutex
 }
 
@@ -176,7 +176,7 @@ func InstallPlugin() {
 			logger.Error(err.Error())
 			return
 		}
-		// 启动时判断是否需要运行一次
+		// Determine at startup whether it needs to run once
 		if plugin.Status == true {
 			RunPluginOnce(plugin.Hash)
 		}

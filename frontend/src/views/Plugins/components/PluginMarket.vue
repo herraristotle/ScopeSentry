@@ -32,14 +32,14 @@ const props = defineProps<PluginMarketProps>()
 
 const { t } = useI18n()
 
-// 筛选条件
+// Filter conditions
 const marketSearch = ref('')
 const selectedModule = ref('')
 const selectedPriceStatus = ref<number | string>('')
 const selectedInstallStatus = ref<string>('')
-const selectedType = ref<string>('') // '' 表示全部, 'scan' 表示扫描, 'server' 表示服务端
+const selectedType = ref<string>('') // '' means all, 'scan' means scan, 'server' means server
 
-// 模块选项
+// Module options
 const moduleOptions = [
   { label: 'TargetHandler', value: 'TargetHandler' },
   { label: 'SubdomainScan', value: 'SubdomainScan' },
@@ -57,7 +57,7 @@ const moduleOptions = [
   { label: 'PassiveScan', value: 'PassiveScan' }
 ]
 
-// 模块渐变背景
+// Module gradient backgrounds
 const moduleBackgrounds: { [key: string]: string } = {
   TargetHandler: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)',
   SubdomainScan: 'linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%)',
@@ -87,7 +87,7 @@ const resetFilters = () => {
 const filteredRemotePlugins = computed(() => {
   let filtered = props.remotePluginList
 
-  // 搜索筛选
+  // Search filter
   if (marketSearch.value) {
     const searchLower = marketSearch.value.toLowerCase()
     filtered = filtered.filter(
@@ -99,12 +99,12 @@ const filteredRemotePlugins = computed(() => {
     )
   }
 
-  // 模块筛选
+  // Module filter
   if (selectedModule.value) {
     filtered = filtered.filter((plugin) => plugin.module === selectedModule.value)
   }
 
-  // 价格状态筛选
+  // Price status filter
   if (selectedPriceStatus.value !== '') {
     if (selectedPriceStatus.value === 'free') {
       filtered = filtered.filter((plugin) => plugin.priceStatus === 0)
@@ -113,7 +113,7 @@ const filteredRemotePlugins = computed(() => {
     }
   }
 
-  // 安装状态筛选
+  // Install status filter
   if (selectedInstallStatus.value) {
     if (selectedInstallStatus.value === 'installed') {
       filtered = filtered.filter((plugin) => plugin.isInstalled && !plugin.needUpdate)
@@ -124,10 +124,10 @@ const filteredRemotePlugins = computed(() => {
     }
   }
 
-  // 类型筛选
+  // Type filter
   if (selectedType.value) {
     filtered = filtered.filter((plugin) => {
-      const pluginType = plugin.type || 'scan' // 空字符串视为 'scan'
+      const pluginType = plugin.type || 'scan' // empty string is treated as 'scan'
       return pluginType === selectedType.value
     })
   }
@@ -135,32 +135,32 @@ const filteredRemotePlugins = computed(() => {
   return filtered
 })
 
-// 跳转到插件详情页
+// Jump to the plugin detail page
 const handleCardClick = (plugin: RemotePluginData) => {
   if (plugin.hash) {
     window.open(`https://plugin.scope-sentry.top/plugin/${plugin.hash}`, '_blank')
   }
 }
 
-// Token 输入对话框
+// Token input dialog
 const tokenDialogVisible = ref(false)
 const pluginToken = ref('')
 const currentPlugin = ref<RemotePluginData | null>(null)
 
-// 处理安装/更新按钮点击
+// Handle install/update button click
 const handleInstallClick = (plugin: RemotePluginData) => {
-  // 如果是收费插件，先弹出 token 输入框
+  // If it is a paid plugin, show the token input dialog first
   if (plugin.priceStatus !== 0) {
     currentPlugin.value = plugin
     pluginToken.value = ''
     tokenDialogVisible.value = true
   } else {
-    // 免费插件直接安装
+    // Free plugins are installed directly
     props.onInstall(plugin)
   }
 }
 
-// 确认 token 并安装
+// Confirm token and install
 const confirmTokenAndInstall = async () => {
   if (!pluginToken.value.trim()) {
     ElMessageBox.alert(t('plugin.tokenRequired'), t('common.reminder'), {
@@ -171,7 +171,7 @@ const confirmTokenAndInstall = async () => {
 
   if (currentPlugin.value) {
     tokenDialogVisible.value = false
-    // 调用父组件的安装函数，传递 token
+    // Call the parent component's install function, passing the token
     await props.onInstall(currentPlugin.value, pluginToken.value.trim())
     pluginToken.value = ''
     currentPlugin.value = null
@@ -392,7 +392,7 @@ const confirmTokenAndInstall = async () => {
       </div>
     </div>
   </ElDrawer>
-  <!-- Token 输入对话框 -->
+  <!-- Token input dialog -->
   <ElDialog
     v-model="tokenDialogVisible"
     :title="t('plugin.token')"

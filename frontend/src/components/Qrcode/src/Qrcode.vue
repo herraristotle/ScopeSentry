@@ -9,28 +9,28 @@ import { isString } from '@/utils/is'
 import { QrcodeLogo } from '@/components/Qrcode'
 
 const props = defineProps({
-  // img 或者 canvas,img不支持logo嵌套
+  // img or canvas; img does not support logo embedding
   tag: propTypes.string.validate((v: string) => ['canvas', 'img'].includes(v)).def('canvas'),
-  // 二维码内容
+  // QR code content
   text: {
     type: [String, Array] as PropType<string | Recordable[]>,
     default: null
   },
-  // qrcode.js配置项
+  // qrcode.js options
   options: {
     type: Object as PropType<QRCodeRenderersOptions>,
     default: () => ({})
   },
-  // 宽度
+  // Width
   width: propTypes.number.def(200),
   // logo
   logo: {
     type: [String, Object] as PropType<Partial<QrcodeLogo> | string>,
     default: ''
   },
-  // 是否过期
+  // Whether expired
   disabled: propTypes.bool.def(false),
-  // 过期提示内容
+  // Expiration prompt content
   disabledText: propTypes.string.def('')
 })
 
@@ -59,7 +59,7 @@ const initQrcode = async () => {
   await nextTick()
   const options = cloneDeep(props.options || {})
   if (props.tag === 'canvas') {
-    // 容错率，默认对内容少的二维码采用高容错率，内容多的二维码采用低容错率
+    // Error correction level: high by default for QR codes with little content, low for QR codes with much content
     options.errorCorrectionLevel =
       options.errorCorrectionLevel || getErrorCorrectionLevel(unref(renderText))
     const _width: number = await getOriginWidth(unref(renderText), options)
@@ -131,7 +131,7 @@ const createLogoCode = (canvasRef: HTMLCanvasElement) => {
   const ctx = canvasRef.getContext('2d')
   if (!ctx) return
 
-  // logo 底色
+  // Logo background color
   canvasRoundRect(ctx)(logoBgXY, logoBgXY, logoBgWidth, logoBgWidth, borderRadius)
   ctx.fillStyle = bgColor
   ctx.fill()
@@ -143,12 +143,12 @@ const createLogoCode = (canvasRef: HTMLCanvasElement) => {
   }
   ;(image as any).src = logoSrc
 
-  // 使用image绘制可以避免某些跨域情况
+  // Drawing with image avoids some cross-origin cases
   const drawLogoWithImage = (image: HTMLImageElement) => {
     ctx.drawImage(image, logoXY, logoXY, logoWidth, logoWidth)
   }
 
-  // 使用canvas绘制以获得更多的功能
+  // Draw with canvas for more features
   const drawLogoWithCanvas = (image: HTMLImageElement) => {
     const canvasImage = document.createElement('canvas')
     canvasImage.width = logoXY + logoWidth
@@ -166,7 +166,7 @@ const createLogoCode = (canvasRef: HTMLCanvasElement) => {
     }
   }
 
-  // 将 logo绘制到 canvas上
+  // Draw the logo onto the canvas
   return new Promise((resolve: any) => {
     image.onload = () => {
       logoRadius ? drawLogoWithCanvas(image) : drawLogoWithImage(image)
@@ -175,14 +175,14 @@ const createLogoCode = (canvasRef: HTMLCanvasElement) => {
   })
 }
 
-// 得到原QrCode的大小，以便缩放得到正确的QrCode大小
+// Get the original QrCode size so it can be scaled to the correct size
 const getOriginWidth = async (content: string, options: QRCodeRenderersOptions) => {
   const _canvas = document.createElement('canvas')
   await toCanvas(_canvas, content, options)
   return _canvas.width
 }
 
-// 对于内容少的QrCode，增大容错率
+// For QrCodes with little content, increase the error correction level
 const getErrorCorrectionLevel = (content: string) => {
   if (content.length > 36) {
     return 'M'
@@ -193,7 +193,7 @@ const getErrorCorrectionLevel = (content: string) => {
   }
 }
 
-// copy来的方法，用于绘制圆角
+// Copied method, used to draw rounded corners
 const canvasRoundRect = (ctx: CanvasRenderingContext2D) => {
   return (x: number, y: number, w: number, h: number, r: number) => {
     const minSize = Math.min(w, h)

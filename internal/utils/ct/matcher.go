@@ -4,7 +4,7 @@
 // @contact   : rainy-autumn@outlook.com
 // @time      : 2025/01/24 21:00
 // -------------------------------------------
-// CT日志监听SDK - 高性能域名匹配器
+// CT log monitoring SDK - high-performance domain matcher
 // ============================================
 
 package ct
@@ -21,7 +21,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-// DomainMatcher 高性能域名匹配器
+// DomainMatcher is the high-performance domain matcher
 type DomainMatcher struct {
 	config      *types.DomainMatcherConfig
 	trieRoot    *models.DomainTrieNode
@@ -30,7 +30,7 @@ type DomainMatcher struct {
 	domains     map[string]*models.Domain
 	mu          sync.RWMutex
 
-	// 统计信息
+	// Statistics
 	stats struct {
 		totalMatches int64
 		cacheHits    int64
@@ -42,7 +42,7 @@ type DomainMatcher struct {
 	}
 }
 
-// NewDomainMatcher 创建新的域名匹配器
+// NewDomainMatcher creates a new domain matcher
 func NewDomainMatcher(config *types.DomainMatcherConfig) *DomainMatcher {
 	dm := &DomainMatcher{
 		config:   config,
@@ -50,12 +50,12 @@ func NewDomainMatcher(config *types.DomainMatcherConfig) *DomainMatcher {
 		domains:  make(map[string]*models.Domain),
 	}
 
-	// 初始化布隆过滤器
+	// Initialize the bloom filter
 	if config.EnableBloomFilter {
 		dm.bloomFilter = NewBloomFilter(config.BloomFilterSize, config.BloomFilterHash)
 	}
 
-	// 初始化LRU缓存
+	// Initialize the LRU cache
 	if config.EnableLRUCache {
 		dm.lruCache = NewLRUCache(config.LRUCacheSize)
 	}
@@ -63,31 +63,31 @@ func NewDomainMatcher(config *types.DomainMatcherConfig) *DomainMatcher {
 	return dm
 }
 
-// AddDomain 添加域名到匹配器
+// AddDomain adds a domain to the matcher
 func (dm *DomainMatcher) AddDomain(domain string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
 	domain = dm.normalizeDomain(domain)
 	if domain == "" {
-		return fmt.Errorf("无效域名: %s", domain)
+		return fmt.Errorf("invalid domain: %s", domain)
 	}
 
-	// 检查是否已存在
+	// Check whether it already exists
 	if _, exists := dm.domains[domain]; exists {
 		return nil
 	}
 
-	// 创建域名对象
+	// Create the domain object
 	domainObj := models.NewDomain(domain)
 
-	// 添加到域名映射
+	// Add to the domain map
 	dm.domains[domain] = domainObj
 
-	// 添加到Trie树
+	// Add to the trie
 	dm.addToTrie(domain, domainObj)
 
-	// 添加到布隆过滤器
+	// Add to the bloom filter
 	if dm.bloomFilter != nil {
 		dm.bloomFilter.Add(domain)
 	}
@@ -95,7 +95,7 @@ func (dm *DomainMatcher) AddDomain(domain string) error {
 	return nil
 }
 
-// RemoveDomain 从匹配器中移除域名
+// RemoveDomain removes a domain from the matcher
 func (dm *DomainMatcher) RemoveDomain(domain string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -105,18 +105,18 @@ func (dm *DomainMatcher) RemoveDomain(domain string) error {
 		return nil
 	}
 
-	// 从域名映射中移除
+	// Remove from the domain map
 	delete(dm.domains, domain)
 
-	// 从Trie树中移除
+	// Remove from the trie
 	dm.removeFromTrie(domain)
 
-	// 重新初始化布隆过滤器（简化实现）
+	// Rebuild the bloom filter (simplified implementation)
 	if dm.bloomFilter != nil {
 		dm.rebuildBloomFilter()
 	}
 
-	// 清理LRU缓存
+	// Clear the LRU cache
 	if dm.lruCache != nil {
 		dm.lruCache.Clear()
 	}
@@ -124,7 +124,7 @@ func (dm *DomainMatcher) RemoveDomain(domain string) error {
 	return nil
 }
 
-// HasDomain 检查是否包含指定域名
+// HasDomain checks whether the given domain is contained
 func (dm *DomainMatcher) HasDomain(domain string) bool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -134,7 +134,7 @@ func (dm *DomainMatcher) HasDomain(domain string) bool {
 	return exists
 }
 
-// GetAllDomains 获取所有域名
+// GetAllDomains fetches all domains
 func (dm *DomainMatcher) GetAllDomains() []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -146,7 +146,7 @@ func (dm *DomainMatcher) GetAllDomains() []string {
 	return domains
 }
 
-// MatchSubdomains 匹配子域名（核心方法）
+// MatchSubdomains matches subdomains (core method)
 func (dm *DomainMatcher) MatchSubdomains(domains []string) []*models.DomainMatch {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -159,13 +159,13 @@ func (dm *DomainMatcher) MatchSubdomains(domains []string) []*models.DomainMatch
 			continue
 		}
 
-		// 提取根域名（输入的域名可能是子域名，我们匹配根域名）
+		// Extract the root domain (the input may be a subdomain; we match the root domain)
 		rootDomain := extractRootDomain(domain)
 		if rootDomain == "" {
 			continue
 		}
 
-		// 第一层过滤：布隆过滤器快速检查
+		// First filter layer: fast bloom filter check
 		if dm.bloomFilter != nil {
 			if !dm.bloomFilter.Contains(rootDomain) {
 				dm.stats.bloomMisses++
@@ -174,7 +174,7 @@ func (dm *DomainMatcher) MatchSubdomains(domains []string) []*models.DomainMatch
 			dm.stats.bloomHits++
 		}
 
-		// 第二层过滤：LRU缓存检查
+		// Second filter layer: LRU cache check
 		if dm.lruCache != nil {
 			if _, found := dm.lruCache.Get(domain); found {
 				dm.stats.cacheHits++
@@ -183,16 +183,16 @@ func (dm *DomainMatcher) MatchSubdomains(domains []string) []*models.DomainMatch
 			dm.stats.cacheMisses++
 		}
 
-		// 第三层过滤：Trie树精确匹配
+		// Third filter layer: exact trie match
 		if match := dm.matchInTrie(rootDomain); match != nil {
-			// 更新匹配结果中的子域名信息
+			// Update the subdomain info in the match result
 			match.Subdomain = domain
 			dm.stats.trieHits++
 			dm.stats.totalMatches++
 
 			matches = append(matches, match)
 
-			// 添加到缓存
+			// Add to the cache
 			if dm.lruCache != nil {
 				dm.lruCache.Put(domain, match)
 			}
@@ -204,7 +204,7 @@ func (dm *DomainMatcher) MatchSubdomains(domains []string) []*models.DomainMatch
 	return matches
 }
 
-// IsSubdomainOf 判断是否为指定域名的子域名
+// IsSubdomainOf determines whether a domain is a subdomain of the given root domain
 func (dm *DomainMatcher) IsSubdomainOf(subdomain, rootDomain string) bool {
 	subdomain = dm.normalizeDomain(subdomain)
 	rootDomain = dm.normalizeDomain(rootDomain)
@@ -213,25 +213,25 @@ func (dm *DomainMatcher) IsSubdomainOf(subdomain, rootDomain string) bool {
 		return false
 	}
 
-	// 完全匹配
+	// Exact match
 	if subdomain == rootDomain {
 		return false
 	}
 
-	// 检查是否以根域名结尾
+	// Check whether it ends with the root domain
 	if !strings.HasSuffix(subdomain, "."+rootDomain) {
 		return false
 	}
 
-	// 验证子域名格式
+	// Validate the subdomain format
 	subParts := strings.Split(subdomain, ".")
 	rootParts := strings.Split(rootDomain, ".")
 
-	// 子域名至少要比根域名多一个标签
+	// A subdomain must have at least one more label than the root domain
 	return len(subParts) > len(rootParts)
 }
 
-// GetStats 获取统计信息
+// GetStats fetches statistics
 func (dm *DomainMatcher) GetStats() *models.DomainMatcherStats {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -243,14 +243,14 @@ func (dm *DomainMatcher) GetStats() *models.DomainMatcherStats {
 		},
 	}
 
-	// 计算通配符域名数
+	// Count wildcard domains
 	for _, domain := range dm.domains {
 		if domain.IsWildcard {
 			stats.WildcardDomains++
 		}
 	}
 
-	// 布隆过滤器统计
+	// Bloom filter statistics
 	if dm.bloomFilter != nil {
 		stats.BloomFilterStats = models.BloomFilterStats{
 			Size:      dm.bloomFilter.size,
@@ -259,10 +259,10 @@ func (dm *DomainMatcher) GetStats() *models.DomainMatcherStats {
 		}
 	}
 
-	// Trie树统计
+	// Trie statistics
 	stats.TrieStats = dm.getTrieStats()
 
-	// 缓存统计
+	// Cache statistics
 	if dm.lruCache != nil {
 		stats.CacheStats = models.CacheStats{
 			Size:      dm.lruCache.capacity,
@@ -278,7 +278,7 @@ func (dm *DomainMatcher) GetStats() *models.DomainMatcherStats {
 	return stats
 }
 
-// Clear 清空所有域名
+// Clear clears all domains
 func (dm *DomainMatcher) Clear() error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -294,7 +294,7 @@ func (dm *DomainMatcher) Clear() error {
 		dm.lruCache.Clear()
 	}
 
-	// 重置统计信息
+	// Reset the statistics
 	dm.stats = struct {
 		totalMatches int64
 		cacheHits    int64
@@ -308,14 +308,14 @@ func (dm *DomainMatcher) Clear() error {
 	return nil
 }
 
-// 私有方法
+// Private methods
 
-// normalizeDomain 标准化域名
+// normalizeDomain normalizes a domain
 func (dm *DomainMatcher) normalizeDomain(domain string) string {
 	return models.NormalizeDomain(domain, dm.config.CaseSensitive)
 }
 
-// addToTrie 添加到Trie树
+// addToTrie adds a domain to the trie
 func (dm *DomainMatcher) addToTrie(domain string, domainObj *models.Domain) {
 	node := dm.trieRoot
 	runes := []rune(domain)
@@ -333,13 +333,13 @@ func (dm *DomainMatcher) addToTrie(domain string, domainObj *models.Domain) {
 	node.DomainObj = domainObj
 }
 
-// removeFromTrie 从Trie树中移除
+// removeFromTrie removes a domain from the trie
 func (dm *DomainMatcher) removeFromTrie(domain string) {
-	// 简化实现：重建整个Trie树
+	// Simplified implementation: rebuild the whole trie
 	dm.rebuildTrie()
 }
 
-// rebuildTrie 重建Trie树
+// rebuildTrie rebuilds the trie
 func (dm *DomainMatcher) rebuildTrie() {
 	dm.trieRoot = models.NewDomainTrieNode()
 	for domain, domainObj := range dm.domains {
@@ -347,7 +347,7 @@ func (dm *DomainMatcher) rebuildTrie() {
 	}
 }
 
-// rebuildBloomFilter 重建布隆过滤器
+// rebuildBloomFilter rebuilds the bloom filter
 func (dm *DomainMatcher) rebuildBloomFilter() {
 	if dm.bloomFilter == nil {
 		return
@@ -359,13 +359,13 @@ func (dm *DomainMatcher) rebuildBloomFilter() {
 	}
 }
 
-// matchInTrie 在Trie树中匹配根域名
+// matchInTrie matches the root domain in the trie
 func (dm *DomainMatcher) matchInTrie(rootDomain string) *models.DomainMatch {
-	// 在Trie树中查找根域名
+	// Look up the root domain in the trie
 	if node := dm.searchTrie(rootDomain); node != nil && node.IsEnd {
 		node.HitCount++
 		return &models.DomainMatch{
-			Subdomain:  "", // 将在调用处设置
+			Subdomain:  "", // Set at the call site
 			RootDomain: rootDomain,
 			MatchedAt:  time.Now(),
 			MatchType:  "root_domain",
@@ -377,7 +377,7 @@ func (dm *DomainMatcher) matchInTrie(rootDomain string) *models.DomainMatch {
 	return nil
 }
 
-// searchTrie 在Trie树中搜索
+// searchTrie searches the trie
 func (dm *DomainMatcher) searchTrie(domain string) *models.DomainTrieNode {
 	node := dm.trieRoot
 	runes := []rune(domain)
@@ -392,14 +392,14 @@ func (dm *DomainMatcher) searchTrie(domain string) *models.DomainTrieNode {
 	return node
 }
 
-// getTrieStats 获取Trie树统计信息
+// getTrieStats fetches trie statistics
 func (dm *DomainMatcher) getTrieStats() models.TrieStats {
 	stats := models.TrieStats{}
 	dm.traverseTrie(dm.trieRoot, 0, &stats)
 	return stats
 }
 
-// traverseTrie 遍历Trie树统计信息
+// traverseTrie traverses the trie for statistics
 func (dm *DomainMatcher) traverseTrie(node *models.DomainTrieNode, depth int, stats *models.TrieStats) {
 	stats.NodeCount++
 
@@ -417,7 +417,7 @@ func (dm *DomainMatcher) traverseTrie(node *models.DomainTrieNode, depth int, st
 	}
 }
 
-// BloomFilter 简易布隆过滤器实现
+// BloomFilter is a simple bloom filter implementation
 type BloomFilter struct {
 	bitset    []bool
 	hashes    []uint
@@ -458,36 +458,36 @@ func (bf *BloomFilter) Clear() {
 	bf.itemCount = 0
 }
 
-// hash 使用双重hash技术生成多个独立的hash值
+// hash uses double hashing to generate multiple independent hash values
 func (bf *BloomFilter) hash(item string, seed uint) uint {
-	// 使用FNV-1a作为基础hash
+	// Use FNV-1a as the base hash
 	h1 := fnv.New32a()
 	h1.Write([]byte(item))
 	hash1 := uint64(h1.Sum32())
 
-	// 使用第二个不同的hash函数
+	// Use a second different hash function
 	h2 := fnv.New32()
 	h2.Write([]byte(item))
 	hash2 := uint64(h2.Sum32())
 
-	// 使用双重hash技术: hash_i = hash1 + i * hash2
-	// 这样可以生成多个独立的hash值
+	// Double hashing: hash_i = hash1 + i * hash2
+	// This generates multiple independent hash values
 	hash := hash1 + uint64(seed)*hash2
 	return uint(hash % uint64(bf.size))
 }
 
-// extractRootDomain 提取域名的根域名（注册域名）
-// 例如: www.example.com -> example.com, sub.example.co.uk -> example.co.uk
+// extractRootDomain extracts the root (registered) domain of a domain
+// For example: www.example.com -> example.com, sub.example.co.uk -> example.co.uk
 func extractRootDomain(domain string) string {
 	domain = strings.ToLower(strings.TrimSpace(domain))
 	if domain == "" {
 		return ""
 	}
 
-	// 使用publicsuffix库获取有效的后缀
+	// Use the publicsuffix library to obtain the valid suffix
 	suffix, icann := publicsuffix.PublicSuffix(domain)
 	if suffix == "" || !icann {
-		// 如果无法确定后缀，返回最后两级作为备选
+		// If the suffix cannot be determined, fall back to the last two labels
 		parts := strings.Split(domain, ".")
 		if len(parts) >= 2 {
 			return strings.Join(parts[len(parts)-2:], ".")
@@ -495,10 +495,10 @@ func extractRootDomain(domain string) string {
 		return domain
 	}
 
-	// 获取根域名（注册域名）
+	// Fetch the root (registered) domain
 	root, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if err != nil {
-		// 如果出错，返回最后两级作为备选
+		// If it fails, fall back to the last two labels
 		parts := strings.Split(domain, ".")
 		if len(parts) >= 2 {
 			return strings.Join(parts[len(parts)-2:], ".")
@@ -509,7 +509,7 @@ func extractRootDomain(domain string) string {
 	return root
 }
 
-// LRUCache 简易LRU缓存实现
+// LRUCache is a simple LRU cache implementation
 type LRUCache struct {
 	capacity int
 	items    map[string]interface{}
@@ -526,7 +526,7 @@ func NewLRUCache(capacity int) *LRUCache {
 
 func (c *LRUCache) Get(key string) (interface{}, bool) {
 	if value, exists := c.items[key]; exists {
-		// 移动到末尾（最近使用）
+		// Move to the end (most recently used)
 		c.moveToEnd(key)
 		return value, true
 	}
@@ -540,9 +540,9 @@ func (c *LRUCache) Put(key string, value interface{}) {
 		return
 	}
 
-	// 检查容量
+	// Check capacity
 	if len(c.items) >= c.capacity {
-		// 移除最少使用的
+		// Evict the least recently used item
 		oldest := c.keys[0]
 		delete(c.items, oldest)
 		c.keys = c.keys[1:]

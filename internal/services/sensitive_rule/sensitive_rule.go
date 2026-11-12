@@ -68,7 +68,7 @@ func (s *service) RuleUpdate(ctx *gin.Context, id string, name, regular, color s
 	if err := s.repo.RuleUpdate(ctx, oid, update); err != nil {
 		return err
 	}
-	// 广播刷新
+	// Broadcast refresh
 	_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "sensitive"})
 	return nil
 }

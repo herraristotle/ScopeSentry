@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Service 定义子域名服务接口
+// Service defines the subdomain service interface
 type Service interface {
 	GetSubdomains(ctx context.Context, query models.SearchRequest) ([]models.Subdomain, error)
 	GetTaskTarget(ctx context.Context, query models.SearchRequest) (string, error)
@@ -24,7 +24,7 @@ type service struct {
 	repo subdomain.Repository
 }
 
-// NewService 创建子域名服务实例
+// NewService creates a subdomain service instance
 func NewService() Service {
 	return &service{
 		repo: subdomain.NewRepository(),
@@ -36,7 +36,7 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", nil
 	}
 
-	// 将字符串ID转换为ObjectID
+	// Convert the string ID to ObjectID
 	var objectIDs []primitive.ObjectID
 	for _, id := range ids {
 		objectID, err := primitive.ObjectIDFromHex(id)
@@ -46,13 +46,13 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		objectIDs = append(objectIDs, objectID)
 	}
 
-	// 构建查询条件
+	// Build query conditions
 	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
 	projection := bson.M{
 		"host": 1,
 	}
 
-	// 执行查询
+	// Execute the query
 	opts := options.Find().
 		SetProjection(projection)
 
@@ -61,7 +61,7 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", err
 	}
 
-	// 将 Host 拼接成字符串
+	// Join hosts into a string
 	var builder strings.Builder
 	for i, subDomain := range subDomains {
 		builder.WriteString(subDomain.Host)
@@ -72,9 +72,9 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 	return builder.String(), nil
 }
 
-// GetSubdomains 获取子域名列表
+// GetSubdomains gets the subdomain list
 func (s *service) GetSubdomains(ctx context.Context, query models.SearchRequest) ([]models.Subdomain, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "subdomain"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -91,7 +91,7 @@ func (s *service) GetSubdomains(ctx context.Context, query models.SearchRequest)
 		"time":  1,
 		"tags":  1,
 	}
-	// 分页查询
+	// Paginated query
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
@@ -112,7 +112,7 @@ func (s *service) GetTaskTarget(ctx context.Context, query models.SearchRequest)
 		"host": 1,
 	}
 
-	// 执行查询
+	// Execute the query
 	opts := options.Find().
 		SetProjection(projection)
 

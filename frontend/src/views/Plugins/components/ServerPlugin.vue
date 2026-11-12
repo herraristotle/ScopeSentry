@@ -37,10 +37,8 @@ import {
   deletePluginDataApi,
   getPluginDataApi,
   getPluginLogApi,
-  reCheckPluginApi,
   reInstallPluginApi,
   runPluginOnceApi,
-  uninstallPluginApi,
   updatePluginStatusApi
 } from '@/api/plugins'
 import detail from './detail.vue'
@@ -53,7 +51,7 @@ const handleSearch = () => {
   getList()
 }
 
-// 从父组件注入插件市场相关方法
+// Inject plugin market related methods from the parent component
 const openMarketDialog = inject<() => void>('openMarketDialog', () => {})
 const pendingPluginsCount = inject<Ref<number>>('pendingPluginsCount', ref(0))
 const pendingPluginsCountValue = computed(() => pendingPluginsCount.value)
@@ -94,7 +92,7 @@ const taskColums = reactive<TableColumn[]>([
         const status = checked
         try {
           await updatePluginStatusApi(row.hash, status)
-          // 更新本地数据
+          // Update local data
           row.status = status
           getList()
         } catch (error) {
@@ -181,11 +179,11 @@ const taskColums = reactive<TableColumn[]>([
                 style: { outline: 'none', boxShadow: 'none' }
               },
               () => [
-                t('common.operation'), // 下拉菜单触发按钮文字
+                t('common.operation'), // dropdown trigger button text
                 h(
                   ElIcon,
                   {},
-                  () => h(ArrowDown) // 向下箭头图标
+                  () => h(ArrowDown) // down arrow icon
                 )
               ]
             ),
@@ -231,27 +229,10 @@ const taskColums = reactive<TableColumn[]>([
   }
 ])
 
-const moduleColorMap = {
-  TargetHandler: '#2243dda6', // 浅红色
-  SubdomainScan: '#FF9B85', // 更深的浅橙色
-  SubdomainSecurity: '#FFFFBA', // 浅黄色
-  PortScanPreparation: '#BAFFB3', // 浅绿色
-  PortScan: '#BAE1FF', // 浅蓝色
-  AssetMapping: '#e3ffba', // 浅粉红色
-  URLScan: '#D1BAFF', // 浅紫色
-  WebCrawler: '#FFABAB', // 浅红
-  DirScan: '#3ccde6', // 选择浅桃色
-  VulnerabilityScan: '#FF677D', // 浅粉色
-  AssetHandle: '#B2E1FF', // 浅青色
-  PortFingerprint: '#ffb5e4', // 更亮的浅橙色
-  URLSecurity: '#FFE4BA', // 浅米色
-  PassiveScan: '#A2DFF7'
-}
-
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
     const { currentPage, pageSize } = tableState
-    // 传递 type="server" 参数
+    // Pass the type="server" parameter
     const res = await getPluginDataApi(search.value, currentPage.value, pageSize.value, 'server')
     return {
       list: res.data.list,
@@ -312,12 +293,12 @@ const confirmRunPluginOnce = async (hash: string) => {
         await runPluginOnceApi(hash)
         ElMessage.success(t('plugin.runOnceSuccess'))
       } catch (error) {
-        console.error('运行插件失败:', error)
+        console.error('Failed to run plugin:', error)
         ElMessage.error(t('plugin.runOnceFailed'))
       }
     })
     .catch(() => {
-      // 用户取消操作
+      // User cancelled the operation
     })
 }
 
@@ -403,7 +384,7 @@ onMounted(() => {
   setMaxHeight()
   window.addEventListener('resize', setMaxHeight)
   LoadPluginKey()
-  // 当组件挂载时（切换到服务端插件 tab 时）加载数据
+  // Load data when the component mounts (when switching to the server plugin tab)
   getList()
 })
 
@@ -430,7 +411,7 @@ const openLogDialogVisible = async (data) => {
   logHash.value = data.hash
   await refreshLog()
   logDialogVisible.value = true
-  // 等待DOM更新后滚动到底部
+  // Wait for the DOM to update, then scroll to the bottom
   setTimeout(() => {
     scrollToBottom()
   }, 100)
@@ -474,7 +455,7 @@ const copyLog = async () => {
   }
 }
 
-// 过滤后的日志内容（用于搜索高亮）
+// Filtered log content (used for search highlighting)
 const filteredLogContent = computed(() => {
   if (!logSearchText.value || !logContent.value) {
     return logContent.value
@@ -485,7 +466,7 @@ const filteredLogContent = computed(() => {
 })
 
 /**
- * HTML转义函数 - 防止XSS攻击
+ * HTML escape function - prevents XSS attacks
  */
 const escapeHtml = (text: string): string => {
   const div = document.createElement('div')
@@ -494,25 +475,25 @@ const escapeHtml = (text: string): string => {
 }
 
 /**
- * 验证颜色值是否安全
- * 只允许十六进制颜色 (#rrggbb) 或 rgb/rgba 格式
+ * Check whether a color value is safe
+ * Only hex colors (#rrggbb) or rgb/rgba formats are allowed
  */
 const isValidColor = (color: string): boolean => {
   if (!color) return false
   color = color.trim()
 
-  // 检查是否包含危险字符
+  // Check whether it contains dangerous characters
   if (/[<>'"`]/.test(color) || /javascript:/i.test(color) || /on\w+=/i.test(color)) {
     return false
   }
 
-  // 验证十六进制颜色格式 #rrggbb 或 #rgb
+  // Validate hex color format #rrggbb or #rgb
   const hexPattern = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
   if (hexPattern.test(color)) {
     return true
   }
 
-  // 验证 rgb/rgba 格式
+  // Validate rgb/rgba format
   const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/
   if (rgbPattern.test(color)) {
     return true
@@ -522,57 +503,57 @@ const isValidColor = (color: string): boolean => {
 }
 
 /**
- * 解析日志中的 <color> 标签
- * 格式: <color value="#ff6b6b">文字</color> 或 <color value="#51cf66" bold>文字</color>
+ * Parse <color> tags in the log
+ * Format: <color value="#ff6b6b">text</color> or <color value="#51cf66" bold>text</color>
  *
- * @param text 原始日志文本
- * @returns 解析后的HTML字符串（已转义，安全）
+ * @param text original log text
+ * @returns the parsed HTML string (already escaped, safe)
  */
 const parseColorTags = (text: string): string => {
   if (!text) return ''
 
-  // 匹配 <color value="颜色值" bold>内容</color> 标签
-  // 支持格式:
-  //   <color value="#ff6b6b">文字</color>
-  //   <color value="#51cf66" bold>文字</color>
+  // Match <color value="color value" bold>content</color> tags
+  // Supported formats:
+  //   <color value="#ff6b6b">text</color>
+  //   <color value="#51cf66" bold>text</color>
   const colorTagRegex =
     /<color\s+value=["']([^"']+)["'](?:\s+bold)?\s*>((?:[^<]|<(?!\/color>))*?)<\/color>/gi
 
   return text.replace(colorTagRegex, (match, colorValue, content) => {
-    // 验证颜色值
+    // Validate the color value
     if (!isValidColor(colorValue)) {
-      // 如果颜色值不安全，返回转义后的原始文本
+      // If the color value is unsafe, return the escaped original text
       return escapeHtml(match)
     }
 
-    // 检查是否有 bold 属性
+    // Check whether there is a bold attribute
     const isBold = /\s+bold\s*>/i.test(match)
 
-    // 转义内容，防止XSS
+    // Escape the content to prevent XSS
     const safeContent = escapeHtml(content)
 
-    // 构建样式
+    // Build the style
     const styles = [`color: ${colorValue}`]
     if (isBold) {
       styles.push('font-weight: bold')
     }
 
-    // 返回安全的HTML标签
+    // Return the safe HTML tag
     return `<span style="${styles.join('; ')}">${safeContent}</span>`
   })
 }
 
 /**
- * 渲染日志内容（解析颜色标签 + 搜索高亮）
+ * Render log content (parse color tags + search highlighting)
  */
 const renderLogContent = (text: string): string => {
   if (!text) return ''
 
-  // 1. 先解析颜色标签
+  // 1. Parse the color tags first
   let result = parseColorTags(text)
 
-  // 2. 转义其他所有HTML标签（除了我们已经生成的span标签）
-  // 先标记我们生成的span标签
+  // 2. Escape all other HTML tags (except the span tags we generated)
+  // First mark the span tags we generated
   const tempMarker = '___COLOR_SPAN___'
   const spanMatches: string[] = []
   result = result.replace(/<span style="[^"]+">[^<]*<\/span>/g, (match) => {
@@ -580,22 +561,22 @@ const renderLogContent = (text: string): string => {
     return tempMarker + (spanMatches.length - 1) + tempMarker
   })
 
-  // 转义所有剩余的HTML
+  // Escape all remaining HTML
   result = escapeHtml(result)
 
-  // 恢复我们的span标签
+  // Restore our span tags
   spanMatches.forEach((match, index) => {
     result = result.replace(tempMarker + index + tempMarker, match)
   })
 
-  // 3. 如果有搜索文本，再应用搜索高亮
+  // 3. If there is search text, apply search highlighting
   if (logSearchText.value) {
     const searchText = logSearchText.value
     const escapedSearchText = escapeHtml(searchText)
     const regex = new RegExp(`(${escapedSearchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
 
     result = result.replace(regex, (match) => {
-      // 如果匹配的内容已经在span标签内，在span内部添加mark
+      // If the matched content is already inside a span tag, add the mark inside the span
       if (match.includes('<span')) {
         return match.replace(/(<span[^>]*>)(.*?)(<\/span>)/g, (_, openTag, content, closeTag) => {
           const contentRegex = new RegExp(
@@ -845,7 +826,7 @@ const handleFileChange = (_file, fileList) => {
 </template>
 
 <style scoped lang="less">
-// 确保搜索高亮的mark标签在深色背景下可见
+// Ensure the search highlight mark tags are visible on dark backgrounds
 :deep(mark) {
   background-color: #ffd700;
   color: #000;

@@ -15,7 +15,7 @@ import (
 
 var radConfigService *configuration.Service
 
-// GetRadData @Summary 获取 Rad 配置
+// GetRadData @Summary Get Rad config
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -30,12 +30,12 @@ func GetRadData(c *gin.Context) {
 	response.Success(c, gin.H{"content": content}, "api.success")
 }
 
-// SaveRadData @Summary 保存 Rad 配置
+// SaveRadData @Summary Save Rad config
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body saveContentRequest true "配置内容"
+// @Param       body body saveContentRequest true "Config content"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/rad/save [post]
 func SaveRadData(c *gin.Context) {

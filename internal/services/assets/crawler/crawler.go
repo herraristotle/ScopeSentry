@@ -25,7 +25,7 @@ func NewService() Service {
 }
 
 func (s *service) GetCrawlers(ctx context.Context, query models.SearchRequest) ([]models.CrawlerResult, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "crawler"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -41,7 +41,7 @@ func (s *service) GetCrawlers(ctx context.Context, query models.SearchRequest) (
 		"tags":   1,
 		"time":   1,
 	}
-	// 分页查询
+	// Paginated query
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).

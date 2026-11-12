@@ -41,7 +41,7 @@ export const getManagetListApi = (): Promise<IResponse<fileDataResponse>> => {
 }
 
 export const createDictApi = (formData: FormData): Promise<IResponse<commonRespData>> => {
-  // 发送 POST 请求
+  // Send POST request
   return request.post({
     url: '/api/dictionary/manage/create',
     method: 'post',

@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-// convertFofaToCustomQuery 将 fofa-query 转换成项目自定义的搜索语句
+// convertFofaToCustomQuery converts a fofa-query into the project's custom search expression
 func ConvertFofaToCustomQuery(fofaQueryValue interface{}) string {
 	var queries []string
 
-	// 处理数组类型
+	// Process array types
 	if arr, ok := fofaQueryValue.([]interface{}); ok {
 		for _, item := range arr {
 			if str, ok := item.(string); ok {
@@ -27,14 +27,14 @@ func ConvertFofaToCustomQuery(fofaQueryValue interface{}) string {
 				}
 			}
 		}
-		// 多个条件用 && 连接
+		// Join multiple conditions with &&
 		if len(queries) > 0 {
 			return strings.Join(queries, " && ")
 		}
 		return ""
 	}
 
-	// 处理字符串类型
+	// Process string types
 	if str, ok := fofaQueryValue.(string); ok {
 		return parseFofaQuery(str)
 	}
@@ -42,34 +42,34 @@ func ConvertFofaToCustomQuery(fofaQueryValue interface{}) string {
 	return ""
 }
 
-// parseFofaQuery 解析 fofa 查询语句，支持括号和逻辑连接符
+// parseFofaQuery parses a fofa query, supporting brackets and logical operators
 func parseFofaQuery(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 先处理括号，递归解析
+	// Process brackets first, parsing recursively
 	return parseFofaQueryWithBrackets(query)
 }
 
-// parseFofaQueryWithBrackets 解析带括号的 fofa 查询
+// parseFofaQueryWithBrackets parses a bracketed fofa query
 func parseFofaQueryWithBrackets(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 查找并替换所有括号内的内容
+	// Find and replace all bracketed content
 	for {
-		// 查找最外层的左括号
+		// Find the outermost opening bracket
 		start := strings.Index(query, "(")
 		if start == -1 {
-			// 没有括号了，解析逻辑表达式
+			// No more brackets, parse the logical expression
 			break
 		}
 
-		// 找到匹配的右括号
+		// Find the matching closing bracket
 		depth := 0
 		end := -1
 		for i := start; i < len(query); i++ {
@@ -85,30 +85,30 @@ func parseFofaQueryWithBrackets(query string) string {
 		}
 
 		if end == -1 {
-			// 括号不匹配，跳出循环，当作普通查询处理
+			// Unmatched bracket, break out of the loop and treat it as a normal query
 			break
 		}
 
-		// 递归解析括号内的内容
+		// Recursively parse the bracketed content
 		innerQuery := query[start+1 : end]
 		parsedInner := parseFofaQueryWithBrackets(innerQuery)
 
-		// 替换括号内容为解析后的结果
+		// Replace the bracketed content with the parsed result
 		query = query[:start] + "(" + parsedInner + ")" + query[end+1:]
 	}
 
-	// 所有括号都处理完了，解析逻辑表达式
+	// All brackets processed, parse the logical expression
 	return parseFofaLogicExpression(query)
 }
 
-// parseFofaLogicExpression 解析逻辑表达式（处理 && 和 ||）
+// parseFofaLogicExpression parses a logical expression (handling && and ||)
 func parseFofaLogicExpression(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 按 || 分割（优先级最低）
+	// Split by || (lowest precedence)
 	if strings.Contains(query, " || ") {
 		parts := splitByOperator(query, " || ")
 		var results []string
@@ -124,7 +124,7 @@ func parseFofaLogicExpression(query string) string {
 		return ""
 	}
 
-	// 按 && 分割
+	// Split by &&
 	if strings.Contains(query, " && ") {
 		parts := splitByOperator(query, " && ")
 		var results []string
@@ -140,11 +140,11 @@ func parseFofaLogicExpression(query string) string {
 		return ""
 	}
 
-	// 没有逻辑连接符，解析单个条件
+	// No logical operator, parse a single condition
 	return parseFofaCondition(query)
 }
 
-// splitByOperator 按操作符分割，但要注意括号内的内容
+// splitByOperator splits by the operator, taking care of bracketed content
 func splitByOperator(query, operator string) []string {
 	var parts []string
 	var current strings.Builder
@@ -160,7 +160,7 @@ func splitByOperator(query, operator string) []string {
 		} else if depth == 0 && i+len(operator) <= len(query) && query[i:i+len(operator)] == operator {
 			parts = append(parts, current.String())
 			current.Reset()
-			i += len(operator) - 1 // 跳过操作符
+			i += len(operator) - 1 // Skip the operator
 		} else {
 			current.WriteByte(query[i])
 		}
@@ -173,18 +173,18 @@ func splitByOperator(query, operator string) []string {
 	return parts
 }
 
-// parseFofaCondition 解析单个 fofa 条件
+// parseFofaCondition parses a single fofa condition
 func parseFofaCondition(condition string) string {
 	condition = strings.TrimSpace(condition)
 	if condition == "" {
 		return ""
 	}
 
-	// 移除括号（如果整个条件被括号包围）
+	// Remove brackets (if the whole condition is wrapped in brackets)
 	condition = strings.Trim(condition, "()")
 	condition = strings.TrimSpace(condition)
 
-	// 定义 fofa 字段映射（fofa字段 -> 自定义字段）
+	// Define the fofa field mappings (fofa field -> custom field)
 	fieldMap := map[string]string{
 		"app":           "app",
 		"title":         "title",
@@ -199,44 +199,44 @@ func parseFofaCondition(condition string) string {
 		"js_name":       "body",
 	}
 
-	// 匹配 fofa 查询格式，支持 =, ==, !=, *=
-	// 按优先级排序：==, *=, =, !=
+	// Match the fofa query format, supporting =, ==, !=, *=
+	// Sort by precedence: ==, *=, =, !=
 	patterns := []struct {
 		regex   *regexp.Regexp
 		opIndex int // 0: ==, 1: *=, 2: =, 3: !=
 	}{
-		// 匹配 field=="value" 或 field=='value' (完全匹配，带引号)
+		// Match field=="value" or field=='value' (exact match, quoted)
 		{regexp.MustCompile(`^(\w+)\s*==\s*["']([^"']*)["']$`), 0},
-		// 匹配 field*="value" 或 field*='value' (模糊匹配，带引号)
+		// Match field*="value" or field*='value' (fuzzy match, quoted)
 		{regexp.MustCompile(`^(\w+)\s*\*=\s*["']([^"']*)["']$`), 1},
-		// 匹配 field="value" 或 field='value' (匹配，带引号)
+		// Match field="value" or field='value' (match, quoted)
 		{regexp.MustCompile(`^(\w+)\s*=\s*["']([^"']*)["']$`), 2},
-		// 匹配 field!="value" 或 field!='value' (不匹配，带引号)
+		// Match field!="value" or field!='value' (no match, quoted)
 		{regexp.MustCompile(`^(\w+)\s*!=\s*["']([^"']*)["']$`), 3},
-		// 匹配 field==value (完全匹配，无引号)
+		// Match field==value (exact match, unquoted)
 		{regexp.MustCompile(`^(\w+)\s*==\s*(.+)$`), 0},
-		// 匹配 field*=value (模糊匹配，无引号)
+		// Match field*=value (fuzzy match, unquoted)
 		{regexp.MustCompile(`^(\w+)\s*\*=\s*(.+)$`), 1},
-		// 匹配 field=value (匹配，无引号)
+		// Match field=value (match, unquoted)
 		{regexp.MustCompile(`^(\w+)\s*=\s*(.+)$`), 2},
-		// 匹配 field!=value (不匹配，无引号)
+		// Match field!=value (no match, unquoted)
 		{regexp.MustCompile(`^(\w+)\s*!=\s*(.+)$`), 3},
 	}
 
-	operators := []string{"==", "=", "=", "!="} // *= 转为 =
+	operators := []string{"==", "=", "=", "!="} // *= becomes =
 
 	for _, pattern := range patterns {
 		matches := pattern.regex.FindStringSubmatch(condition)
 		if len(matches) == 3 {
 			field := strings.ToLower(matches[1])
 			value := strings.TrimSpace(matches[2])
-			// 移除值两端的引号（如果存在）
+			// Remove quotes at both ends of the value (if present)
 			value = strings.Trim(value, `"'`)
 
-			// 检查字段是否在映射中
+			// Check whether the field is in the mapping
 			customField, exists := fieldMap[field]
 			if !exists {
-				// 如果字段不在映射中，默认使用 body
+				// If the field is not in the mapping, default to body
 				customField = "body"
 			}
 
@@ -245,7 +245,7 @@ func parseFofaCondition(condition string) string {
 		}
 	}
 
-	// 如果没有匹配到任何模式，检查是否包含已知字段名
+	// If no pattern matched, check whether a known field name is present
 	hasKnownField := false
 	lowerCondition := strings.ToLower(condition)
 	for field := range fieldMap {
@@ -258,11 +258,11 @@ func parseFofaCondition(condition string) string {
 		}
 	}
 
-	// 如果不包含已知字段，默认作为 body 查询
+	// If no known field is present, default to a body query
 	if !hasKnownField && condition != "" {
-		// 移除可能的引号
+		// Remove possible quotes
 		value := strings.Trim(condition, `"'`)
-		// 如果值以 = 开头，移除它
+		// If the value starts with =, remove it
 		value = strings.TrimPrefix(value, "=")
 		value = strings.TrimPrefix(value, "==")
 		value = strings.TrimPrefix(value, "!=")

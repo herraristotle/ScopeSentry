@@ -1,25 +1,25 @@
-# 环境
+# Environment
 NODE_ENV=production
 
-# 接口前缀
+# API prefix
 VITE_API_BASE_PATH=
 
-# 打包路径
+# Build path
 VITE_BASE_PATH=/
 
-# 是否删除debugger
+# Whether to drop debugger
 VITE_DROP_DEBUGGER=true
 
-# 是否删除console.log
+# Whether to drop console.log
 VITE_DROP_CONSOLE=true
 
-# 是否sourcemap
+# Whether to generate sourcemap
 VITE_SOURCEMAP=false
 
 VITE_USE_MOCK=false
 
-# 输出路径
+# Output path
 VITE_OUT_DIR=dist-pro
 
-# 标题
+# Title
 VITE_APP_TITLE=Scope Sentry

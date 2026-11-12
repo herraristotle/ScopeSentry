@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, reactive, h, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import {
   ElButton,
   ElCol,
@@ -9,7 +9,6 @@ import {
   ElRow,
   ElText,
   ElMessageBox,
-  ElSwitch,
   ElDrawer
 } from 'element-plus'
 import { Table, TableColumn } from '@/components/Table'

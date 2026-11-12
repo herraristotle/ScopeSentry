@@ -52,7 +52,7 @@ interface CountByUpdateTimeResponse {
 export const getCountByUpdateTimeApi = (
   updateTime: string
 ): Promise<IResponse<CountByUpdateTimeResponse>> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
+  // Use native axios to call the remote API directly, avoiding adding an Authorization header
   return axios
     .post(
       'https://api.scope-sentry.top/api/common/finger/count-by-update-time',
@@ -79,11 +79,11 @@ interface GetFingerprintsByUpdateTimeResponse {
   }
 }
 
-// 获取需要更新的指纹列表（不需要认证）
+// Get the list of fingerprints that need updating (no authentication required)
 export const getFingerprintsByUpdateTimeApi = (
   updateTime: string
 ): Promise<GetFingerprintsByUpdateTimeResponse> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
+  // Use native axios to call the remote API directly, avoiding adding an Authorization header
   return axios
     .post(
       'https://api.scope-sentry.top/api/common/finger/query-by-update-time',
@@ -97,7 +97,7 @@ export const getFingerprintsByUpdateTimeApi = (
     .then((res) => res.data)
 }
 
-// 批量添加指纹
+// Batch add fingerprints
 export const batchAddFingerprintApi = (
   items: FingerprintUpdateItem[]
 ): Promise<IResponse<fingerprintRespData>> => {

@@ -21,7 +21,7 @@ func NewRepository() *Repository {
 	}
 }
 
-// Create 创建角色
+// Create creates a role
 func (r *Repository) Create(ctx context.Context, role *models.Role) error {
 	role.ID = primitive.NewObjectID()
 	role.CreatedAt = time.Now()
@@ -31,7 +31,7 @@ func (r *Repository) Create(ctx context.Context, role *models.Role) error {
 	return err
 }
 
-// GetByID 根据ID获取角色
+// GetByID gets a role by ID
 func (r *Repository) GetByID(ctx context.Context, id primitive.ObjectID) (*models.Role, error) {
 	var role models.Role
 	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&role)
@@ -41,7 +41,7 @@ func (r *Repository) GetByID(ctx context.Context, id primitive.ObjectID) (*model
 	return &role, nil
 }
 
-// GetByName 根据名称获取角色
+// GetByName gets a role by name
 func (r *Repository) GetByName(ctx context.Context, name string) (*models.Role, error) {
 	var role models.Role
 	err := r.collection.FindOne(ctx, bson.M{"name": name}).Decode(&role)
@@ -51,24 +51,24 @@ func (r *Repository) GetByName(ctx context.Context, name string) (*models.Role, 
 	return &role, nil
 }
 
-// List 获取角色列表
+// List gets the role list
 func (r *Repository) List(ctx context.Context, page, size int64) ([]*models.Role, int64, error) {
-	// 计算跳过的文档数
+	// Calculate the number of documents to skip
 	skip := (page - 1) * size
 
-	// 设置分页选项
+	// Set pagination options
 	opts := options.Find().
 		SetSkip(skip).
 		SetLimit(size).
 		SetSort(bson.D{{"created_at", -1}})
 
-	// 查询总记录数
+	// Query the total record count
 	total, err := r.collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 查询角色列表
+	// Query the role list
 	cursor, err := r.collection.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return nil, 0, err
@@ -83,7 +83,7 @@ func (r *Repository) List(ctx context.Context, page, size int64) ([]*models.Role
 	return roles, total, nil
 }
 
-// Update 更新角色
+// Update updates a role
 func (r *Repository) Update(ctx context.Context, id primitive.ObjectID, update *models.RoleUpdate) error {
 	updateData := bson.M{
 		"$set": bson.M{
@@ -108,7 +108,7 @@ func (r *Repository) Update(ctx context.Context, id primitive.ObjectID, update *
 	return err
 }
 
-// Delete 删除角色
+// Delete deletes a role
 func (r *Repository) Delete(ctx context.Context, id primitive.ObjectID) error {
 	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err

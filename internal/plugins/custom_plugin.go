@@ -67,7 +67,7 @@ func (p *Plugin) GetName() string {
 func (p *Plugin) Log(msg string, tp ...string) {
 	var logTp string
 	if len(tp) > 0 {
-		logTp = tp[0] // 使用传入的参数
+		logTp = tp[0] // Use the provided parameter
 	} else {
 		logTp = "i"
 	}

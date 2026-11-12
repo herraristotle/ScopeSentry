@@ -180,37 +180,37 @@ const cardList = [
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png',
     name: 'Alipay',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   },
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/zOsKZmFRdUtvpqCImOVY.png',
     name: 'Angular',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   },
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/siCrBXXhmvTQGWPNLBow.png',
     name: 'Bootstrap',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   },
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/kZzEzemZyKLKFsojXItE.png',
     name: 'React',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   },
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/ComBAopevLwENQdKWiIn.png',
     name: 'Vue',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   },
   {
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/nxkuOJlFJuAUhzlMTCEe.png',
     name: 'Webpack',
-    desc: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+    desc: 'During the development of middle-platform products, different design specifications and implementation approaches emerge, but many similar pages and components often exist. These similar components get extracted into a standard specification.'
   }
 ]
 
 export default [
-  // 树形列表接口
+  // Tree list endpoint
   {
     url: '/mock/example/treeList',
     method: 'get',
@@ -233,7 +233,7 @@ export default [
       }
     }
   },
-  // 列表接口
+  // List endpoint
   {
     url: '/mock/example/list',
     method: 'get',
@@ -256,7 +256,7 @@ export default [
       }
     }
   },
-  // 保存接口
+  // Save endpoint
   {
     url: '/mock/example/save',
     method: 'post',
@@ -287,7 +287,7 @@ export default [
       }
     }
   },
-  // 详情接口
+  // Detail endpoint
   {
     url: '/mock/example/detail',
     method: 'get',
@@ -303,7 +303,7 @@ export default [
       }
     }
   },
-  // 删除接口
+  // Delete endpoint
   {
     url: '/mock/example/delete',
     method: 'post',
@@ -312,7 +312,7 @@ export default [
       if (!ids) {
         return {
           code: 500,
-          message: '请选择需要删除的数据'
+          message: 'Please select the data to delete'
         }
       } else {
         let i = List.length

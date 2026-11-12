@@ -122,12 +122,6 @@ const taskColums = reactive<TableColumn[]>([
     label: t('tableDemo.action'),
     minWidth: 40,
     formatter: (row, __: TableColumn, _: number) => {
-      let type = ''
-      if (row.type == 'Scan') {
-        type = 'scan'
-      } else {
-        type = 'project'
-      }
       return (
         <>
           {row.id === 'page_monitoring' ? (
@@ -371,6 +365,8 @@ getNodeList()
         :create="Create"
         :taskid="TaskId"
         :schedule="true"
+        tp="scan"
+        :target-ids="[]"
       />
     </Dialog>
     <Dialog

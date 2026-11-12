@@ -46,7 +46,7 @@ getTaskList()
 
 const handleTabClick = (tab: any) => {
   if (tab.paneName === 'map') {
-    // 跳转到同一网站的map项目
+    // Navigate to the map project of the same site
     window.location.href = '/map'
   }
 }

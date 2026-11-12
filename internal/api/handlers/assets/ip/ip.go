@@ -20,13 +20,13 @@ func init() {
 	ipService = ipservice.NewService()
 }
 
-// GetIPAssets @Summary      获取IP资产列表
-// @Description  根据查询条件获取IP资产信息
-// @Tags         资产
+// GetIPAssets @Summary      Get IP asset list
+// @Description  Get IP asset information based on query conditions
+// @Tags         Assets
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      models.SearchRequest  true  "查询条件"
+// @Param        request  body      models.SearchRequest  true  "Query conditions"
 // @Success      200      {object}  response.SuccessResponse{data=models.IPAssetResponse}
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse

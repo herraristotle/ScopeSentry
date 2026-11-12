@@ -14,7 +14,7 @@ import (
 
 var Logger *zap.Logger
 
-// 添加简化方法
+// Add simplified methods
 func Info(msg string, fields ...zap.Field) {
 	Logger.Info(msg, fields...)
 }
@@ -36,22 +36,22 @@ func Fatal(msg string, fields ...zap.Field) {
 }
 
 func init() {
-	// 解析日志级别
+	// Parse the log level
 	var level zapcore.Level
 	if err := level.UnmarshalText([]byte(config.GlobalConfig.Log.Level)); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// 加载时区
+	// Load the timezone
 	location, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 	if err != nil {
-		// 如果加载失败，使用本地时区
+		// If loading fails, use the local timezone
 		location = time.Local
 		fmt.Println("load Timezone error")
 	}
 
-	// 编码器配置
+	// Encoder configuration
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:       "time",
 		LevelKey:      "level",
@@ -60,26 +60,26 @@ func init() {
 		MessageKey:    "msg",
 		StacktraceKey: "stacktrace",
 		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.CapitalColorLevelEncoder, // 彩色等级
+		EncodeLevel:   zapcore.CapitalColorLevelEncoder, // colored level
 		EncodeTime: func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-			// 使用时区格式化时间
+			// Format time using the timezone
 			t = t.In(location)
 			encoder.AppendString(t.Format("2006-01-02 15:04:05"))
-		}, // ISO时间格式
+		}, // ISO time format
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	// 构建输出器
+	// Build the output sinks
 	var cores []zapcore.Core
 
-	// 始终输出到控制台
+	// Always output to the console
 	consoleCore := zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level)
 	cores = append(cores, consoleCore)
 
-	// 如果配置了日志文件路径，则也输出到文件
+	// If a log file path is configured, also output to the file
 	if config.GlobalConfig.Log.Filename != "" {
 		logDir := filepath.Dir(config.GlobalConfig.Log.Filename)
 		if err := os.MkdirAll(logDir, 0755); err != nil {
@@ -89,7 +89,7 @@ func init() {
 
 		fileWriter := &lumberjack.Logger{
 			Filename: config.GlobalConfig.Log.Filename,
-			MaxSize:  300, // 单位 MB
+			MaxSize:  300, // in MB
 			Compress: true,
 		}
 
@@ -97,10 +97,10 @@ func init() {
 		cores = append(cores, fileCore)
 	}
 
-	// 合并所有输出
+	// Merge all outputs
 	core := zapcore.NewTee(cores...)
 
-	// 创建 Logger
+	// Create the Logger
 	Logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return
 }

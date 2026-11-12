@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import {
   ElFormItem,
-  ElInput,
   ElRow,
   ElCol,
-  FormRules,
   FormInstance,
   ElForm,
   ElButton,
-  ElDivider,
-  ElSelectV2,
-  InputInstance,
-  ElTag
+  ElDivider
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { nextTick, reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { toRefs } from '@vueuse/core'
 import { updatePocDataApi, addPocDataApi } from '@/api/poc'
 const { t } = useI18n()
@@ -36,32 +31,6 @@ const props = defineProps<{
 const { pocForm } = toRefs(props)
 const localForm = ref({ ...pocForm.value })
 
-const levelOptions = [
-  {
-    value: 'critical',
-    label: 'critical'
-  },
-  {
-    value: 'high',
-    label: 'high'
-  },
-  {
-    value: 'medium',
-    label: 'medium'
-  },
-  {
-    value: 'low',
-    label: 'low'
-  },
-  {
-    value: 'info',
-    label: 'info'
-  },
-  {
-    value: 'unknown',
-    label: 'unknown'
-  }
-]
 const saveLoading = ref(false)
 const ruleFormRef = ref<FormInstance>()
 
@@ -98,32 +67,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       }
     })
   } catch (error) {
-    console.error('提交失败:', error)
+    console.error('Submit failed:', error)
   } finally {
     saveLoading.value = false
   }
-}
-const inputValue = ref('')
-const inputVisible = ref(false)
-const InputRef = ref<InputInstance>()
-
-const handleClose = (tag: string) => {
-  dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1)
-}
-
-const showInput = () => {
-  inputVisible.value = true
-  nextTick(() => {
-    InputRef.value!.input!.focus()
-  })
-}
-
-const handleInputConfirm = () => {
-  if (inputValue.value) {
-    dynamicTags.value.push(inputValue.value)
-  }
-  inputVisible.value = false
-  inputValue.value = ''
 }
 </script>
 <template>

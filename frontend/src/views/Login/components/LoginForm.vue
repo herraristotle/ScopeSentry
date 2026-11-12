@@ -2,7 +2,7 @@
 import { reactive, ref, watch, onMounted, unref } from 'vue'
 import { Form, FormSchema } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCheckbox, ElLink } from 'element-plus'
+import { ElCheckbox } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { loginApi, getTestRoleApi, getAdminRoleApi } from '@/api/login'
 import { useAppStore } from '@/store/modules/app'
@@ -11,14 +11,12 @@ import { useRouter } from 'vue-router'
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import { Icon } from '@/components/Icon'
 import { useUserStore } from '@/store/modules/user'
 import { BaseButton } from '@/components/Button'
 
 const { required } = useValidator()
 
-const emit = defineEmits(['to-register'])
-
+defineEmits(['to-register'])
 const appStore = useAppStore()
 
 const userStore = useUserStore()
@@ -118,8 +116,6 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 
-const iconSize = 30
-
 const remember = ref(userStore.getRememberMe)
 
 const initLoginInfo = () => {
@@ -138,10 +134,6 @@ const { getFormData, getElFormExpose, setValues } = formMethods
 
 const loading = ref(false)
 
-const iconColor = '#999'
-
-const hoverColor = 'var(--el-color-primary)'
-
 const redirect = ref<string>('')
 
 watch(
@@ -154,7 +146,7 @@ watch(
   }
 )
 
-// 登录
+// Sign in
 const signIn = async () => {
   const formRef = await getElFormExpose()
   await formRef?.validate(async (isValid) => {
@@ -166,7 +158,7 @@ const signIn = async () => {
         const res = await loginApi(formData)
 
         if (res) {
-          // 是否记住我
+          // Remember me or not
           if (unref(remember)) {
             userStore.setLoginInfo({
               username: formData.username,
@@ -179,13 +171,13 @@ const signIn = async () => {
           console.log(res.data.access_token)
           userStore.setToken(res.data.access_token)
           userStore.setUsername(formData.username)
-          // 是否使用动态路由
+          // Use dynamic routing or not
           if (appStore.getDynamicRouter) {
             getRole()
           } else {
             await permissionStore.generateRoutes('static').catch(() => {})
             permissionStore.getAddRouters.forEach((route) => {
-              addRoute(route as RouteRecordRaw) // 动态添加可访问路由表
+              addRoute(route as RouteRecordRaw) // Dynamically add the accessible route table
             })
             permissionStore.setIsAddRouters(true)
             push({ path: redirect.value || permissionStore.addRouters[0].path })
@@ -198,7 +190,7 @@ const signIn = async () => {
   })
 }
 
-// 获取角色信息
+// Get role information
 const getRole = async () => {
   const formData = await getFormData<UserType>()
   const params = {
@@ -216,17 +208,14 @@ const getRole = async () => {
       : await permissionStore.generateRoutes('frontEnd', routers).catch(() => {})
 
     permissionStore.getAddRouters.forEach((route) => {
-      addRoute(route as RouteRecordRaw) // 动态添加可访问路由表
+      addRoute(route as RouteRecordRaw) // Dynamically add the accessible route table
     })
     permissionStore.setIsAddRouters(true)
     push({ path: redirect.value || permissionStore.addRouters[0].path })
   }
 }
 
-// 去注册页面
-const toRegister = () => {
-  emit('to-register')
-}
+// Go to the registration page
 </script>
 
 <template>

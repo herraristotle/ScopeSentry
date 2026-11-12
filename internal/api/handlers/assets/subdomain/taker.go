@@ -21,15 +21,15 @@ func init() {
 }
 
 // GetSubdomainTakerData godoc
-// @Summary 获取子域名接管数据
-// @Description 获取子域名接管数据列表
-// @Tags 子域名接管
+// @Summary Get subdomain takeover data
+// @Description Get the subdomain takeover data list
+// @Tags Subdomain Takeover
 // @Accept json
 // @Produce json
-// @Param request body subdomain.SubdomainTakerRequest true "请求参数"
-// @Success 200 {object} response.Response{data=subdomain.SubdomainTakerResponse} "成功"
-// @Failure 400 {object} response.Response "请求错误"
-// @Failure 500 {object} response.Response "服务器错误"
+// @Param request body subdomain.SubdomainTakerRequest true "Request parameters"
+// @Success 200 {object} response.Response{data=subdomain.SubdomainTakerResponse} "Success"
+// @Failure 400 {object} response.Response "Bad request"
+// @Failure 500 {object} response.Response "Server error"
 // @Router /api/assets/subdomain/taker [post]
 func GetSubdomainTakerData(c *gin.Context) {
 	var request models.SearchRequest

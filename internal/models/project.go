@@ -4,7 +4,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Project 项目模型
+// Project project model
 type Project struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name           string             `bson:"name" json:"name"`
@@ -41,27 +41,27 @@ type UpdateProject struct {
 	AssetCount     int      `bson:"AssetCount" json:"assetCount"`
 }
 
-// TagGroup 标签分组响应
+// TagGroup tag grouping response
 type TagGroup struct {
 	Label    string       `json:"label"`
 	Value    string       `json:"value"`
 	Children []TagProject `json:"children"`
 }
 
-// TagProject 标签下的项目
+// TagProject project under a tag
 type TagProject struct {
 	Value string `json:"value"`
 	Label string `json:"label"`
 }
 
-// ProjectListRequest 请求（定义在 handler 也可，此处作为复用）
+// ProjectListRequest request (can also be defined in the handler; reused here)
 type ProjectListRequest struct {
 	Search    string `json:"search"`
 	PageIndex int    `json:"pageIndex"`
 	PageSize  int    `json:"pageSize"`
 }
 
-// ProjectBrief 列表项概要
+// ProjectBrief list item summary
 type ProjectBrief struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
@@ -70,18 +70,18 @@ type ProjectBrief struct {
 	Tag        string `json:"tag"`
 }
 
-// ProjectListResponse 列表响应数据
+// ProjectListResponse list response data
 type ProjectListResponse struct {
 	Result map[string][]ProjectBrief `json:"result"`
 	Tag    map[string]int            `json:"tag"`
 }
 
-// ProjectContentRequest 请求
+// ProjectContentRequest request
 type ProjectContentRequest struct {
 	ID string `json:"id"`
 }
 
-// ProjectContentResponse 内容响应
+// ProjectContentResponse content response
 type ProjectContentResponse struct {
 	Name           string   `json:"name"`
 	Tag            string   `json:"tag"`

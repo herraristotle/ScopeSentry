@@ -18,14 +18,12 @@ import {
   FormInstance,
   ElSelect,
   ElMessage,
-  ElInputNumber,
   CheckboxValueType,
-  ElText,
   ElTreeSelect,
   ElDrawer
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
-import { onMounted, reactive, ref, toRefs, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { getNodeDataOnlineApi } from '@/api/node'
 import {
   addScheduledTaskApi,
@@ -86,7 +84,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 1 || value > 31) {
           callback(new Error('1-31'))
         } else {
-          callback() // 验证通过
+          callback() // Validation passed
         }
       }
     }
@@ -95,7 +93,7 @@ const rules = reactive<FormRules<RuleForm>>({
     {
       message: '0-24',
       trigger: 'change',
-      validator: (rule, value, callback) => {
+      validator: (_rule, value, callback) => {
         console.log(value)
         if (!value) {
           callback(new Error('0-24'))
@@ -104,7 +102,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 0 || value > 24) {
           callback(new Error('0-24'))
         } else {
-          callback() // 验证通过
+          callback() // Validation passed
         }
       }
     }
@@ -113,7 +111,7 @@ const rules = reactive<FormRules<RuleForm>>({
     {
       message: '0-60',
       trigger: 'change',
-      validator: (rule, value, callback) => {
+      validator: (_rule, value, callback) => {
         console.log(value)
         if (!value) {
           callback(new Error('0-60'))
@@ -122,7 +120,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 0 || value > 60) {
           callback(new Error('0-60'))
         } else {
-          callback() // 验证通过
+          callback() // Validation passed
         }
       }
     }
@@ -136,7 +134,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   try {
     if (!formEl) return
 
-    const valid = await formEl.validate() // 使用 Promise 风格的 validate
+    const valid = await formEl.validate() // Use Promise-style validate
     if (valid) {
       let res
       let searchFilter = reactive<{ [key: string]: any }>({})
@@ -152,7 +150,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         taskData.targetSource = props.tp
       }
       if (props.taskid) {
-        // 修改计划任务
+        // Modify the scheduled task
         res = await updateScheduleApi(
           props.taskid,
           taskData.name,
@@ -178,7 +176,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           taskData.cycleType
         )
       } else {
-        // 创建新任务
+        // Create a new task
         if (props.schedule) {
           res = await addScheduledTaskApi(
             taskData.name,
@@ -235,9 +233,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       }
     }
   } catch (error) {
-    console.error('提交表单时发生错误:', error)
+    console.error('Error submitting the form:', error)
   } finally {
-    saveLoading.value = false // 确保无论成功或失败都重置加载状态
+    saveLoading.value = false // Ensure the loading state resets regardless of success or failure
   }
 }
 const nodeOptions = reactive<{ value: string; label: string }[]>([])
@@ -354,15 +352,15 @@ const loadScheduleData = async (id) => {
 }
 
 watch(
-  () => props.taskid, // 监听 props.taskid 的变化
+  () => props.taskid, // Watch for changes to props.taskid
   async (newId) => {
     if (newId) {
-      // 如果传入了 ID，则加载已有数据
+      // If an ID was passed in, load the existing data
       if (props.schedule) {
-        // 如果是计划任务则从计划任务中加载数据
+        // If it is a scheduled task, load data from the scheduled task
         await loadScheduleData(newId)
       } else {
-        // 从任务中加载数据
+        // Load data from the task
         await loadTaskData(newId)
       }
     } else {
@@ -380,7 +378,7 @@ watch(
       taskData.template = ''
     }
   },
-  { immediate: true } // 确保组件挂载时立即触发
+  { immediate: true } // Trigger immediately on component mount
 )
 const targetTp = ref('select')
 const targetNumber = ref(0)

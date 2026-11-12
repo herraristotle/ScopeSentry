@@ -50,7 +50,7 @@ type idsRequest struct {
 	IDs []string `json:"ids" binding:"required,min=1,dive,required"`
 }
 
-// Data 列表
+// Data list
 func Data(c *gin.Context) {
 	var req listRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,7 +65,7 @@ func Data(c *gin.Context) {
 	response.Success(c, gin.H{"list": list, "total": total}, "api.success")
 }
 
-// Update 更新
+// Update
 func Update(c *gin.Context) {
 	var req updateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -79,7 +79,7 @@ func Update(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Add 新增
+// Add
 func Add(c *gin.Context) {
 	var req addRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -93,7 +93,7 @@ func Add(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// UpdateState 批量改状态
+// UpdateState batch update state
 func UpdateState(c *gin.Context) {
 	var req idsStateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -107,7 +107,7 @@ func UpdateState(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Delete 批量删除
+// Delete batch delete
 func Delete(c *gin.Context) {
 	var req idsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

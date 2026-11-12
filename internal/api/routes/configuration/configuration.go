@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterConfigurationRoutes 注册 configuration 相关路由（统一使用通用路由注册器）
+// RegisterConfigurationRoutes registers configuration-related routes (using the generic route registrar)
 func RegisterConfigurationRoutes(api *gin.RouterGroup) {
 	group := models.RouteGroup{
 		Path: "/configuration",

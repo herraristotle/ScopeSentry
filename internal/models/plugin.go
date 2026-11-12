@@ -26,7 +26,7 @@ type Plugin struct {
 	Source        string             `json:"source"`
 }
 
-// PluginListRequest 插件列表请求
+// PluginListRequest plugin list request
 type PluginListRequest struct {
 	PageIndex int    `json:"pageIndex" binding:"required,min=1"`
 	PageSize  int    `json:"pageSize" binding:"required,min=1"`
@@ -34,18 +34,18 @@ type PluginListRequest struct {
 	Search    string `json:"search"`
 }
 
-// PluginListResponse 插件列表响应
+// PluginListResponse plugin list response
 type PluginListResponse struct {
 	List  []Plugin `json:"list"`
 	Total int64    `json:"total"`
 }
 
-// PluginDetailRequest 插件详情请求
+// PluginDetailRequest plugin detail request
 type PluginDetailRequest struct {
 	ID string `json:"id" binding:"required"`
 }
 
-// PluginSaveRequest 插件保存请求
+// PluginSaveRequest plugin save request
 type PluginSaveRequest struct {
 	ID            string `json:"id"`
 	Name          string `json:"name" binding:"required"`
@@ -62,7 +62,7 @@ type PluginSaveRequest struct {
 	Key           string `json:"key" binding:"required"`
 }
 
-// PluginDeleteRequest 插件删除请求
+// PluginDeleteRequest plugin deletion request
 type PluginDeleteRequest struct {
 	Data []struct {
 		Hash   string `json:"hash" binding:"required"`
@@ -70,56 +70,56 @@ type PluginDeleteRequest struct {
 	} `json:"data" binding:"required"`
 }
 
-// PluginLogRequest 插件日志请求
+// PluginLogRequest plugin log request
 type PluginLogRequest struct {
 	Module string `json:"module"`
 	Hash   string `json:"hash" binding:"required"`
 	Type   string `json:"type"`
 }
 
-// PluginReinstallRequest 插件重装请求
+// PluginReinstallRequest plugin reinstall request
 type PluginReinstallRequest struct {
 	Node   string `json:"node"`
 	Hash   string `json:"hash"`
 	Module string `json:"module"`
 }
 
-// PluginRecheckRequest 插件重检请求
+// PluginRecheckRequest plugin recheck request
 type PluginRecheckRequest struct {
 	Node   string `json:"node" binding:"required"`
 	Hash   string `json:"hash" binding:"required"`
 	Module string `json:"module" binding:"required"`
 }
 
-// PluginUninstallRequest 插件卸载请求
+// PluginUninstallRequest plugin uninstall request
 type PluginUninstallRequest struct {
 	Node   string `json:"node" binding:"required"`
 	Hash   string `json:"hash" binding:"required"`
 	Module string `json:"module" binding:"required"`
 }
 
-// PluginKeyCheckRequest 插件密钥检查请求
+// PluginKeyCheckRequest plugin key check request
 type PluginKeyCheckRequest struct {
 	Key string `json:"key" binding:"required"`
 }
 
-// PluginImportByDataRequest 通过POST JSON数据导入插件请求
+// PluginImportByDataRequest plugin import-by-POST-JSON-data request
 type PluginImportByDataRequest struct {
-	JSON     string `json:"json" `    // info.json的完整序列化json字符串
-	Source   string `json:"source" `  // plugin.go的完整源代码内容
-	IsSystem bool   `json:"isSystem"` // 是否为内置插件
-	Key      string `json:"key"`      // 插件密钥
+	JSON     string `json:"json" `    // Complete serialized JSON string of info.json
+	Source   string `json:"source" `  // Complete source code content of plugin.go
+	IsSystem bool   `json:"isSystem"` // Whether it is a built-in plugin
+	Key      string `json:"key"`      // Plugin key
 }
 
-// PluginStatusRequest 插件状态更新请求
+// PluginStatusRequest plugin status update request
 type PluginStatusRequest struct {
-	ID     string `json:"id"`     // 插件ID
-	Status bool   `json:"status"` // 插件状态
+	ID     string `json:"id"`     // Plugin ID
+	Status bool   `json:"status"` // Plugin status
 }
 
-// PluginRunRequest 插件运行请求
+// PluginRunRequest plugin run request
 type PluginRunRequest struct {
-	Hash string `json:"hash" binding:"required"` // 插件Hash
+	Hash string `json:"hash" binding:"required"` // Plugin hash
 }
 
 type PluginInfo struct {
@@ -132,7 +132,7 @@ type PluginInfo struct {
 	Hash          string `json:"hash"`
 	ParameterList string `json:"parameterList"`
 	Type          string `json:"type"`
-	// 以下是程序运行时动态添加的字段，可选
+	// The following fields are added dynamically at runtime and are optional
 	Source   string `json:"source,omitempty"`
 	IsSystem bool   `json:"isSystem,omitempty"`
 }

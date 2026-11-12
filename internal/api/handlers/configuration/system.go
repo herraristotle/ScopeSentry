@@ -15,7 +15,7 @@ import (
 
 var systemService *configuration.Service
 
-// GetSystemData @Summary 获取系统配置
+// GetSystemData @Summary Get system config
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -30,12 +30,12 @@ func GetSystemData(c *gin.Context) {
 	response.Success(c, data, "api.success")
 }
 
-// SaveSystemData @Summary 保存系统配置
+// SaveSystemData @Summary Save system config
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "键值对"
+// @Param       body body map[string]interface{} true "Key-value pairs"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/system/save [post]
 func SaveSystemData(c *gin.Context) {

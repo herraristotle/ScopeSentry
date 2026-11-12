@@ -15,11 +15,11 @@ import (
 )
 
 func RegisterProjectRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the route group
 	projectRoutes := models.RouteGroup{
 		Path: "/project",
 		Routes: []models.Route{
-			// 公开路由
+			// Public routes
 			{
 				Method:      "GET",
 				Path:        "/all",
@@ -59,6 +59,6 @@ func RegisterProjectRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the route group
 	common.RegisterRouteGroup(api, projectRoutes)
 }

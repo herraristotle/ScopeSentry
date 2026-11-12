@@ -52,7 +52,7 @@ func NewService() Service {
 
 func (s *service) List(ctx context.Context, search string, pageIndex, pageSize int) ([]models.FingerprintRule, int64, error) {
 	filter := bson.M{"name": bson.M{"$regex": search, "$options": "i"}}
-	// 设置查询选项：投影、分页、排序
+	// Set query options: projection, pagination, sorting
 	opts := options.Find().
 		SetSkip(int64((pageIndex - 1) * pageSize)).
 		SetLimit(int64(pageSize)).
@@ -73,7 +73,7 @@ func (s *service) Add(ctx context.Context, data models.FingerprintRule) (string,
 	if data.Rule == "" {
 		return "", errors.New("rule is null")
 	}
-	// Rule 现在存储的是 YAML 内容，不再转换为 Express
+	// Rule now stores YAML content and is no longer converted to Express
 	// express, err := helper.StringToPostfix(data.Rule)
 	// if err != nil || len(express) == 0 {
 	// 	return "", errors.New("rule to express error")
@@ -92,7 +92,7 @@ func (s *service) Update(ctx context.Context, id string, data models.Fingerprint
 	if data.Rule == "" {
 		return errors.New("rule is null")
 	}
-	// Rule 现在存储的是 YAML 内容，不再转换为 Express
+	// Rule now stores YAML content and is no longer converted to Express
 	// express, err := helper.StringToPostfix(data.Rule)
 	// if err != nil || len(express) == 0 {
 	// 	return errors.New("rule to express error")
@@ -121,7 +121,7 @@ func (s *service) Delete(ctx context.Context, ids []string) (int64, error) {
 	return deleted, nil
 }
 
-// GetVersion 查询指纹版本
+// GetVersion queries the fingerprint version
 func (s *service) GetVersion(ctx context.Context) (string, error) {
 	doc, err := s.commonRepo.FindOne(ctx, "config", bson.M{"name": "FingerVersion"}, bson.M{"_id": 0})
 	if err != nil {
@@ -133,12 +133,12 @@ func (s *service) GetVersion(ctx context.Context) (string, error) {
 	return "", nil
 }
 
-// BatchAdd 批量新增指纹规则
+// BatchAdd batch-adds fingerprint rules
 func (s *service) BatchAdd(ctx context.Context, items []BatchAddItem) ([]BatchAddResult, int, int, error) {
 	results := make([]BatchAddResult, 0, len(items))
 	successCount := 0
 	failedCount := 0
-	updateTimes := make([]string, 0) // 收集所有更新时间
+	updateTimes := make([]string, 0) // Collect all update times
 
 	type FingerprintYaml struct {
 		Fingerprint models.FingerprintRule `yaml:"fingerprint"`
@@ -150,31 +150,31 @@ func (s *service) BatchAdd(ctx context.Context, items []BatchAddItem) ([]BatchAd
 			Success: false,
 		}
 
-		// 解析 YAML content
+		// Parse YAML content
 		var fp FingerprintYaml
 		if err := yaml.Unmarshal([]byte(item.Content), &fp); err != nil {
-			result.Error = fmt.Sprintf("YAML解析失败: %v", err)
+			result.Error = fmt.Sprintf("failed to parse YAML: %v", err)
 			results = append(results, result)
 			failedCount++
 			continue
 		}
 
-		// 构建 FingerprintRule
+		// Build FingerprintRule
 		data := models.FingerprintRule{
 			Name:           fp.Fingerprint.Name,
 			Rule:           item.Content,
-			FingerprintId:  item.ID, // 使用传入的 ID 作为 FingerprintId
+			FingerprintId:  item.ID, // Use the passed-in ID as FingerprintId
 			Category:       fp.Fingerprint.Category,
 			ParentCategory: fp.Fingerprint.ParentCategory,
-			State:          true, // 默认启用
+			State:          true, // Enabled by default
 			Company:        fp.Fingerprint.Company,
 			Amount:         0,
 		}
 
-		// 使用 upsert：根据 fingerprint_id 更新或插入
+		// Use upsert: update or insert based on fingerprint_id
 		filter := bson.M{"fingerprint_id": item.ID}
 		if err := s.commonRepo.Upsert(ctx, "FingerprintRules", filter, data); err != nil {
-			result.Error = fmt.Sprintf("更新或插入失败: %v", err)
+			result.Error = fmt.Sprintf("failed to update or insert: %v", err)
 			results = append(results, result)
 			failedCount++
 			continue
@@ -184,28 +184,28 @@ func (s *service) BatchAdd(ctx context.Context, items []BatchAddItem) ([]BatchAd
 		results = append(results, result)
 		successCount++
 
-		// 收集更新时间
+		// Collect update times
 		if item.UpdateTime != "" {
 			updateTimes = append(updateTimes, item.UpdateTime)
 		}
 	}
 
-	// 批量操作完成后统一刷新配置
+	// Refresh config uniformly after the batch operation completes
 	if successCount > 0 {
 		_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "finger"})
 	}
 
-	// 获取最新的更新时间并更新配置版本
+	// Get the latest update time and update the config version
 	if len(updateTimes) > 0 {
 		latestUpdateTime := updateTimes[0]
-		// 找到最新的时间（时间格式 "YYYY-MM-DD HH:MM" 可以直接字符串比较）
+		// Find the latest time (time format "YYYY-MM-DD HH:MM" can be compared as strings directly)
 		for _, updateTime := range updateTimes {
 			if updateTime > latestUpdateTime {
 				latestUpdateTime = updateTime
 			}
 		}
 
-		// 更新 FingerVersion 配置
+		// Update the FingerVersion config
 		configFilter := bson.M{"name": "FingerVersion"}
 		configDoc := bson.M{
 			"name":  "FingerVersion",
@@ -213,7 +213,7 @@ func (s *service) BatchAdd(ctx context.Context, items []BatchAddItem) ([]BatchAd
 			"type":  "finger",
 		}
 		if err := s.commonRepo.Upsert(ctx, "config", configFilter, configDoc); err != nil {
-			// 记录错误但不影响整体结果
+			// Record the error but do not affect the overall result
 			_ = err
 		}
 	}

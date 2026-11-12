@@ -15,7 +15,7 @@ import (
 )
 
 func RegisterExportRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the export route group
 	nodeRoutes := models.RouteGroup{
 		Path: "/export",
 		Routes: []models.Route{
@@ -52,6 +52,6 @@ func RegisterExportRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the export route group
 	common.RegisterRouteGroup(api, nodeRoutes)
 }

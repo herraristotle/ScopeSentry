@@ -15,22 +15,22 @@ const prefixCls = getPrefixCls('tool-header')
 
 const appStore = useAppStore()
 
-// 面包屑
+// Breadcrumb
 const breadcrumb = computed(() => appStore.getBreadcrumb)
 
-// 折叠图标
+// Collapse icon
 const hamburger = computed(() => appStore.getHamburger)
 
-// 全屏图标
+// Fullscreen icon
 const screenfull = computed(() => appStore.getScreenfull)
 
-// 尺寸图标
+// Size icon
 const size = computed(() => appStore.getSize)
 
-// 布局
+// Layout
 const layout = computed(() => appStore.getLayout)
 
-// 多语言图标
+// Locale icon
 const locale = computed(() => appStore.getLocale)
 
 export default defineComponent({

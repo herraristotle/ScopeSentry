@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, reactive, h, onMounted, resolveComponent } from 'vue'
+import { ref, reactive, h, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import {
   ElButton,
@@ -19,8 +19,6 @@ import {
   ElIcon,
   ElRadioGroup,
   ElRadioButton,
-  ElSelect,
-  ElOption,
   ElTreeSelect
 } from 'element-plus'
 import { Table, TableColumn } from '@/components/Table'
@@ -91,24 +89,24 @@ const taskColums = reactive<TableColumn[]>([
     label: t('common.state'),
     minWidth: 200,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      // 1为运行中，2为暂停，3为运行完成
+      // 1 = running, 2 = paused, 3 = finished
       let tagType, tagText
       switch (cellValue) {
         case 1:
           tagType = 'info'
-          tagText = t('task.running') // 运行中
+          tagText = t('task.running') // Running
           break
         case 2:
           tagType = 'warning'
-          tagText = t('task.stop') // 暂停
+          tagText = t('task.stop') // Paused
           break
         case 3:
           tagType = 'success'
-          tagText = t('task.finish') // 运行完成
+          tagText = t('task.finish') // Finished
           break
         default:
           tagType = 'default'
-          tagText = '' // 未知状态
+          tagText = '' // Unknown status
       }
       return h(ElTag, { type: tagType }, () => tagText)
     }
@@ -167,17 +165,17 @@ const taskColums = reactive<TableColumn[]>([
                 style: { outline: 'none', boxShadow: 'none' }
               },
               () => [
-                t('common.operation'), // 下拉菜单触发按钮文字
+                t('common.operation'), // Dropdown trigger button text
                 h(
                   ElIcon,
                   {},
-                  () => h(ArrowDown) // 向下箭头图标
+                  () => h(ArrowDown) // Down arrow icon
                 )
               ]
             ),
           dropdown: () =>
             h(ElDropdownMenu, null, () => {
-              // 根据 row.status 渲染不同的菜单项
+              // Render different menu items based on row.status
               if (row.status === 3) {
                 return [
                   h(ElDropdownItem, { command: 'retest' }, () => t('task.retest')),
@@ -186,7 +184,7 @@ const taskColums = reactive<TableColumn[]>([
               } else {
                 return [
                   h(ElDropdownItem, { command: 'start' }, () => t('task.start')),
-                  h(ElDropdownItem, { command: 'stop' }, () => t('task.stop')), // 如果是运行中，显示“停止”按钮
+                  h(ElDropdownItem, { command: 'stop' }, () => t('task.stop')), // If running, show the "Stop" button
                   h(ElDropdownItem, { command: 'retest' }, () => t('task.retest')),
                   h(ElDropdownItem, { command: 'delete' }, () => t('common.delete'))
                 ]
@@ -360,14 +358,14 @@ const getProjectList = async () => {
   res.data.list.forEach((item: Project) => {
     projectList.push({
       label: item.label,
-      value: item.value || `parent-${item.label}`, // 避免空字符串
+      value: item.value || `parent-${item.label}`, // Avoid empty strings
       children: item.children || []
     })
   })
 }
 
 const confirmSyncToProjectSelect = async () => {
-  const option = ref<'existing' | 'new'>('existing') // 选项：已有 or 新建
+  const option = ref<'existing' | 'new'>('existing') // Option: existing or new
   const selectedProjectId = ref<string>('')
   const newProjectName = ref('')
   const newProjectTag = ref('')
@@ -377,7 +375,7 @@ const confirmSyncToProjectSelect = async () => {
     draggable: true,
     message: () =>
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } }, [
-        // 选择类型
+        // Select the type
         h('div', [
           h('label', { style: { marginRight: '8px' } }),
           h(
@@ -397,7 +395,7 @@ const confirmSyncToProjectSelect = async () => {
           )
         ]),
 
-        // 如果是同步到已有项目，显示下拉框
+        // If syncing to an existing project, show the dropdown
         option.value === 'existing'
           ? h(ElTreeSelect, {
               modelValue: selectedProjectId.value,
@@ -412,7 +410,7 @@ const confirmSyncToProjectSelect = async () => {
             })
           : null,
 
-        // 如果是创建新项目，显示输入框
+        // If creating a new project, show the input boxes
         option.value === 'new'
           ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } }, [
               h(ElInput, {
@@ -430,9 +428,9 @@ const confirmSyncToProjectSelect = async () => {
       ])
   }).then(async () => {
     if (option.value === 'existing') {
-      console.log('同步到已有项目ID:', selectedProjectId.value)
+      console.log('Synced to existing project ID:', selectedProjectId.value)
     } else {
-      console.log('创建新项目:', newProjectName.value, newProjectTag.value)
+      console.log('Created new project:', newProjectName.value, newProjectTag.value)
     }
     const elTableExpose = await getElTableExpose()
     const selectedRows = elTableExpose?.getSelectionRows() || []

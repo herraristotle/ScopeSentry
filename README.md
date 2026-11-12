@@ -2,7 +2,7 @@
 	<img src="docs/images/favicon.ico"/>
 </div>
 
-English | [中文](./README_CN.md)
+English
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Autumn-27/ScopeSentry-Scan)
 
@@ -57,7 +57,7 @@ docker-compose -f scan-docker-compose.yml up -d
 
 ## Plugin Flowchart
 
-<img src="流程图.svg"/>
+<img src="plugin-flowchart.svg"/>
 
 ## Current Features
 - Plugin System (Add any tool through extension)
@@ -124,7 +124,7 @@ Discord:
 ### APP
 ![alt text](docs/images/app-cn.png)
 
-### 小程序
+### Mini Program
 ![alt text](docs/images/mp-cn.png)
 
 ### URL

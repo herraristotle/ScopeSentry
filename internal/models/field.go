@@ -1,6 +1,6 @@
 package models
 
-// Field 定义所有可导出字段
+// Field defines all exportable fields
 var Field = map[string][]string{
 	"asset": {
 		"time", "lastScanTime", "host", "ip", "port", "service", "tls", "transport",
@@ -61,7 +61,7 @@ var Field = map[string][]string{
 	},
 }
 
-// IsHTTPAssetField 检查字段是否属于HTTP资产
+// IsHTTPAssetField checks whether a field belongs to HTTP assets
 func IsHTTPAssetField(field string) bool {
 	for _, f := range Field["httpAsset"] {
 		if f == field {
@@ -71,7 +71,7 @@ func IsHTTPAssetField(field string) bool {
 	return false
 }
 
-// IsOtherAssetField 检查字段是否属于其他资产
+// IsOtherAssetField checks whether a field belongs to other assets
 func IsOtherAssetField(field string) bool {
 	for _, f := range Field["otherAsset"] {
 		if f == field {

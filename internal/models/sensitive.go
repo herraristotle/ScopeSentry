@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// SensitiveInfo 表示一条敏感信息记录
+// SensitiveInfo represents a sensitive information record
 type SensitiveChild struct {
 	ID     primitive.ObjectID `bson:"_id" json:"id"`
 	Match  []string           `bson:"match" json:"match"`
@@ -38,20 +38,20 @@ type SensitiveInfo struct {
 	Children []SensitiveChild `bson:"children" json:"children"`
 }
 
-// SensitiveRule 表示一条敏感信息检测规则
+// SensitiveRule represents a sensitive information detection rule
 type SensitiveRule struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name        string             `bson:"name" json:"name"`               // 规则名称
-	Type        string             `bson:"type" json:"type"`               // 规则类型
-	Pattern     string             `bson:"pattern" json:"pattern"`         // 匹配模式（正则表达式）
-	Description string             `bson:"description" json:"description"` // 规则描述
-	Level       string             `bson:"level" json:"level"`             // 敏感等级（high/medium/low）
-	State       string             `bson:"state" json:"state"`             // 规则状态（enabled/disabled）
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`   // 更新时间
+	Name        string             `bson:"name" json:"name"`               // Rule name
+	Type        string             `bson:"type" json:"type"`               // Rule type
+	Pattern     string             `bson:"pattern" json:"pattern"`         // Match pattern (regular expression)
+	Description string             `bson:"description" json:"description"` // Rule description
+	Level       string             `bson:"level" json:"level"`             // Sensitivity level (high/medium/low)
+	State       string             `bson:"state" json:"state"`             // Rule state (enabled/disabled)
+	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`   // Created at
+	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`   // Updated at
 }
 
-// SensitiveRuleItem 用于前端规则管理（映射 Python 的 SensitiveRule 集合）
+// SensitiveRuleItem is used by frontend rule management (maps the Python SensitiveRule collection)
 type SensitiveRuleItem struct {
 	ID      primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name    string             `bson:"name" json:"name"`

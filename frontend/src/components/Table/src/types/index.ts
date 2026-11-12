@@ -4,7 +4,7 @@ export interface TableColumn {
   label?: string
   type?: string
   /**
-   * 是否隐藏
+   * Whether to hide
    */
   hidden?: boolean
   children?: TableColumn[]
@@ -75,21 +75,21 @@ export interface TableProps extends Omit<Partial<ElTableProps<any[]>>, 'data'> {
   pageSize?: number
   currentPage?: number
   showAction?: boolean
-  // 是否所有的超出隐藏，优先级低于schema中的showOverflowTooltip,
+  // Whether to hide all overflow, priority is lower than showOverflowTooltip in schema,
   showOverflowTooltip?: boolean
-  // 表头
+  // Table header
   columns?: TableColumn[]
-  // 是否展示分页
+  // Whether to show pagination
   pagination?: Pagination | undefined
-  // 仅对 type=selection 的列有效，类型为 Boolean，为 true 则会在数据更新之后保留之前选中的数据（需指定 row-key）
+  // Only valid for columns with type=selection, Boolean type; when true, previously selected data is kept after data updates (row-key must be specified)
   reserveSelection?: boolean
-  // 加载状态
+  // Loading state
   loading?: boolean
-  // 是否叠加索引
+  // Whether to overlay the index
   reserveIndex?: boolean
-  // 对齐方式
+  // Alignment
   align?: 'left' | 'center' | 'right'
-  // 表头对齐方式
+  // Header alignment
   headerAlign?: 'left' | 'center' | 'right'
   preview?: string[]
   sortable?: boolean

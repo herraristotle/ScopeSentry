@@ -17,7 +17,7 @@ import (
 	"github.com/Autumn-27/ScopeSentry/internal/models"
 )
 
-// SearchKey 定义了不同类型数据的字段映射关系
+// SearchKey defines the field mappings for different data types
 var SearchKey = map[string]map[string]string{
 	"SensitiveResult": {
 		"url":   "url",
@@ -117,7 +117,7 @@ var SearchKey = map[string]map[string]string{
 	},
 }
 
-// 缓存常用映射，避免重复创建
+// Cache commonly used mappings to avoid repeated creation
 var (
 	filterKeyCache = map[string]string{
 		"app":        "technologies",
@@ -149,7 +149,7 @@ var (
 		"service_ip":      "ip,host",
 	}
 
-	// 预编译正则表达式
+	// Precompile regular expressions
 	regexCache = struct {
 		sync.RWMutex
 		m map[string]*regexp.Regexp
@@ -158,7 +158,7 @@ var (
 	}
 )
 
-// getRegex 获取或创建正则表达式，使用缓存
+// getRegex fetches or creates a regular expression, using a cache
 func getRegex(pattern string) (*regexp.Regexp, error) {
 	regexCache.RLock()
 	if re, ok := regexCache.m[pattern]; ok {
@@ -170,7 +170,7 @@ func getRegex(pattern string) (*regexp.Regexp, error) {
 	regexCache.Lock()
 	defer regexCache.Unlock()
 
-	// 双重检查
+	// Double check
 	if re, ok := regexCache.m[pattern]; ok {
 		return re, nil
 	}
@@ -183,20 +183,20 @@ func getRegex(pattern string) (*regexp.Regexp, error) {
 	return re, nil
 }
 
-// StringToPostfix 将中缀表达式转换为后缀表达式
+// StringToPostfix converts an infix expression to a postfix expression
 func StringToPostfix(expression string) ([]string, error) {
 	if expression == "" {
 		return nil, nil
 	}
 
-	// 预分配足够的容量，减少扩容
+	// Pre-allocate enough capacity to reduce reallocation
 	operandsStack := make([]string, 0, 16)
 	expressionStack := make([]string, 0, 32)
 	startChar := 0
 	skipFlag := false
 	expFlag := false
 
-	// 使用rune来处理Unicode字符
+	// Use runes to process Unicode characters
 	runes := []rune(expression)
 	for i := 0; i < len(runes); i++ {
 		char := runes[i]
@@ -283,7 +283,7 @@ func StringToPostfix(expression string) ([]string, error) {
 		}
 	}
 
-	// 预分配结果切片
+	// Pre-allocate the result slice
 	result := make([]string, 0, len(expressionStack))
 	for _, key := range expressionStack {
 		if key != "" && key != " " {
@@ -299,7 +299,7 @@ func StringToPostfix(expression string) ([]string, error) {
 	return result, nil
 }
 
-// SearchToMongoDB 将搜索表达式转换为MongoDB查询
+// SearchToMongoDB converts a search expression into a MongoDB query
 func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[string]interface{}, error) {
 	if expressionRaw == "" {
 		return []map[string]interface{}{{}}, nil
@@ -314,7 +314,7 @@ func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[str
 		return nil, err
 	}
 
-	// 预分配栈空间
+	// Pre-allocate the stack space
 	stack := make([]map[string]interface{}, 0, len(expression))
 
 	for _, expr := range expression {
@@ -419,7 +419,7 @@ func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[str
 	return stack, nil
 }
 
-// GetSearchQuery 构建完整的搜索查询
+// GetSearchQuery builds the full search query
 func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 	logger.Logger.Info(fmt.Sprintf("search query: %v", req))
 	if req.Index == "" {
@@ -442,7 +442,7 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 
 	result := query[0]
 
-	// 处理过滤条件
+	// Process filter conditions
 	if len(req.Filter) > 0 {
 		if _, ok := result["$and"]; !ok {
 			result["$and"] = make([]map[string]interface{}, 0, len(req.Filter))
@@ -476,7 +476,7 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 		}
 	}
 
-	// 处理模糊查询
+	// Process fuzzy queries
 	if len(req.FuzzyQuery) > 0 {
 		if _, ok := result["$and"]; !ok {
 			result["$and"] = make([]map[string]interface{}, 0, len(req.FuzzyQuery))
@@ -484,7 +484,7 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 
 		for q, value := range req.FuzzyQuery {
 			if value != "" {
-				tmpFq := make([]map[string]interface{}, 0, 3) // 预分配空间
+				tmpFq := make([]map[string]interface{}, 0, 3) // Pre-allocate space
 				if mongoKey, ok := fuzzyQueryKeyCache[q]; ok {
 					if strings.Contains(mongoKey, ",") {
 						keys := strings.Split(mongoKey, ",")

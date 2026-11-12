@@ -17,12 +17,12 @@ func init() {
 }
 
 // GetSensitiveInfo godoc
-// @Summary 获取敏感信息列表
-// @Description 获取敏感信息列表，支持分页、排序和过滤
+// @Summary Get sensitive information list
+// @Description Get the sensitive information list, supporting pagination, sorting, and filtering
 // @Tags Sensitive
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.SensitiveInfo}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -47,12 +47,12 @@ func GetSensitiveInfo(c *gin.Context) {
 }
 
 // GetSensitiveInfoNumber godoc
-// @Summary 获取敏感信息列表
-// @Description 获取敏感信息列表，支持分页、排序和过滤
+// @Summary Get sensitive information counts
+// @Description Get the sensitive information counts, supporting pagination, sorting, and filtering
 // @Tags Sensitive
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.SensitiveInfo}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -78,12 +78,12 @@ func GetSensitiveInfoNumber(c *gin.Context) {
 }
 
 // GetSensitiveInfoBody godoc
-// @Summary 获取敏感信息列表
-// @Description 获取敏感信息列表，支持分页、排序和过滤
+// @Summary Get sensitive information body
+// @Description Get the sensitive information list, supporting pagination, sorting, and filtering
 // @Tags Sensitive
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.SensitiveInfo}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -108,12 +108,12 @@ func GetSensitiveInfoBody(c *gin.Context) {
 }
 
 // GetSensitiveInfoName godoc
-// @Summary 获取敏感信息列表
-// @Description 获取敏感信息列表，支持分页、排序和过滤
+// @Summary Get sensitive information names
+// @Description Get the sensitive information list, supporting pagination, sorting, and filtering
 // @Tags Sensitive
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.SensitiveInfo}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -138,11 +138,11 @@ func GetSensitiveInfoName(c *gin.Context) {
 }
 
 // GetSensitiveMatchInfo godoc
-// @Summary 获取指定 sid 的去重匹配项
+// @Summary Get deduplicated match items for the specified sid
 // @Tags SensitiveResult
 // @Accept json
 // @Produce json
-// @Param data body request.GetSensitiveMatchInfoRequest true "请求体"
+// @Param data body request.GetSensitiveMatchInfoRequest true "Request body"
 // @Success 200 {object} response.DataResponse[response.MatchListResponse]
 // @Failure 400 {object} response.ErrorResponse
 // @Router /api/assets/sensitive/info [post]

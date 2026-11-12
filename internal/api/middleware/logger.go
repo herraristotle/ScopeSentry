@@ -10,22 +10,22 @@ import (
 
 func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 开始时间
+		// Start time
 		start := time.Now()
-		// 请求路径
+		// Request path
 		path := c.Request.URL.Path
-		// 请求参数
+		// Request parameters
 		query := c.Request.URL.RawQuery
 
-		// 处理请求
+		// Process the request
 		c.Next()
 
-		// 结束时间
+		// End time
 		cost := time.Since(start)
-		// 状态码
+		// Status code
 		status := c.Writer.Status()
 
-		// 记录日志
+		// Record the log
 		logger.Info("Request",
 			zap.Int("status", status),
 			zap.String("method", c.Request.Method),

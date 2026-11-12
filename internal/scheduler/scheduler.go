@@ -18,21 +18,21 @@ import (
 	"go.uber.org/zap"
 )
 
-// JobHandler 表示任务处理函数的类型
+// JobHandler is the type of a job handler function
 type JobHandler func(params string, nextTime string) error
 
-// Job 表示一个计划任务
+// Job represents a scheduled task
 type Job struct {
 	ID          string    `bson:"_id"`
 	Name        string    `bson:"name"`
-	Schedule    string    `bson:"schedule"` // cron 表达式
-	Handler     string    `bson:"handler"`  // 处理函数名称
+	Schedule    string    `bson:"schedule"` // cron expression
+	Handler     string    `bson:"handler"`  // handler function name
 	Params      string    `bson:"params"`
 	LastRunTime time.Time `bson:"last_run_time"`
 	NextRunTime time.Time `bson:"next_run_time"`
 	CreatedAt   time.Time `bson:"created_at"`
 	UpdatedAt   time.Time `bson:"updated_at"`
-	CycleType   string    `bson:"cycle_type"` // 周期类型：cron 或 interval
+	CycleType   string    `bson:"cycle_type"` // cycle type: cron or interval
 	Interval    struct {
 		Days    int `bson:"days"`
 		Hours   int `bson:"hours"`
@@ -40,14 +40,14 @@ type Job struct {
 	} `bson:"interval"`
 }
 
-// Scheduler 表示计划任务调度器
+// Scheduler represents the scheduled task scheduler
 type Scheduler struct {
 	scheduler      *gocron.Scheduler
 	db             *mongo.Database
 	jobsCollection *mongo.Collection
 	logger         *zap.Logger
 	jobs           map[string]*gocron.Job
-	handlers       map[string]JobHandler // 存储注册的处理函数
+	handlers       map[string]JobHandler // registered handler functions
 }
 
 var (
@@ -55,12 +55,12 @@ var (
 	once            sync.Once
 )
 
-// GetGlobalScheduler 获取全局调度器实例
+// GetGlobalScheduler returns the global scheduler instance
 func GetGlobalScheduler() *Scheduler {
 	return globalScheduler
 }
 
-// InitializeGlobalScheduler 初始化全局调度器
+// InitializeGlobalScheduler initializes the global scheduler
 func InitializeGlobalScheduler() {
 	once.Do(func() {
 		globalScheduler = NewScheduler()
@@ -76,11 +76,11 @@ func InitializeGlobalScheduler() {
 	})
 }
 
-// NewScheduler 创建一个新的调度器实例
+// NewScheduler creates a new scheduler instance
 func NewScheduler() *Scheduler {
 	loc, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 	if err != nil {
-		// 处理错误，例如使用默认时区
+		// Handle the error, e.g. by using the default timezone
 		loc = time.Local
 	}
 	return &Scheduler{
@@ -93,48 +93,48 @@ func NewScheduler() *Scheduler {
 	}
 }
 
-// RegisterHandler 注册一个任务处理函数
+// RegisterHandler registers a job handler function
 func (s *Scheduler) RegisterHandler(name string, handler JobHandler) {
 	s.handlers[name] = handler
 	s.logger.Info("Registered job handler", zap.String("handler_name", name))
 }
 
-// Start 启动调度器
+// Start starts the scheduler
 func (s *Scheduler) Start() {
 	s.scheduler.StartAsync()
 	s.loadJobs()
 }
 
-// Stop 停止调度器
+// Stop stops the scheduler
 func (s *Scheduler) Stop() {
 	s.scheduler.Stop()
 }
 
-// AddJob 添加一个新的任务
+// AddJob adds a new job
 func (s *Scheduler) AddJob(job *Job) error {
-	// 检查处理函数是否已注册
+	// Check whether the handler function is registered
 	if _, exists := s.handlers[job.Handler]; !exists {
 		return fmt.Errorf("handler %s not registered", job.Handler)
 	}
 
-	// 检查任务是否已经存在（内存中）
+	// Check whether the job already exists (in memory)
 	if _, exists := s.jobs[job.ID]; exists {
-		// 任务已存在，直接返回成功
+		// Job already exists, return success directly
 		return nil
 	}
 
-	// 检查任务是否已经存在于 MongoDB 中
+	// Check whether the job already exists in MongoDB
 	var existingJob Job
 	err := s.jobsCollection.FindOne(context.Background(), bson.M{"_id": job.ID}).Decode(&existingJob)
 	if err == nil {
-		// 任务在数据库中已存在，直接返回成功
+		// Job already exists in the database, return success directly
 		return nil
 	} else if err != mongo.ErrNoDocuments {
-		// 查询出错（不是"未找到文档"的错误）
+		// Query error (not a "document not found" error)
 		return fmt.Errorf("failed to check if job exists: %w", err)
 	}
 
-	// 将任务保存到 MongoDB
+	// Save the job to MongoDB
 	job.CreatedAt = helper.GetNowTime()
 	job.UpdatedAt = helper.GetNowTime()
 
@@ -146,14 +146,14 @@ func (s *Scheduler) AddJob(job *Job) error {
 	var schedJob *gocron.Job
 	var err2 error
 
-	// 根据周期类型添加任务
+	// Add the job according to its cycle type
 	if job.CycleType == "interval" {
-		// 使用 interval 方式添加任务
+		// Add the job using an interval
 		schedJob, err2 = s.scheduler.Every(job.Interval.Days).Days().
 			At(fmt.Sprintf("%02d:%02d", job.Interval.Hours, job.Interval.Minutes)).
 			Do(s.executeJob, job)
 	} else {
-		// 使用 cron 方式添加任务
+		// Add the job using a cron expression
 		schedJob, err2 = s.scheduler.Cron(job.Schedule).Do(s.executeJob, job)
 	}
 
@@ -163,7 +163,7 @@ func (s *Scheduler) AddJob(job *Job) error {
 
 	s.jobs[job.ID] = schedJob
 
-	// 添加日志记录
+	// Add logging
 	s.logger.Info("Successfully added new job",
 		zap.String("job_id", job.ID),
 		zap.String("job_name", job.Name),
@@ -174,15 +174,15 @@ func (s *Scheduler) AddJob(job *Job) error {
 	return nil
 }
 
-// RemoveJob 移除一个任务
+// RemoveJob removes a job
 func (s *Scheduler) RemoveJob(jobID string) error {
-	// 从调度器中移除任务
+	// Remove the job from the scheduler
 	if job, exists := s.jobs[jobID]; exists {
 		s.scheduler.RemoveByReference(job)
 		delete(s.jobs, jobID)
 	}
 
-	// 从 MongoDB 中删除任务
+	// Delete the job from MongoDB
 	_, err := s.jobsCollection.DeleteOne(context.Background(), bson.M{"_id": jobID})
 	if err != nil {
 		return err
@@ -191,27 +191,27 @@ func (s *Scheduler) RemoveJob(jobID string) error {
 	return nil
 }
 
-// UpdateJob 更新任务
+// UpdateJob updates a job
 func (s *Scheduler) UpdateJob(job *Job) error {
-	// 检查处理函数是否已注册
+	// Check whether the handler function is registered
 	if _, exists := s.handlers[job.Handler]; !exists {
 		return fmt.Errorf("handler %s not registered", job.Handler)
 	}
 
 	job.UpdatedAt = helper.GetNowTime()
 
-	// 更新 MongoDB 中的任务
+	// Update the job in MongoDB
 	_, err := s.jobsCollection.ReplaceOne(context.Background(), bson.M{"_id": job.ID}, job)
 	if err != nil {
 		return err
 	}
 
-	// 从调度器中移除旧任务
+	// Remove the old job from the scheduler
 	if oldJob, exists := s.jobs[job.ID]; exists {
 		s.scheduler.RemoveByReference(oldJob)
 	}
 
-	// 添加新任务到调度器
+	// Add the new job to the scheduler
 	schedJob, err := s.scheduler.Cron(job.Schedule).Do(s.executeJob, job)
 	if err != nil {
 		return err
@@ -221,7 +221,7 @@ func (s *Scheduler) UpdateJob(job *Job) error {
 	return nil
 }
 
-// loadJobs 从 MongoDB 加载所有任务
+// loadJobs loads all jobs from MongoDB
 func (s *Scheduler) loadJobs() {
 	cursor, err := s.jobsCollection.Find(context.Background(), bson.M{})
 	if err != nil {
@@ -237,7 +237,7 @@ func (s *Scheduler) loadJobs() {
 			continue
 		}
 
-		// 检查处理函数是否已注册
+		// Check whether the handler function is registered
 		if _, exists := s.handlers[job.Handler]; !exists {
 			s.logger.Error("Handler not registered for job",
 				zap.String("job_id", job.ID),
@@ -255,7 +255,7 @@ func (s *Scheduler) loadJobs() {
 	}
 }
 
-// executeJob 执行任务
+// executeJob executes a job
 func (s *Scheduler) executeJob(job *Job) {
 	s.logger.Info("Executing job",
 		zap.String("job_id", job.ID),
@@ -263,7 +263,7 @@ func (s *Scheduler) executeJob(job *Job) {
 		zap.String("handler", job.Handler),
 	)
 
-	// 获取并执行处理函数
+	// Get and execute the handler function
 	handler, exists := s.handlers[job.Handler]
 	if !exists {
 		s.logger.Error("Handler not found",
@@ -273,11 +273,11 @@ func (s *Scheduler) executeJob(job *Job) {
 		return
 	}
 
-	// 更新最后执行时间
+	// Update the last execution time
 	job.LastRunTime = helper.GetNowTime()
 	job.NextRunTime = s.jobs[job.ID].NextRun()
 
-	// 执行处理函数
+	// Execute the handler function
 	if err := handler(job.Params, helper.FormatTime(job.NextRunTime)); err != nil {
 		s.logger.Error("Job execution failed",
 			zap.String("job_id", job.ID),

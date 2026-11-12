@@ -12,7 +12,7 @@ import (
 type Repository interface {
 	CountDocuments(ctx context.Context, collection string, filter bson.M) (int64, error)
 	Aggregate(ctx context.Context, collection string, pipeline []bson.M) (*mongo.Cursor, error)
-	Find(ctx context.Context, collection string, filter bson.M, projection bson.M) (*mongo.Cursor, error) // 新增 Find 方法
+	Find(ctx context.Context, collection string, filter bson.M, projection bson.M) (*mongo.Cursor, error) // Added Find method
 }
 
 type repository struct {
@@ -37,7 +37,7 @@ func (r *repository) Aggregate(ctx context.Context, collection string, pipeline 
 	return cursor, nil
 }
 
-// 新增 Find 方法
+// Added Find method
 func (r *repository) Find(ctx context.Context, collection string, filter bson.M, projection bson.M) (*mongo.Cursor, error) {
 	cursor, err := r.db.Collection(collection).Find(ctx, filter, options.Find().SetProjection(projection))
 	if err != nil {

@@ -1,25 +1,14 @@
 <script setup lang="ts">
 import {
-  ElCheckbox,
   ElDivider,
   ElForm,
   ElFormItem,
   ElInput,
   ElRow,
   ElCol,
-  ElSwitch,
-  ElTooltip,
-  ElRadioGroup,
-  ElRadio,
-  ElSelectV2,
   ElButton,
   FormInstance,
-  ElInputNumber,
-  ElText,
-  ElSelect,
-  ElOption,
-  ElMessage,
-  CheckboxValueType
+  ElMessage
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { computed, onMounted, reactive, ref } from 'vue'
@@ -146,7 +135,6 @@ const getProjectInfo = async () => {
   }
 }
 
-const indeterminate = ref(false)
 const isCheckboxDisabledNode = ref(false)
 const nodeOptions = reactive<{ value: string; label: string }[]>([])
 const getNodeList = async () => {
@@ -164,17 +152,6 @@ const getNodeList = async () => {
   console.log(nodeOptions)
 }
 
-const handleCheckAll = (val: CheckboxValueType) => {
-  indeterminate.value = false
-  if (val) {
-    projectForm.node = []
-    nodeOptions.forEach((option) => {
-      return projectForm.node.push(option.value)
-    })
-  } else {
-    projectForm.node = []
-  }
-}
 const templateOptions = reactive<{ value: string; label: string }[]>([])
 const getTemplateList = async () => {
   templateOptions.length = 0
@@ -193,13 +170,6 @@ onMounted(() => {
 const templateId = ref('')
 let DialogTitle = ''
 const dialogVisible = ref(false)
-const editTemplate = async (data) => {
-  templateId.value = data
-  if (data != '') {
-    DialogTitle = t('task.editTemplate')
-  }
-  dialogVisible.value = true
-}
 const closeTemplateDialog = () => {
   dialogVisible.value = false
 }

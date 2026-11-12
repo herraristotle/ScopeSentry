@@ -20,7 +20,7 @@ const dictObj: Recordable = {
 }
 
 export default [
-  // 字典接口
+  // Dictionary endpoint
   {
     url: '/mock/dict/list',
     method: 'get',
@@ -32,7 +32,7 @@ export default [
       }
     }
   },
-  // 获取某个字典
+  // Get a dictionary entry
   {
     url: '/mock/dict/one',
     method: 'get',

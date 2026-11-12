@@ -27,7 +27,7 @@ import (
 	"strings"
 )
 
-// Service 定义任务服务接口
+// Service defines the task service interface
 type Service interface {
 	Insert(ctx context.Context, task *models.Task) (string, error)
 	CreateTaskScan(ctx context.Context, task models.Task, id string, stopToStart bool) (int64, error)
@@ -47,7 +47,7 @@ type service struct {
 	portsService      dictionary.PortService
 }
 
-// NewService 创建任务服务实例
+// NewService creates a task service instance
 func NewService() Service {
 	return &service{
 		taskRepo:          task.NewRepository(),
@@ -62,7 +62,7 @@ func NewService() Service {
 }
 
 func (s *service) Insert(ctx context.Context, task *models.Task) (string, error) {
-	// task.TargetSource 分为普通、从资产选择数据进行创建（支持资产、根域名、子域名、url 这里修改原始逻辑 统一为后边的情况）、从项目、从资产、从根域名、从子域名、从url
+	// task.TargetSource is one of: general, created by selecting data from assets (supports asset, root domain, subdomain, url; the original logic was changed here to unify with the later cases), from project, from asset, from root domain, from subdomain, from url
 	var query models.SearchRequest
 	var target string
 	var err error
@@ -82,33 +82,33 @@ func (s *service) Insert(ctx context.Context, task *models.Task) (string, error)
 		query.Filter["project"] = projects
 	}
 	if task.TargetSource == "general" {
-		//普通的情况不需要做改变
+		// The general case needs no changes
 	} else if task.TargetSource == "project" {
-		// 从项目中获取数据，读取projet的目标
+		// Get data from the project, reading the project's targets
 		target, err = s.projectService.GetTargets(ctx, task.Project)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "asset" || (task.TargetSource == "assetSource" && task.TargetTp == "search") {
-		// 从资产处创建
+		// Create from assets
 		target, err = s.assetService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "RootDomain" || (task.TargetSource == "RootDomainSource" && task.TargetTp == "search") {
-		// 从根域名创建
+		// Create from root domains
 		target, err = s.rootDomainService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "subdomain" || (task.TargetSource == "subdomainSource" && task.TargetTp == "search") {
-		// 从子域名处创建
+		// Create from subdomains
 		target, err = s.subdomainService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "UrlScan" || (task.TargetSource == "UrlScanSource" && task.TargetTp == "search") {
-		// 从url扫描处创建
+		// Create from URL scans
 		target, err = s.urlService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
@@ -171,7 +171,7 @@ func (s *service) CreateTaskScan(ctx context.Context, task models.Task, id strin
 	task.ID, _ = primitive.ObjectIDFromHex(id)
 	task.IsStart = stopToStart
 	if task.AllNode {
-		// 选择自动加入后 获取所有节点
+		// After selecting auto-join, get all nodes
 		allNode, err := s.nodeService.GetNodeData(ctx, false)
 		if err != nil {
 			return 0, err
@@ -188,14 +188,14 @@ func (s *service) CreateTaskScan(ctx context.Context, task models.Task, id strin
 		}
 	}
 
-	// 如果是暂停之后再开始的，则不需要删除缓存和填入目标
+	// If restarting after a pause, there is no need to clear the cache or push targets
 	if !stopToStart {
-		// 删除缓存
+		// Clear the cache
 		err := s.taskRepo.ClearTaskCache(ctx, id)
 		if err != nil {
 			return 0, err
 		}
-		// 生成原始target
+		// Generate the raw targets
 		targets, err := helper.GetTargetList(task.Target, task.Ignore)
 		if err != nil {
 			return 0, err
@@ -260,9 +260,9 @@ func (s *service) GetScanTemplate(ctx context.Context, task *models.Task) (*mode
 
 var placeholderRegex = regexp.MustCompile(`\{(.*?)\}`)
 
-// ParameterParser 解析参数中的字典和端口引用
+// ParameterParser resolves dictionary and port references in parameters
 func (s *service) ParameterParser(ctx context.Context, parameters models.Parameters) (models.Parameters, error) {
-	// 1. 获取字典数据
+	// 1. Get dictionary data
 	dictList := make(map[string]string)
 	dicts, err := s.dictionaryService.List(ctx)
 	if err != nil {
@@ -272,7 +272,7 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		dictList[strings.ToLower(dict.Category+"."+dict.Name)] = dict.ID.Hex()
 	}
 
-	// 2. 获取端口数据
+	// 2. Get port data
 	portList := make(map[string]string)
 	ports, _, err := s.portsService.Get(ctx, "", 1, 1000)
 	if err != nil {
@@ -282,11 +282,11 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		portList[strings.ToLower(port.Name)] = port.Value
 	}
 
-	// 公共处理函数
+	// Shared processing function
 	processMap := func(m map[string]string) {
 		for k, v := range m {
 			newValue := placeholderRegex.ReplaceAllStringFunc(v, func(match string) string {
-				// match 就是 {dict.xxx} 或 {port.xxx}
+				// match is {dict.xxx} or {port.xxx}
 				inner := strings.Trim(match, "{}")
 				parts := strings.SplitN(inner, ".", 2)
 				if len(parts) != 2 {
@@ -301,12 +301,12 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 					if real, ok := dictList[val]; ok {
 						return real
 					}
-					logger.Error(fmt.Sprintf("未找到字典参数: %s", val))
+					logger.Error(fmt.Sprintf("dictionary parameter not found: %s", val))
 				case "port":
 					if real, ok := portList[val]; ok {
 						return real
 					}
-					logger.Error(fmt.Sprintf("未找到端口参数: %s", val))
+					logger.Error(fmt.Sprintf("port parameter not found: %s", val))
 				}
 				return match
 			})
@@ -314,7 +314,7 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		}
 	}
 
-	// 3. 自动批量处理所有字段（集中在一个 slice 中，方便以后加字段）
+	// 3. Automatically process all fields (kept in one slice to make adding fields easier later)
 	allMaps := []*map[string]string{
 		&parameters.TargetHandler,
 		&parameters.SubdomainScan,

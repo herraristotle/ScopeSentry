@@ -20,12 +20,12 @@ func init() {
 	dirscanService = dirscan.NewService()
 }
 
-// List @Summary 获取目录扫描数据
+// List @Summary Get directory scan data
 // @Tags DirScan
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body ListRequest true "分页与筛选参数"
+// @Param request body ListRequest true "Pagination and filter parameters"
 // @Success 200 {object} response.DataResponse{data=[]models.DirScanResult}
 // @Router /api/assets/dirscan [post]
 func List(c *gin.Context) {

@@ -60,7 +60,7 @@ type GetHttpResponse struct {
 
 func (r *request) HttpGet(uri string) (GetHttpResponse, error) {
 	req, resp := fasthttp.AcquireRequest(), fasthttp.AcquireResponse()
-	// 最后需要归还req、resp到池中
+	// Finally, return req and resp to the pool
 	defer func() {
 		fasthttp.ReleaseRequest(req)
 		fasthttp.ReleaseResponse(resp)
@@ -148,7 +148,7 @@ func fixJSONNewlines(b []byte) []byte {
 		}
 
 		if inString && (c == '\n' || c == '\r') {
-			// 转义换行
+			// Escape newlines
 			out = append(out, '\\', 'n')
 			continue
 		}

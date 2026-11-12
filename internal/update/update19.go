@@ -19,17 +19,17 @@ import (
 )
 
 func Update19() {
-	// 资产索引
+	// Asset indexes
 	asset := mongodb.DB.Collection("asset")
 	indexes := []mongo.IndexModel{
 		{Keys: bson.D{{"host", 1}}},
-		{Keys: bson.D{{"rootDomain", 1}, {"time", -1}}}, // 优化按 rootDomain 查询并按 time 排序的性能
+		{Keys: bson.D{{"rootDomain", 1}, {"time", -1}}}, // Optimize performance for queries by rootDomain sorted by time
 	}
 	_, err := asset.Indexes().CreateMany(context.Background(), indexes)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create asset indexes: %v", err))
 	}
-	// 旧指纹备份
+	// Backup of old fingerprints
 	ctx := context.Background()
 	fingerprintCollection := mongodb.DB.Collection("FingerprintRules")
 	backupPipeline := []bson.M{
@@ -43,7 +43,7 @@ func Update19() {
 	defer cursor.Close(ctx)
 	logger.Info("FingerprintRules backed up to FingerprintRules_bak successfully")
 
-	// 插入新指纹
+	// Insert new fingerprints
 	fingerprintCollection = mongodb.DB.Collection("FingerprintRules")
 	fingerprint, _ := constants.GetFingerprintData()
 	if len(fingerprint) > 0 {
@@ -53,7 +53,7 @@ func Update19() {
 		}
 	}
 
-	// 插入指纹版本
+	// Insert fingerprint version
 	configCollection := mongodb.DB.Collection("config")
 	configCollection.InsertOne(context.Background(), bson.M{
 		"name":  "FingerVersion",

@@ -105,7 +105,7 @@ func hashKey(rawKey string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// IsAPIKeyFormat 判断 token 是否为 API Key 格式（非 JWT）
+// IsAPIKeyFormat checks whether the token is in API Key format (not a JWT)
 func IsAPIKeyFormat(token string) bool {
 	return strings.HasPrefix(token, keyPrefix)
 }

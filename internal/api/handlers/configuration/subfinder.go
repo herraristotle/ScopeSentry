@@ -19,7 +19,7 @@ type saveContentRequest struct {
 	Content string `json:"content" binding:"required" example:"your-config-here"`
 }
 
-// GetSubfinderData @Summary 获取 Subfinder 配置
+// GetSubfinderData @Summary Get Subfinder config
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -34,12 +34,12 @@ func GetSubfinderData(c *gin.Context) {
 	response.Success(c, gin.H{"content": content}, "api.success")
 }
 
-// SaveSubfinderData @Summary 保存 Subfinder 配置
+// SaveSubfinderData @Summary Save Subfinder config
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body saveContentRequest true "配置内容"
+// @Param       body body saveContentRequest true "Config content"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/subfinder/save [post]
 func SaveSubfinderData(c *gin.Context) {

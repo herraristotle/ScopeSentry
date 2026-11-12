@@ -19,10 +19,10 @@ var (
 
 func init() {
 	once.Do(func() {
-		bundle = i18n.NewBundle(language.Chinese)
+		bundle = i18n.NewBundle(language.English)
 		bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-		// 加载语言文件
+		// Load the locale files
 		loadLocaleFiles()
 	})
 }
@@ -51,7 +51,7 @@ func Translate(locale, messageID string) string {
 		MessageID: messageID,
 	})
 	if err != nil {
-		return messageID // 如果翻译失败，返回原始key
+		return messageID // If the translation fails, return the original key
 	}
 	return msg
 }

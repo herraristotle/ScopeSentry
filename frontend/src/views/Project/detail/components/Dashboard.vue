@@ -1,6 +1,6 @@
 <script setup lang="tsx">
 import { useI18n } from '@/hooks/web/useI18n'
-import { reactive, Ref, ref, watch } from 'vue'
+import { reactive, Ref, ref } from 'vue'
 import { Echart } from '@/components/Echart'
 import {
   ElRow,
@@ -17,9 +17,7 @@ import {
   ElTable,
   ElTableColumn,
   ElText,
-  ElSpace,
-  ElCollapseItem,
-  ElCollapse
+  ElSpace
 } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -123,7 +121,7 @@ const getProjectVulLevelInfo = async () => {
     chartData = res.data
       .map((item) => {
         if (item._id && item.count && levelMap[item._id]) {
-          const { color, flag } = levelMap[item._id]
+          const { color } = levelMap[item._id]
           return {
             value: item.count,
             name: item._id,
@@ -193,7 +191,7 @@ const getProjectVulData = async () => {
   projectVulDataLoading.value = true
   const res = await getProjectVulDataApi(query.id as string)
   if (Array.isArray(res.data.list)) {
-    // 更新 vulTableData 的值，使用 .value 属性访问 ref 的值
+    // Update vulTableData's value, accessing the ref's value via the .value property
     vulTableData = res.data.list
   }
   projectVulDataLoading.value = false
@@ -287,9 +285,13 @@ getAllApi()
                     </div>
                   </template>
                   <ElScrollbar max-height="50px" always>
-                    <template v-for="(o, index) in projectInfo.domain" :key="index">
-                      <div class="text item">{{ o }}</div>
-                    </template>
+                    <div
+                      v-for="(o, index) in projectInfo.domain"
+                      :key="index"
+                      class="text item"
+                    >
+                      {{ o }}
+                    </div>
                   </ElScrollbar>
                 </ElDescriptionsItem>
                 <ElDescriptionsItem labelClassName="projectinfoclass">
@@ -497,6 +499,6 @@ getAllApi()
   margin-left: 20px;
 }
 .el-table__row:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影效果，可以根据需求调整 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow effect, adjust as needed */
 }
 </style>

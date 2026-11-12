@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// PermissionMiddleware 权限检查中间件
+// PermissionMiddleware permission check middleware
 func PermissionMiddleware(permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 获取用户角色
+		// Get the user's role
 		role, exists := c.Get("role")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User role not found"})
@@ -18,7 +18,7 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 			return
 		}
 
-		// 获取角色对应的权限列表
+		// Get the permission list for the role
 		permissions, exists := constants.RolePermissions[role.(string)]
 		if !exists {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid user role"})
@@ -26,7 +26,7 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否具有所需权限
+		// Check whether the required permission is held
 		hasPermission := false
 		for _, p := range permissions {
 			if p == permission {

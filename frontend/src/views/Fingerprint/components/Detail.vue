@@ -21,7 +21,7 @@ const localFingerprintForm = ref({ ...fingerprintForm.value })
 const editorContainer = ref<HTMLDivElement | null>(null)
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
 
-// 默认 YAML 模板
+// Default YAML template
 const defaultYamlTemplate = `fingerprint:
   name: 
   category: 
@@ -39,7 +39,7 @@ const defaultYamlTemplate = `fingerprint:
 
 onMounted(() => {
   if (editorContainer.value) {
-    // 如果是新建且内容为空，使用默认模板
+    // If creating a new entry and content is empty, use the default template
     let initialValue = localFingerprintForm.value.content || ''
     if (!localFingerprintForm.value.id && !initialValue.trim()) {
       initialValue = defaultYamlTemplate
@@ -58,7 +58,7 @@ onMounted(() => {
       wordWrap: 'on'
     })
 
-    // 监听编辑器内容变化
+    // Watch for editor content changes
     editor.onDidChangeModelContent(() => {
       const value = editor?.getValue() || ''
       localFingerprintForm.value.content = value
@@ -66,12 +66,12 @@ onMounted(() => {
   }
 })
 
-// 监听外部数据变化
+// Watch for external data changes
 watch(
   () => [props.fingerprintForm.content, props.fingerprintForm.id],
   ([newValue, id]) => {
     if (editor) {
-      // 如果是新建且内容为空，使用默认模板
+      // If creating a new entry and content is empty, use the default template
       if (!id && (!newValue || !newValue.trim())) {
         const defaultValue = defaultYamlTemplate
         if (editor.getValue() !== defaultValue) {
@@ -123,9 +123,9 @@ const submitForm = async () => {
       <div ref="editorContainer" class="yaml-editor"></div>
     </div>
     <div class="action-bar">
-      <ElButton @click="props.closeDialog">{{ t('common.cancel') || '取消' }}</ElButton>
+      <ElButton @click="props.closeDialog">{{ t('common.cancel') || 'Cancel' }}</ElButton>
       <ElButton type="primary" @click="submitForm" :loading="saveLoading">{{
-        t('task.save') || '保存'
+        t('task.save') || 'Save'
       }}</ElButton>
     </div>
   </div>
@@ -166,12 +166,12 @@ const submitForm = async () => {
   flex-shrink: 0;
 }
 
-/* 减少 Dialog body 的 padding */
+/* Reduce the Dialog body padding */
 :deep(.el-dialog__body) {
   padding: 10px 15px !important;
 }
 
-/* Monaco Editor 样式优化 */
+/* Monaco Editor style optimizations */
 :deep(.monaco-editor) {
   border-radius: 8px;
 }

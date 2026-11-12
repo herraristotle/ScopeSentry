@@ -14,9 +14,9 @@ func init() {
 }
 
 // GetProjectsByTag godoc
-// @Summary 获取按标签分组的项目列表
-// @Description 获取所有项目并按标签分组
-// @Tags 项目
+// @Summary Get project list grouped by tag
+// @Description Get all projects and group them by tag
+// @Tags Project
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=[]project.TagGroup}
@@ -33,13 +33,13 @@ func GetProjectsByTag(c *gin.Context) {
 	}, "")
 }
 
-// GetProjectsData 获取项目数据（含标签聚合）
-// @Summary 获取项目数据
-// @Description 返回每个标签下的分页项目列表与标签计数
-// @Tags 项目
+// GetProjectsData get project data (with tag aggregation)
+// @Summary Get project data
+// @Description Return the paginated project list and tag counts for each tag
+// @Tags Project
 // @Accept json
 // @Produce json
-// @Param data body models.ProjectListRequest true "查询参数"
+// @Param data body models.ProjectListRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=models.ProjectListResponse}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -64,12 +64,12 @@ func GetProjectsData(c *gin.Context) {
 	response.Success(c, data, "")
 }
 
-// GetProjectContent 获取项目内容
-// @Summary 获取项目目标与基础信息
-// @Tags 项目
+// GetProjectContent get project content
+// @Summary Get project targets and basic info
+// @Tags Project
 // @Accept json
 // @Produce json
-// @Param data body models.ProjectContentRequest true "项目ID"
+// @Param data body models.ProjectContentRequest true "Project ID"
 // @Success 200 {object} response.Response{data=models.ProjectContentResponse}
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response

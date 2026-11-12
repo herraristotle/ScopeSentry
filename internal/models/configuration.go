@@ -17,28 +17,28 @@ type System struct {
 
 type Notification struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name        string             `json:"name" bson:"name"`               // 请求名称
-	Method      string             `json:"method" bson:"method"`           // HTTP 方法，如 GET、POST
-	URL         string             `json:"url" bson:"url"`                 // 请求地址
-	ContentType string             `json:"contentType" bson:"contentType"` // 内容类型，如 application/json
-	Data        string             `json:"data" bson:"data"`               // 请求数据（可为字符串或对象）
-	State       bool               `json:"state" bson:"state"`             // 状态（如 active、disabled 等）
+	Name        string             `json:"name" bson:"name"`               // Request name
+	Method      string             `json:"method" bson:"method"`           // HTTP method, e.g. GET, POST
+	URL         string             `json:"url" bson:"url"`                 // Request URL
+	ContentType string             `json:"contentType" bson:"contentType"` // Content type, e.g. application/json
+	Data        string             `json:"data" bson:"data"`               // Request data (can be a string or an object)
+	State       bool               `json:"state" bson:"state"`             // State (e.g. active, disabled, etc.)
 }
 
 type UpdateNotification struct {
 	ID          string `json:"id" bson:"-"`
-	Name        string `json:"name" bson:"name"`               // 请求名称
-	Method      string `json:"method" bson:"method"`           // HTTP 方法，如 GET、POST
-	URL         string `json:"url" bson:"url"`                 // 请求地址
-	ContentType string `json:"contentType" bson:"contentType"` // 内容类型，如 application/json
-	Data        string `json:"data" bson:"data"`               // 请求数据（可为字符串或对象）
-	State       bool   `json:"state" bson:"state"`             // 状态（如 active、disabled 等）
+	Name        string `json:"name" bson:"name"`               // Request name
+	Method      string `json:"method" bson:"method"`           // HTTP method, e.g. GET, POST
+	URL         string `json:"url" bson:"url"`                 // Request URL
+	ContentType string `json:"contentType" bson:"contentType"` // Content type, e.g. application/json
+	Data        string `json:"data" bson:"data"`               // Request data (can be a string or an object)
+	State       bool   `json:"state" bson:"state"`             // State (e.g. active, disabled, etc.)
 }
 
 type DepConfig struct {
 	Asset                bool   `json:"asset" bson:"asset"`
 	Subdomain            bool   `json:"subdomain" bson:"subdomain"`
-	SubdomainTakerResult bool   `json:"SubdomainTakerResult" bson:"SubdomainTakerResult"` // 保留原拼写
+	SubdomainTakerResult bool   `json:"SubdomainTakerResult" bson:"SubdomainTakerResult"` // Original spelling preserved
 	UrlScan              bool   `json:"UrlScan" bson:"UrlScan"`
 	Crawler              bool   `json:"crawler" bson:"crawler"`
 	SensitiveResult      bool   `json:"SensitiveResult" bson:"SensitiveResult"`

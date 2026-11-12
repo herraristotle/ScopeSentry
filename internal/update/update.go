@@ -26,7 +26,7 @@ func normalizeVersion(version string) string {
 }
 
 func Update() error {
-	// 确保 API Key 索引存在（幂等操作）
+	// Ensure the API Key index exists (idempotent operation)
 	Update20()
 
 	configColl := mongodb.DB.Collection("config")
@@ -37,7 +37,7 @@ func Update() error {
 	}
 	err := configColl.FindOne(context.Background(), bson.M{"name": "version"}).Decode(&result)
 	if errors.Is(err, mongo.ErrNoDocuments) {
-		// 如果不存在记录，插入新记录
+		// If no record exists, insert a new one
 		_, err = configColl.InsertOne(context.Background(), bson.M{
 			"name":    "version",
 			"version": constants.Version,
@@ -78,7 +78,7 @@ func Update() error {
 			Update19()
 		}
 
-		// 更新数据库记录
+		// Update the database record
 		_, err := configColl.UpdateOne(context.Background(), bson.M{"name": "version"}, bson.M{
 			"$set": bson.M{
 				"version": constants.Version,

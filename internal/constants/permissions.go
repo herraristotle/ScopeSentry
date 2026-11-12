@@ -1,53 +1,53 @@
 package constants
 
-// 角色定义
+// Role definitions
 const (
-	RoleSuperAdmin = "super_admin" // 超级管理员
-	RoleAdmin      = "admin"       // 管理员
-	RoleUser       = "user"        // 普通用户
-	RoleGuest      = "guest"       // 访客
+	RoleSuperAdmin = "super_admin" // Super administrator
+	RoleAdmin      = "admin"       // Administrator
+	RoleUser       = "user"        // Regular user
+	RoleGuest      = "guest"       // Guest
 )
 
-// 权限前缀定义
+// Permission prefix definitions
 const (
-	PrefixUser    = "user"    // 用户管理
-	PrefixRole    = "role"    // 角色管理
-	PrefixAsset   = "asset"   // 资产管理
-	PrefixDomain  = "domain"  // 子域名管理
-	PrefixApp     = "app"     // 应用管理
-	PrefixTask    = "task"    // 任务管理
-	PrefixProject = "project" // 项目管理
-	PrefixSystem  = "system"  // 系统管理
+	PrefixUser    = "user"    // User management
+	PrefixRole    = "role"    // Role management
+	PrefixAsset   = "asset"   // Asset management
+	PrefixDomain  = "domain"  // Subdomain management
+	PrefixApp     = "app"     // Application management
+	PrefixTask    = "task"    // Task management
+	PrefixProject = "project" // Project management
+	PrefixSystem  = "system"  // System management
 )
 
-// 操作类型定义
+// Action type definitions
 const (
-	ActionCreate = "create" // 创建
-	ActionRead   = "read"   // 读取
-	ActionUpdate = "update" // 更新
-	ActionDelete = "delete" // 删除
-	ActionList   = "list"   // 列表
-	ActionExport = "export" // 导出
-	ActionImport = "import" // 导入
+	ActionCreate = "create" // Create
+	ActionRead   = "read"   // Read
+	ActionUpdate = "update" // Update
+	ActionDelete = "delete" // Delete
+	ActionList   = "list"   // List
+	ActionExport = "export" // Export
+	ActionImport = "import" // Import
 )
 
-// 权限定义
+// Permission definitions
 const (
-	// 用户管理权限
+	// User management permissions
 	PermissionUserCreate = PrefixUser + ":" + ActionCreate
 	PermissionUserRead   = PrefixUser + ":" + ActionRead
 	PermissionUserUpdate = PrefixUser + ":" + ActionUpdate
 	PermissionUserDelete = PrefixUser + ":" + ActionDelete
 	PermissionUserList   = PrefixUser + ":" + ActionList
 
-	// 角色管理权限
+	// Role management permissions
 	PermissionRoleCreate = PrefixRole + ":" + ActionCreate
 	PermissionRoleRead   = PrefixRole + ":" + ActionRead
 	PermissionRoleUpdate = PrefixRole + ":" + ActionUpdate
 	PermissionRoleDelete = PrefixRole + ":" + ActionDelete
 	PermissionRoleList   = PrefixRole + ":" + ActionList
 
-	// 资产管理权限
+	// Asset management permissions
 	PermissionAssetCreate = PrefixAsset + ":" + ActionCreate
 	PermissionAssetRead   = PrefixAsset + ":" + ActionRead
 	PermissionAssetUpdate = PrefixAsset + ":" + ActionUpdate
@@ -56,7 +56,7 @@ const (
 	PermissionAssetExport = PrefixAsset + ":" + ActionExport
 	PermissionAssetImport = PrefixAsset + ":" + ActionImport
 
-	// 子域名管理权限
+	// Subdomain management permissions
 	PermissionDomainCreate = PrefixDomain + ":" + ActionCreate
 	PermissionDomainRead   = PrefixDomain + ":" + ActionRead
 	PermissionDomainUpdate = PrefixDomain + ":" + ActionUpdate
@@ -65,14 +65,14 @@ const (
 	PermissionDomainExport = PrefixDomain + ":" + ActionExport
 	PermissionDomainImport = PrefixDomain + ":" + ActionImport
 
-	// 应用管理权限
+	// Application management permissions
 	PermissionAppCreate = PrefixApp + ":" + ActionCreate
 	PermissionAppRead   = PrefixApp + ":" + ActionRead
 	PermissionAppUpdate = PrefixApp + ":" + ActionUpdate
 	PermissionAppDelete = PrefixApp + ":" + ActionDelete
 	PermissionAppList   = PrefixApp + ":" + ActionList
 
-	// 任务管理权限
+	// Task management permissions
 	PermissionTaskCreate = PrefixTask + ":" + ActionCreate
 	PermissionTaskRead   = PrefixTask + ":" + ActionRead
 	PermissionTaskUpdate = PrefixTask + ":" + ActionUpdate
@@ -80,37 +80,37 @@ const (
 	PermissionTaskList   = PrefixTask + ":" + ActionList
 	PermissionTaskExport = PrefixTask + ":" + ActionExport
 
-	// 项目管理权限
+	// Project management permissions
 	PermissionProjectCreate = PrefixProject + ":" + ActionCreate
 	PermissionProjectRead   = PrefixProject + ":" + ActionRead
 	PermissionProjectUpdate = PrefixProject + ":" + ActionUpdate
 	PermissionProjectDelete = PrefixProject + ":" + ActionDelete
 	PermissionProjectList   = PrefixProject + ":" + ActionList
 
-	// 系统管理权限
+	// System management permissions
 	PermissionSystemConfig = PrefixSystem + ":config"
 	PermissionSystemLog    = PrefixSystem + ":log"
 	PermissionSystemBackup = PrefixSystem + ":backup"
 )
 
-// 角色权限映射
+// Role to permission mapping
 var RolePermissions = map[string][]string{
 	RoleSuperAdmin: {
-		// 用户管理
+		// User management
 		PermissionUserCreate,
 		PermissionUserRead,
 		PermissionUserUpdate,
 		PermissionUserDelete,
 		PermissionUserList,
 
-		// 角色管理
+		// Role management
 		PermissionRoleCreate,
 		PermissionRoleRead,
 		PermissionRoleUpdate,
 		PermissionRoleDelete,
 		PermissionRoleList,
 
-		// 资产管理
+		// Asset management
 		PermissionAssetCreate,
 		PermissionAssetRead,
 		PermissionAssetUpdate,
@@ -119,7 +119,7 @@ var RolePermissions = map[string][]string{
 		PermissionAssetExport,
 		PermissionAssetImport,
 
-		// 子域名管理
+		// Subdomain management
 		PermissionDomainCreate,
 		PermissionDomainRead,
 		PermissionDomainUpdate,
@@ -128,14 +128,14 @@ var RolePermissions = map[string][]string{
 		PermissionDomainExport,
 		PermissionDomainImport,
 
-		// 应用管理
+		// Application management
 		PermissionAppCreate,
 		PermissionAppRead,
 		PermissionAppUpdate,
 		PermissionAppDelete,
 		PermissionAppList,
 
-		// 任务管理
+		// Task management
 		PermissionTaskCreate,
 		PermissionTaskRead,
 		PermissionTaskUpdate,
@@ -143,72 +143,72 @@ var RolePermissions = map[string][]string{
 		PermissionTaskList,
 		PermissionTaskExport,
 
-		// 项目管理
+		// Project management
 		PermissionProjectCreate,
 		PermissionProjectRead,
 		PermissionProjectUpdate,
 		PermissionProjectDelete,
 		PermissionProjectList,
 
-		// 系统管理
+		// System management
 		PermissionSystemConfig,
 		PermissionSystemLog,
 		PermissionSystemBackup,
 	},
 	RoleAdmin: {
-		// 用户管理
+		// User management
 		PermissionUserRead,
 		PermissionUserList,
 
-		// 资产管理
+		// Asset management
 		PermissionAssetRead,
 		PermissionAssetList,
 		PermissionAssetExport,
 
-		// 子域名管理
+		// Subdomain management
 		PermissionDomainRead,
 		PermissionDomainList,
 		PermissionDomainExport,
 
-		// 应用管理
+		// Application management
 		PermissionAppRead,
 		PermissionAppList,
 
-		// 任务管理
+		// Task management
 		PermissionTaskCreate,
 		PermissionTaskRead,
 		PermissionTaskList,
 		PermissionTaskExport,
 
-		// 项目管理
+		// Project management
 		PermissionProjectCreate,
 		PermissionProjectRead,
 		PermissionProjectUpdate,
 		PermissionProjectList,
 	},
 	RoleUser: {
-		// 资产管理
+		// Asset management
 		PermissionAssetRead,
 		PermissionAssetList,
 
-		// 子域名管理
+		// Subdomain management
 		PermissionDomainRead,
 		PermissionDomainList,
 
-		// 应用管理
+		// Application management
 		PermissionAppRead,
 		PermissionAppList,
 
-		// 任务管理
+		// Task management
 		PermissionTaskRead,
 		PermissionTaskList,
 
-		// 项目管理
+		// Project management
 		PermissionProjectRead,
 		PermissionProjectList,
 	},
 	RoleGuest: {
-		// 只读权限
+		// Read-only permissions
 		PermissionAssetRead,
 		PermissionDomainRead,
 		PermissionAppRead,

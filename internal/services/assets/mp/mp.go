@@ -26,7 +26,7 @@ func NewService() Service {
 }
 
 func (s *service) GetMPData(ctx *gin.Context, query models.SearchRequest) (*models.MPResponse, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "mp"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *service) GetMPData(ctx *gin.Context, query models.SearchRequest) (*mode
 	}
 	filter := bson.M(searchQuery)
 
-	// 获取总数
+	// Get the total count
 	totalCount, err := s.repo.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
@@ -47,19 +47,19 @@ func (s *service) GetMPData(ctx *gin.Context, query models.SearchRequest) (*mode
 		}, nil
 	}
 
-	// 设置分页和排序选项
+	// Set pagination and sorting options
 	opts := options.Find().
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
 		SetLimit(int64(query.PageSize)).
 		SetSort(bson.D{{"time", -1}})
 
-	// 查询数据
+	// Query data
 	results, err := s.repo.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
 
-	// 处理项目名称映射
+	// Handle project name mapping
 	for i := range results {
 		if projectName, exists := bootstrap.ProjectList[results[i].Project]; exists {
 			results[i].Project = projectName
@@ -72,4 +72,4 @@ func (s *service) GetMPData(ctx *gin.Context, query models.SearchRequest) (*mode
 		List:  results,
 		Total: totalCount,
 	}, nil
-} 
+}

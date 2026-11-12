@@ -45,16 +45,16 @@ export const usePermissionStore = defineStore('permission', {
         console.log(type)
         let routerMap: AppRouteRecordRaw[] = []
         if (type === 'server') {
-          // 模拟后端过滤菜单
+          // Simulate backend menu filtering
           routerMap = generateRoutesByServer(routers as AppCustomRouteRecordRaw[])
         } else if (type === 'frontEnd') {
-          // 模拟前端过滤菜单
+          // Simulate frontend menu filtering
           routerMap = generateRoutesByFrontEnd(cloneDeep(asyncRouterMap), routers as string[])
         } else {
-          // 直接读取静态路由表
+          // Read the static route table directly
           routerMap = cloneDeep(asyncRouterMap)
         }
-        // 动态路由，404一定要放到最后面
+        // Dynamic routes: the 404 route must always be last
         this.addRouters = routerMap.concat([
           {
             path: '/:path(.*)*',
@@ -66,7 +66,7 @@ export const usePermissionStore = defineStore('permission', {
             }
           }
         ])
-        // 渲染菜单的所有路由
+        // All routes used to render the menu
         this.routers = cloneDeep(constantRouterMap).concat(routerMap)
         resolve()
       })

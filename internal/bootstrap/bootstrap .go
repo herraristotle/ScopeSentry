@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-// StartupEvent 启动事件处理函数
+// StartupEvent startup event handler function
 type StartupEvent func(ctx context.Context) error
 
 var startupEvents []StartupEvent
 
-// RegisterStartupEvent 注册启动事件
+// RegisterStartupEvent registers a startup event
 func RegisterStartupEvent(event StartupEvent) {
 	startupEvents = append(startupEvents, event)
 }
 
-// ExecuteStartupEvents 执行所有启动事件
+// ExecuteStartupEvents executes all startup events
 func ExecuteStartupEvents() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
@@ -33,24 +33,24 @@ func ExecuteStartupEvents() error {
 	return nil
 }
 
-// 注册默认的启动事件
+// Register default startup events
 func init() {
-	// 加载配置
+	// Load configuration
 	//RegisterStartupEvent(func(ctx context.Context) error {
 	//	return config.Load()
 	//})
 
-	//// 初始化日志
+	//// Initialize logging
 	//RegisterStartupEvent(func(ctx context.Context) error {
 	//	return logger.Init()
 	//})
 
-	// 初始化MongoDB
+	// Initialize MongoDB
 	//RegisterStartupEvent(func(ctx context.Context) error {
 	//	return mongodb.Init()
 	//})
 
-	// 初始化Redis
+	// Initialize Redis
 	//RegisterStartupEvent(func(ctx context.Context) error {
 	//	return redis.Init()
 	//})
@@ -59,12 +59,12 @@ func init() {
 		return Banner()
 	})
 
-	//// 初始化数据库
+	//// Initialize database
 	RegisterStartupEvent(func(ctx context.Context) error {
 		return mongodb.CreateDatabase()
 	})
 
-	// 初始化通知接口
+	// Initialize notification API
 	RegisterStartupEvent(func(ctx context.Context) error {
 		if err := mongodb.FindAll("notification", bson.M{"state": true}, bson.M{"_id": 0, "method": 1, "url": 1, "contentType": 1, "data": 1, "state": 1}, &config.NotificationApi); err != nil {
 			return err
@@ -72,8 +72,8 @@ func init() {
 		return nil
 	})
 
-	// 这里可以添加更多的启动事件
-	// 例如：初始化缓存、加载插件、启动定时任务等
+	// More startup events can be added here
+	// For example: initialize cache, load plugins, start scheduled tasks, etc.
 	err := ExecuteStartupEvents()
 	if err != nil {
 		log.Fatalf("Error during startup events: %v", err)

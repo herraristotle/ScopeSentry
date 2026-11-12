@@ -4,7 +4,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Poc 表示一个POC规则
+// Poc represents a POC rule
 type Poc struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name       string             `bson:"name" json:"name"`
@@ -15,7 +15,7 @@ type Poc struct {
 	Time       string             `bson:"time" json:"time"`
 }
 
-// PocListRequest 表示获取POC列表的请求参数
+// PocListRequest represents the request parameters for fetching the POC list
 type PocListRequest struct {
 	Search    string `json:"search"`
 	PageIndex int    `json:"pageIndex"`
@@ -25,29 +25,29 @@ type PocListRequest struct {
 	} `json:"filter"`
 }
 
-// PocListResponse 表示POC列表的响应
+// PocListResponse represents the POC list response
 type PocListResponse struct {
 	List  []Poc `json:"list"`
 	Total int64 `json:"total"`
 }
 
-// PocDetailRequest 表示获取POC详情的请求参数
+// PocDetailRequest represents the request parameters for fetching POC details
 type PocDetailRequest struct {
 	ID string `json:"id" binding:"required"`
 }
 
-// PocUpdateRequest 表示更新POC的请求参数
+// PocUpdateRequest represents the request parameters for updating a POC
 type PocUpdateRequest struct {
 	ID      string `json:"id" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
-// PocAddRequest 表示添加POC的请求参数
+// PocAddRequest represents the request parameters for adding a POC
 type PocAddRequest struct {
 	Content string `json:"content" binding:"required"`
 }
 
-// PocDeleteRequest 表示删除POC的请求参数
+// PocDeleteRequest represents the request parameters for deleting POCs
 type PocDeleteRequest struct {
 	IDs []string `json:"ids" binding:"required"`
 }
@@ -69,12 +69,12 @@ type PocTemplate struct {
 	Info TemplateInfo `yaml:"info" json:"info" jsonschema:"title=info for the template,description=Info contains metadata for the template,required,type=object"`
 }
 
-// PocImportRequest 表示POC导入的请求参数
+// PocImportRequest represents the request parameters for POC import
 type PocImportRequest struct {
-	// 文件上传相关字段会在handler中处理
+	// File-upload related fields are handled in the handler
 }
 
-// PocImportResponse 表示POC导入的响应
+// PocImportResponse represents the POC import response
 type PocImportResponse struct {
 	SuccessNum int    `json:"success_num"`
 	ErrorNum   int    `json:"error_num"`

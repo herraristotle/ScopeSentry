@@ -9,7 +9,7 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-// FingerprintRule 对应 FingerprintRules 集合
+// FingerprintRule corresponds to the FingerprintRules collection
 type FingerprintRule struct {
 	ID             primitive.ObjectID `json:"id" bson:"_id,omitempty" yaml:"-"`
 	Name           string             `json:"name" bson:"name" yaml:"name"`
@@ -22,7 +22,7 @@ type FingerprintRule struct {
 	Company        string             `json:"company" bson:"company" yaml:"company"`
 }
 
-// FingerprintQuery 查询参数
+// FingerprintQuery query parameters
 type FingerprintQuery struct {
 	Search    string `json:"search"`
 	PageIndex int    `json:"pageIndex"`

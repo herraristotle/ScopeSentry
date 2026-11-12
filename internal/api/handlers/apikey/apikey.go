@@ -13,7 +13,7 @@ func init() {
 	apiKeyService = apikey.NewService()
 }
 
-// List 获取 API Key 列表
+// List returns the API key list
 func List(c *gin.Context) {
 	keys, err := apiKeyService.List(c.Request.Context())
 	if err != nil {
@@ -23,7 +23,7 @@ func List(c *gin.Context) {
 	response.Success(c, gin.H{"list": keys}, "")
 }
 
-// Create 创建 API Key
+// Create creates an API key
 func Create(c *gin.Context) {
 	var req models.CreateApiKeyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,7 +42,7 @@ func Create(c *gin.Context) {
 	response.Success(c, result, "api.success")
 }
 
-// Delete 删除 API Key
+// Delete deletes an API key
 func Delete(c *gin.Context) {
 	var req models.DeleteApiKeyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

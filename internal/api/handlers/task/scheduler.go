@@ -23,13 +23,13 @@ func init() {
 	SchedulerService = scheduler.NewService()
 }
 
-// GetScheduledData 获取计划任务列表
-// @Summary      获取计划任务列表
-// @Description  支持name字段模糊搜索与分页
+// GetScheduledData gets the scheduled task list
+// @Summary      Get scheduled task list
+// @Description  Supports fuzzy search on the name field and pagination
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.ScheduledTaskListRequest  true  "查询参数"
+// @Param        data  body      models.ScheduledTaskListRequest  true  "Query parameters"
 // @Success      200  {object}  response.SuccessResponse{data=object{list=[]models.Task,total=int}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -41,7 +41,7 @@ func GetScheduledData(c *gin.Context) {
 		return
 	}
 
-	// 设置默认分页参数
+	// Set default pagination parameters
 	if req.PageIndex <= 0 {
 		req.PageIndex = 1
 	}
@@ -62,13 +62,13 @@ func GetScheduledData(c *gin.Context) {
 	response.Success(c, resp, "")
 }
 
-// CreateScheduledTask 创建计划任务
-// @Summary      创建计划任务
-// @Description  创建新的计划任务
+// CreateScheduledTask creates a scheduled task
+// @Summary      Create scheduled task
+// @Description  Create a new scheduled task
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.ScheduledTaskAddRequest  true  "任务信息"
+// @Param        data  body      models.ScheduledTaskAddRequest  true  "Task information"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -80,7 +80,7 @@ func CreateScheduledTask(c *gin.Context) {
 		return
 	}
 
-	// 检查任务名是否已存在
+	// Check whether the task name already exists
 	exists, err := SchedulerService.CheckScheduledTaskNameExists(c, req.Name)
 	if err != nil {
 		response.InternalServerError(c, "api.error", err)
@@ -91,7 +91,7 @@ func CreateScheduledTask(c *gin.Context) {
 		return
 	}
 
-	// 验证必要参数
+	// Validate required parameters
 	if req.Name == "" || len(req.Node) == 0 {
 		response.BadRequest(c, "api.task.target_null", nil)
 		return
@@ -105,13 +105,13 @@ func CreateScheduledTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// UpdateScheduledTask 更新计划任务
-// @Summary      更新计划任务
-// @Description  更新指定ID的计划任务
+// UpdateScheduledTask updates a scheduled task
+// @Summary      Update scheduled task
+// @Description  Update the scheduled task with the specified ID
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.ScheduledTaskUpdateRequest  true  "任务信息"
+// @Param        data  body      models.ScheduledTaskUpdateRequest  true  "Task information"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -131,13 +131,13 @@ func UpdateScheduledTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// DeleteScheduledTask 删除计划任务
-// @Summary      删除计划任务
-// @Description  批量删除计划任务
+// DeleteScheduledTask deletes scheduled tasks
+// @Summary      Delete scheduled tasks
+// @Description  Batch delete scheduled tasks
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.ScheduledTaskDeleteRequest  true  "任务ID列表"
+// @Param        data  body      models.ScheduledTaskDeleteRequest  true  "Task ID list"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -162,13 +162,13 @@ func DeleteScheduledTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// GetScheduledTaskDetail 获取计划任务详情
-// @Summary      获取计划任务详情
-// @Description  根据任务ID获取计划任务的详细信息
+// GetScheduledTaskDetail gets scheduled task details
+// @Summary      Get scheduled task details
+// @Description  Get detailed information of a scheduled task by task ID
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.ScheduledTaskDetailRequest  true  "任务ID"
+// @Param        data  body      models.ScheduledTaskDetailRequest  true  "Task ID"
 // @Success      200  {object}  response.SuccessResponse{data=models.ScheduledTask}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -181,13 +181,13 @@ func GetScheduledTaskDetail(c *gin.Context) {
 		return
 	}
 
-	// 检查ID是否提供
+	// Check whether the ID is provided
 	if req.ID == "" {
 		response.BadRequest(c, "api.task.id_missing", nil)
 		return
 	}
 
-	// 获取任务详情
+	// Get task details
 	taskDetail, err := SchedulerService.GetScheduledTaskDetail(c, req.ID)
 	if err != nil {
 		response.InternalServerError(c, "api.error", err)
@@ -218,13 +218,13 @@ func UpdatePageMonitScheduledTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// GetPageMonitData 获取页面监控数据列表
-// @Summary      获取页面监控数据列表
-// @Description  支持url字段模糊搜索与分页
+// GetPageMonitData gets the page monitoring data list
+// @Summary      Get page monitoring data list
+// @Description  Supports fuzzy search on the url field and pagination
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.PageMonitoringListRequest  true  "查询参数"
+// @Param        data  body      models.PageMonitoringListRequest  true  "Query parameters"
 // @Success      200  {object}  response.SuccessResponse{data=object{list=[]models.PageMonitoringTask,total=int64}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -236,7 +236,7 @@ func GetPageMonitData(c *gin.Context) {
 		return
 	}
 
-	// 设置默认分页参数
+	// Set default pagination parameters
 	if req.PageIndex <= 0 {
 		req.PageIndex = 1
 	}
@@ -257,13 +257,13 @@ func GetPageMonitData(c *gin.Context) {
 	response.Success(c, resp, "")
 }
 
-// AddPageMonitTask 添加页面监控任务
-// @Summary      添加页面监控任务
-// @Description  添加新的页面监控任务
+// AddPageMonitTask adds a page monitoring task
+// @Summary      Add page monitoring task
+// @Description  Add a new page monitoring task
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.PageMonitoringAddRequest  true  "URL信息"
+// @Param        data  body      models.PageMonitoringAddRequest  true  "URL information"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -288,13 +288,13 @@ func AddPageMonitTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// DeletePageMonitTask 删除页面监控任务
-// @Summary      删除页面监控任务
-// @Description  批量删除页面监控任务
+// DeletePageMonitTask deletes page monitoring tasks
+// @Summary      Delete page monitoring tasks
+// @Description  Batch delete page monitoring tasks
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      models.PageMonitoringDeleteRequest  true  "任务ID列表"
+// @Param        data  body      models.PageMonitoringDeleteRequest  true  "Task ID list"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse

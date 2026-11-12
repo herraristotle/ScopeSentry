@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Repository 定义资产仓库接口
+// Repository defines the asset repository interface
 type Repository interface {
 	GetAssetByID(ctx context.Context, id string) (*models.Asset, error)
 	GetAssetByIDs(ctx context.Context, ids []string) ([]models.Asset, error)
@@ -34,7 +34,7 @@ type repository struct {
 	bodyColl   *mongo.Collection
 }
 
-// NewRepository 创建资产仓库实例
+// NewRepository creates an asset repository instance
 func NewRepository() Repository {
 	return &repository{
 		collection: mongodb.DB.Collection("asset"),
@@ -42,7 +42,7 @@ func NewRepository() Repository {
 	}
 }
 
-// GetAssetByID 根据ID获取资产
+// GetAssetByID gets an asset by ID
 func (r *repository) GetAssetByID(ctx context.Context, id string) (*models.Asset, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -61,13 +61,13 @@ func (r *repository) GetAssetByID(ctx context.Context, id string) (*models.Asset
 	return &asset, nil
 }
 
-// GetAssetByIDs 根据ID数组获取资产列表
+// GetAssetByIDs gets an asset list by an ID array
 func (r *repository) GetAssetByIDs(ctx context.Context, ids []string) ([]models.Asset, error) {
 	if len(ids) == 0 {
 		return []models.Asset{}, nil
 	}
 
-	// 将字符串ID转换为ObjectID
+	// Convert string IDs to ObjectIDs
 	var objectIDs []primitive.ObjectID
 	for _, id := range ids {
 		objectID, err := primitive.ObjectIDFromHex(id)
@@ -77,7 +77,7 @@ func (r *repository) GetAssetByIDs(ctx context.Context, ids []string) ([]models.
 		objectIDs = append(objectIDs, objectID)
 	}
 
-	// 使用$in操作符查询多个ID
+	// Query multiple IDs using the $in operator
 	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
 	cursor, err := r.collection.Find(ctx, filter)
 	if err != nil {
@@ -93,7 +93,7 @@ func (r *repository) GetAssetByIDs(ctx context.Context, ids []string) ([]models.
 	return assets, nil
 }
 
-// CreateAsset 创建资产
+// CreateAsset creates an asset
 func (r *repository) CreateAsset(ctx context.Context, asset *models.Asset) error {
 	asset.ID = primitive.NewObjectID()
 
@@ -106,7 +106,7 @@ func (r *repository) CreateAsset(ctx context.Context, asset *models.Asset) error
 	return nil
 }
 
-// UpdateAsset 更新资产
+// UpdateAsset updates an asset
 func (r *repository) UpdateAsset(ctx context.Context, id string, asset *models.Asset) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -118,7 +118,7 @@ func (r *repository) UpdateAsset(ctx context.Context, id string, asset *models.A
 	return err
 }
 
-// DeleteAsset 删除资产
+// DeleteAsset deletes an asset
 func (r *repository) DeleteAsset(ctx context.Context, id string) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -129,7 +129,7 @@ func (r *repository) DeleteAsset(ctx context.Context, id string) error {
 	return err
 }
 
-// GetScreenshot 获取资产截图
+// GetScreenshot gets an asset screenshot
 func (r *repository) GetScreenshot(ctx context.Context, id string) (string, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -145,12 +145,12 @@ func (r *repository) GetScreenshot(ctx context.Context, id string) (string, erro
 	return asset.Screenshot, nil
 }
 
-// GetChangeLog 获取资产变更日志
+// GetChangeLog gets the asset change log
 func (r *repository) GetChangeLog(ctx context.Context, id string) ([]models.AssetChangeLog, error) {
 	var logs []models.AssetChangeLog
 
 	filter := bson.M{"assetid": id}
-	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}}) // 按时间倒序
+	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}}) // Sort by time descending
 
 	cursor, err := r.collection.Database().Collection("AssetChangeLog").Find(ctx, filter, opts)
 	if err != nil {
@@ -165,9 +165,9 @@ func (r *repository) GetChangeLog(ctx context.Context, id string) ([]models.Asse
 	return logs, nil
 }
 
-// DeduplicateAssets 资产去重
+// DeduplicateAssets deduplicates assets
 func (r *repository) DeduplicateAssets(ctx context.Context, assetType string, filter bson.M, groupFields []string) error {
-	// 构建聚合管道
+	// Build the aggregation pipeline
 	pipeline := mongo.Pipeline{
 		{{Key: "$match", Value: filter}},
 		{{Key: "$group", Value: bson.M{
@@ -186,7 +186,7 @@ func (r *repository) DeduplicateAssets(ctx context.Context, assetType string, fi
 	}
 	defer cursor.Close(ctx)
 
-	// 处理重复数据
+	// Handle duplicate data
 	var results []bson.M
 	if err := cursor.All(ctx, &results); err != nil {
 		return err
@@ -194,7 +194,7 @@ func (r *repository) DeduplicateAssets(ctx context.Context, assetType string, fi
 
 	for _, result := range results {
 		docs := result["docs"].([]interface{})
-		// 保留第一个文档，删除其他文档
+		// Keep the first document and delete the others
 		for i := 1; i < len(docs); i++ {
 			doc := docs[i].(bson.M)
 			_, err := r.collection.DeleteOne(ctx, bson.M{"_id": doc["_id"]})
@@ -207,12 +207,12 @@ func (r *repository) DeduplicateAssets(ctx context.Context, assetType string, fi
 	return nil
 }
 
-// CountDocuments 统计文档数量
+// CountDocuments counts the number of documents
 func (r *repository) CountDocuments(ctx context.Context, filter bson.M) (int64, error) {
 	return r.collection.CountDocuments(ctx, filter)
 }
 
-// FindWithOptions 使用选项进行查询
+// FindWithOptions queries using options
 func (r *repository) FindWithOptions(ctx context.Context, filter bson.M, opts *options.FindOptions) ([]models.Asset, error) {
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
@@ -235,7 +235,7 @@ func (r *repository) FindBodyByHash(ctx context.Context, hash string) (models.Ht
 	err := r.bodyColl.FindOne(ctx, filter).Decode(&httpBody)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return models.HttpBody{}, nil // 没有匹配记录时返回空对象，不算错误
+			return models.HttpBody{}, nil // Return an empty object when there is no matching record; it is not an error
 		}
 		return models.HttpBody{}, err
 	}
@@ -257,34 +257,34 @@ func (r *repository) FindBodyWithOptions(ctx context.Context, filter bson.M, opt
 	return assets, nil
 }
 
-// GetDistinctHostsByRootDomain 根据 rootDomain 获取去重后的 host 列表
-// 使用聚合管道优化性能：先按 time 排序，再按 host 分组去重，使用 $facet 同时获取总数和数据
+// GetDistinctHostsByRootDomain gets the deduplicated host list according to rootDomain
+// Uses an aggregation pipeline to optimize performance: sort by time first, then group and deduplicate by host, and use $facet to get both the total count and the data at the same time
 func (r *repository) GetDistinctHostsByRootDomain(ctx context.Context, rootDomain string, skip, limit int64) ([]string, int64, error) {
-	// 构建基础聚合管道
+	// Build the base aggregation pipeline
 	basePipeline := mongo.Pipeline{
-		// 第一步：匹配 rootDomain（使用索引 {rootDomain: 1} 或 {rootDomain: 1, time: -1}）
+		// Step 1: match rootDomain (using the index {rootDomain: 1} or {rootDomain: 1, time: -1})
 		{{Key: "$match", Value: bson.M{"rootDomain": rootDomain, "host": bson.M{"$ne": ""}}}},
-		// 第二步：按 time 倒序排序（如果有复合索引 {rootDomain: 1, time: -1} 会更快）
+		// Step 2: sort by time descending (faster if the compound index {rootDomain: 1, time: -1} exists)
 		{{Key: "$sort", Value: bson.D{{Key: "time", Value: -1}}}},
-		// 第三步：按 host 分组去重，保留每个 host 的第一个（最新的）记录
+		// Step 3: group and deduplicate by host, keeping the first (newest) record of each host
 		{{Key: "$group", Value: bson.M{
 			"_id":  "$host",
 			"host": bson.M{"$first": "$host"},
 		}}},
-		// 第四步：按 host 字母顺序排序
+		// Step 4: sort by host in alphabetical order
 		{{Key: "$sort", Value: bson.D{{Key: "host", Value: 1}}}},
 	}
 
-	// 使用 $facet 在一个聚合管道中同时获取总数和数据，避免两次查询
+	// Use $facet to get both the total count and the data in a single aggregation pipeline, avoiding two queries
 	pipeline := make(mongo.Pipeline, len(basePipeline))
 	copy(pipeline, basePipeline)
 	pipeline = append(pipeline, primitive.D{
 		{Key: "$facet", Value: bson.M{
-			// 统计总数（去重后的数量）
+			// Count the total (the count after deduplication)
 			"total": mongo.Pipeline{
 				{{Key: "$count", Value: "count"}},
 			},
-			// 获取分页数据
+			// Get the paginated data
 			"data": mongo.Pipeline{
 				{{Key: "$skip", Value: skip}},
 				{{Key: "$limit", Value: limit}},
@@ -293,7 +293,7 @@ func (r *repository) GetDistinctHostsByRootDomain(ctx context.Context, rootDomai
 		}},
 	})
 
-	// 执行聚合查询（只执行一次）
+	// Execute the aggregation query (only once)
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, 0, err
@@ -311,7 +311,7 @@ func (r *repository) GetDistinctHostsByRootDomain(ctx context.Context, rootDomai
 
 	facetResult := results[0]
 
-	// 提取总数
+	// Extract the total count
 	var total int64
 	if totalArr, ok := facetResult["total"].(bson.A); ok && len(totalArr) > 0 {
 		if totalDoc, ok := totalArr[0].(bson.M); ok {
@@ -323,7 +323,7 @@ func (r *repository) GetDistinctHostsByRootDomain(ctx context.Context, rootDomai
 		}
 	}
 
-	// 提取 host 列表
+	// Extract the host list
 	var hosts []string
 	if dataArr, ok := facetResult["data"].(bson.A); ok {
 		for _, item := range dataArr {
@@ -338,18 +338,18 @@ func (r *repository) GetDistinctHostsByRootDomain(ctx context.Context, rootDomai
 	return hosts, total, nil
 }
 
-// GetAssetsByHost 根据 host 查询资产列表
+// GetAssetsByHost queries the asset list according to host
 func (r *repository) GetAssetsByHost(ctx context.Context, host string, skip, limit int64) ([]models.Asset, int64, error) {
-	// 构建查询条件
+	// Build query conditions
 	filter := bson.M{"host": host}
 
-	// 获取总数
+	// Get the total count
 	total, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 构建投影，只返回需要的字段
+	// Build the projection, returning only the required fields
 	projection := bson.M{
 		"ip":          1,
 		"port":        1,
@@ -361,14 +361,14 @@ func (r *repository) GetAssetsByHost(ctx context.Context, host string, skip, lim
 		"url":         1,
 	}
 
-	// 构建查询选项
+	// Build query options
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(skip).
 		SetLimit(limit).
 		SetSort(bson.D{{Key: "time", Value: -1}})
 
-	// 执行查询
+	// Execute the query
 	assets, err := r.FindWithOptions(ctx, filter, opts)
 	if err != nil {
 		return nil, 0, err

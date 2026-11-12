@@ -22,7 +22,7 @@ func AddJob(hash string, schedule string) error {
 		CycleType: "cron",
 		Schedule:  schedule,
 	}
-	// 先删除 再增加
+	// Remove first, then add
 	err := schedulerCore.GetGlobalScheduler().RemoveJob(job.ID)
 	if err != nil {
 		return err

@@ -18,12 +18,12 @@ func init() {
 	pageMonitoringService = page_monitoring.NewService()
 }
 
-// GetResult @Summary      获取页面监控结果
-// @Description  获取页面监控结果列表接口
+// GetResult @Summary      Get page monitoring results
+// @Description  API for getting the page monitoring result list
 // @Tags         page_monitoring
 // @Accept       json
 // @Produce      json
-// @Param        resultRequest  body      models.SearchRequest  true  "结果请求"
+// @Param        resultRequest  body      models.SearchRequest  true  "Result request"
 // @Success      200  {object}  response.SuccessResponse{data=models.PageMonitoringResultResponse}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -45,12 +45,12 @@ func GetResult(c *gin.Context) {
 	response.Success(c, result, "api.page_monitoring.result.success")
 }
 
-// GetDiff @Summary      获取页面监控差异
-// @Description  获取页面监控差异接口
+// GetDiff @Summary      Get page monitoring diff
+// @Description  API for getting the page monitoring diff
 // @Tags         page_monitoring
 // @Accept       json
 // @Produce      json
-// @Param        diffRequest  body      models.PageMonitoringDiffRequest  true  "差异请求"
+// @Param        diffRequest  body      models.PageMonitoringDiffRequest  true  "Diff request"
 // @Success      200  {object}  response.SuccessResponse{data=models.PageMonitoringBody}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -82,12 +82,12 @@ func GetDiff(c *gin.Context) {
 	response.Success(c, result, "api.page_monitoring.diff.success")
 }
 
-// GetHistory @Summary      获取页面监控历史记录
-// @Description  获取页面监控历史记录接口
+// GetHistory @Summary      Get page monitoring history
+// @Description  API for getting the page monitoring history
 // @Tags         page_monitoring
 // @Accept       json
 // @Produce      json
-// @Param        historyRequest  body      models.PageMonitoringHistoryRequest  true  "历史记录请求"
+// @Param        historyRequest  body      models.PageMonitoringHistoryRequest  true  "History request"
 // @Success      200  {object}  response.SuccessResponse{data=[]models.PageMonitoring}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -118,12 +118,12 @@ func GetHistory(c *gin.Context) {
 	response.Success(c, result, "api.page_monitoring.history.success")
 }
 
-// GetContent @Summary      获取页面监控内容
-// @Description  获取页面监控内容接口
+// GetContent @Summary      Get page monitoring content
+// @Description  API for getting the page monitoring content
 // @Tags         page_monitoring
 // @Accept       json
 // @Produce      json
-// @Param        contentRequest  body      models.PageMonitoringContentRequest  true  "内容请求"
+// @Param        contentRequest  body      models.PageMonitoringContentRequest  true  "Content request"
 // @Success      200  {object}  response.SuccessResponse{data=models.PageMonitoringBody}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse

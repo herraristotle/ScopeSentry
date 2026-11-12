@@ -10,42 +10,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 统一响应结构
+// Response unified response structure
 type Response struct {
-	Code    int         `json:"code"`           // HTTP 状态码
-	Message string      `json:"message"`        // 响应消息
-	Data    interface{} `json:"data,omitempty"` // 响应数据
+	Code    int         `json:"code"`           // HTTP status code
+	Message string      `json:"message"`        // Response message
+	Data    interface{} `json:"data,omitempty"` // Response data
 }
 
-// SuccessResponse 成功响应示例
+// SuccessResponse success response example
 type SuccessResponse struct {
-	Code    int         `json:"code" example:"200"`     // 成功状态码
-	Message string      `json:"message" example:"操作成功"` // 成功消息
-	Data    interface{} `json:"data,omitempty"`         // 响应数据
+	Code    int         `json:"code" example:"200"`        // Success status code
+	Message string      `json:"message" example:"Operation successful"` // Success message
+	Data    interface{} `json:"data,omitempty"`            // Response data
 }
 
-// BadRequestResponse 请求错误响应示例
+// BadRequestResponse bad request response example
 type BadRequestResponse struct {
-	Code    int    `json:"code" example:"400"`     // 请求错误状态码
-	Message string `json:"message" example:"请求错误"` // 错误消息
+	Code    int    `json:"code" example:"400"`         // Bad request status code
+	Message string `json:"message" example:"Bad request"` // Error message
 }
 
-// UnauthorizedResponse 未授权响应示例
+// UnauthorizedResponse unauthorized response example
 type UnauthorizedResponse struct {
-	Code    int    `json:"code" example:"401"`      // 未授权状态码
-	Message string `json:"message" example:"未授权访问"` // 错误消息
+	Code    int    `json:"code" example:"401"`           // Unauthorized status code
+	Message string `json:"message" example:"Unauthorized access"` // Error message
 }
 
-// NotFoundResponse 未找到响应示例
+// NotFoundResponse not found response example
 type NotFoundResponse struct {
-	Code    int    `json:"code" example:"404"`      // 未找到状态码
-	Message string `json:"message" example:"资源未找到"` // 错误消息
+	Code    int    `json:"code" example:"404"`         // Not found status code
+	Message string `json:"message" example:"Resource not found"` // Error message
 }
 
-// InternalServerErrorResponse 服务器错误响应示例
+// InternalServerErrorResponse internal server error response example
 type InternalServerErrorResponse struct {
-	Code    int    `json:"code" example:"500"`        // 服务器错误状态码
-	Message string `json:"message" example:"服务器内部错误"` // 错误消息
+	Code    int    `json:"code" example:"500"`             // Internal server error status code
+	Message string `json:"message" example:"Internal server error"` // Error message
 }
 
 type PageResponse struct {
@@ -55,11 +55,11 @@ type PageResponse struct {
 	PageSize int         `json:"pageSize"`
 }
 
-// getLocale 获取请求的语言
+// getLocale gets the language of the request
 func getLocale(c *gin.Context) string {
 	locale := c.GetHeader("Accept-Language")
 	if locale == "" {
-		locale = "zh-CN" // 默认中文
+		locale = "zh-CN" // Default to Chinese
 	}
 	return locale
 }

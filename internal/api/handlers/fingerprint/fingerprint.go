@@ -50,7 +50,7 @@ type batchAddRequest struct {
 	Items []batchAddItem `json:"items" binding:"required,min=1,dive"`
 }
 
-// Fingerprint YAML 指纹定义
+// Fingerprint YAML fingerprint definition
 type Fingerprint struct {
 	Name           string   `yaml:"name"`
 	Id             string   `yaml:"id"`
@@ -65,15 +65,15 @@ type FingerprintYaml struct {
 	Fingerprint Fingerprint `yaml:"fingerprint"`
 }
 
-// Rule 规则定义
+// Rule rule definition
 type Rule struct {
-	Logic      string      `yaml:"logic"` // AND 或 OR
+	Logic      string      `yaml:"logic"` // AND or OR
 	Conditions []Condition `yaml:"conditions"`
 }
 
-// Condition 条件定义（支持普通条件和嵌套条件组）
+// Condition condition definition (supports plain conditions and nested condition groups)
 type Condition struct {
-	// 普通条件字段
+	// plain condition fields
 	Location    string `yaml:"location,omitempty"`   // body, header, title, request
 	MatchType   string `yaml:"match_type,omitempty"` // regex, contains, extract, active
 	Pattern     string `yaml:"pattern,omitempty"`
@@ -82,18 +82,18 @@ type Condition struct {
 	Path        string `yaml:"path,omitempty"`
 	DynamicPath string `yaml:"dynamic_path,omitempty"`
 	Method      string `yaml:"method,omitempty"`
-	// 嵌套条件组字段
-	Logic      string      `yaml:"logic,omitempty"`      // AND 或 OR（用于嵌套组）
-	Conditions []Condition `yaml:"conditions,omitempty"` // 子条件或嵌套组
+	// nested condition group fields
+	Logic      string      `yaml:"logic,omitempty"`      // AND or OR (used for nested groups)
+	Conditions []Condition `yaml:"conditions,omitempty"` // child conditions or nested groups
 }
 
-// Data @Summary      指纹规则查询
-// @Description  按名称模糊搜索并分页
+// Data @Summary      Query fingerprint rules
+// @Description  Fuzzy search by name with pagination
 // @Tags         fingerprint
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      listRequest  true  "查询参数"
+// @Param        request  body      listRequest  true  "Query parameters"
 // @Success      200      {object}  response.SuccessResponse{data=object{list=[]models.FingerprintRule,total=int}}
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse
@@ -112,12 +112,12 @@ func Data(c *gin.Context) {
 	response.Success(c, gin.H{"list": list, "total": total}, "api.success")
 }
 
-// Update @Summary      更新指纹规则
+// Update @Summary      Update fingerprint rule
 // @Tags         fingerprint
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      updateRequest  true  "更新数据"
+// @Param        request  body      updateRequest  true  "Data to update"
 // @Success      200      {object}  response.SuccessResponse
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse
@@ -129,17 +129,17 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	// 解析 YAML content
+	// Parse the YAML content
 	var fp FingerprintYaml
 	if err := yaml.Unmarshal([]byte(req.Content), &fp); err != nil {
 		response.BadRequest(c, "api.bad_request", err)
 		return
 	}
 
-	// 从解析后的结构体中提取字段
+	// Extract fields from the parsed struct
 	data := models.FingerprintRule{
 		Name:           fp.Fingerprint.Name,
-		Rule:           req.Content, // 存储完整的 YAML content
+		Rule:           req.Content, // store the full YAML content
 		Category:       fp.Fingerprint.Category,
 		ParentCategory: fp.Fingerprint.ParentCategory,
 		State:          req.State,
@@ -153,12 +153,12 @@ func Update(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Add @Summary      新增指纹规则
+// Add @Summary      Add fingerprint rule
 // @Tags         fingerprint
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      addRequest  true  "新增数据"
+// @Param        request  body      addRequest  true  "Data to add"
 // @Success      200      {object}  response.SuccessResponse{data=object{id=string}}
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse
@@ -170,21 +170,21 @@ func Add(c *gin.Context) {
 		return
 	}
 
-	// 解析 YAML content
+	// Parse the YAML content
 	var fp FingerprintYaml
 	if err := yaml.Unmarshal([]byte(req.Content), &fp); err != nil {
 		response.BadRequest(c, "api.bad_request", err)
 		return
 	}
 
-	// 生成 ID 并添加到 Fingerprint 结构体 (sas_ + 8位随机大小写字母和数字)
+	// Generate an ID and add it to the Fingerprint struct (sas_ + 8 random uppercase/lowercase letters and digits)
 	FingerId := "SAA_" + random.GenerateRandomString(12)
 
-	// 从解析后的结构体中提取字段
+	// Extract fields from the parsed struct
 	data := models.FingerprintRule{
 		Name:           fp.Fingerprint.Name,
-		Rule:           req.Content, // 存储包含 id 的完整 YAML content
-		FingerprintId:  FingerId,    // 存储 YAML 中的 id 字段
+		Rule:           req.Content, // store the full YAML content including the id
+		FingerprintId:  FingerId,    // store the id field from the YAML
 		Category:       fp.Fingerprint.Category,
 		ParentCategory: fp.Fingerprint.ParentCategory,
 		State:          req.State,
@@ -199,12 +199,12 @@ func Add(c *gin.Context) {
 	response.Success(c, gin.H{"id": id}, "api.success")
 }
 
-// Delete @Summary      批量删除指纹规则
+// Delete @Summary      Batch delete fingerprint rules
 // @Tags         fingerprint
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      deleteRequest  true  "要删除的ID列表"
+// @Param        request  body      deleteRequest  true  "List of IDs to delete"
 // @Success      200      {object}  response.SuccessResponse
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse
@@ -223,7 +223,7 @@ func Delete(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// GetVersion @Summary      查询指纹版本
+// GetVersion @Summary      Get fingerprint version
 // @Tags         fingerprint
 // @Produce      json
 // @Security     ApiKeyAuth
@@ -239,12 +239,12 @@ func GetVersion(c *gin.Context) {
 	response.Success(c, gin.H{"version": version}, "api.success")
 }
 
-// BatchAdd @Summary      批量新增指纹规则
+// BatchAdd @Summary      Batch add fingerprint rules
 // @Tags         fingerprint
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        request  body      batchAddRequest  true  "批量新增数据"
+// @Param        request  body      batchAddRequest  true  "Data to add in batch"
 // @Success      200      {object}  response.SuccessResponse{data=object{success=int,failed=int,results=[]object{id=int,success=bool,error=string}}}
 // @Failure      400      {object}  response.BadRequestResponse
 // @Failure      500      {object}  response.InternalServerErrorResponse
@@ -256,7 +256,7 @@ func BatchAdd(c *gin.Context) {
 		return
 	}
 
-	// 转换类型
+	// Convert types
 	items := make([]service.BatchAddItem, len(req.Items))
 	for i, item := range req.Items {
 		items[i] = service.BatchAddItem{

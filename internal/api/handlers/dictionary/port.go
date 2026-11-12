@@ -16,22 +16,22 @@ func init() {
 	portService = dictservice.NewPortService()
 }
 
-// PortDataRequest 请求体
-// 用于 /data 分页与搜索
+// PortDataRequest request body
+// Used for /data pagination and search
 // swagger:ignore
-// 仅用于绑定
+// Used only for binding
 type PortDataRequest struct {
 	PageIndex int    `json:"pageIndex"`
 	PageSize  int    `json:"pageSize"`
 	Search    string `json:"search"`
 }
 
-// GetPortData 获取端口字典数据
-// @Summary 获取端口字典
-// @Tags 字典管理
+// GetPortData get port dictionary data
+// @Summary Get port dictionary
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
-// @Param request body PortDataRequest true "请求参数"
+// @Param request body PortDataRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=object{list=[]models.PortDoc,total=int}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -58,12 +58,12 @@ func GetPortData(c *gin.Context) {
 	response.Success(c, gin.H{"list": list, "total": total}, "api.success")
 }
 
-// UpgradePortDict 更新端口字典
-// @Summary 更新端口字典
-// @Tags 字典管理
+// UpgradePortDict update port dictionary entry
+// @Summary Update port dictionary
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
-// @Param request body models.PortDoc true "请求参数"
+// @Param request body models.PortDoc true "Request parameters"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -86,12 +86,12 @@ func UpgradePortDict(c *gin.Context) {
 	response.Success(c, gin.H{"code": 200, "message": "SensitiveRule updated successfully"}, "api.success")
 }
 
-// AddPortDict 新增端口字典
-// @Summary 新增端口字典
-// @Tags 字典管理
+// AddPortDict add port dictionary entry
+// @Summary Add port dictionary
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
-// @Param request body models.Port true "请求参数"
+// @Param request body models.Port true "Request parameters"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -110,12 +110,12 @@ func AddPortDict(c *gin.Context) {
 	response.Success(c, gin.H{"code": 200, "message": "Port dict added successfully"}, "api.success")
 }
 
-// DeletePortDict 删除端口字典
-// @Summary 删除端口字典
-// @Tags 字典管理
+// DeletePortDict delete port dictionary entry
+// @Summary Delete port dictionary
+// @Tags Dictionary Management
 // @Accept json
 // @Produce json
-// @Param request body object{ids=[]string} true "请求参数"
+// @Param request body object{ids=[]string} true "Request parameters"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response

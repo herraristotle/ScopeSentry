@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-// ConvertShodanToCustomQuery 将 shodan 查询语句转换成项目自定义的搜索语句
+// ConvertShodanToCustomQuery converts a shodan query into the project's custom search expression
 func ConvertShodanToCustomQuery(shodanQueryValue interface{}) string {
 	var queries []string
 
-	// 处理数组类型
+	// Process array types
 	if arr, ok := shodanQueryValue.([]interface{}); ok {
 		for _, item := range arr {
 			if str, ok := item.(string); ok {
@@ -27,14 +27,14 @@ func ConvertShodanToCustomQuery(shodanQueryValue interface{}) string {
 				}
 			}
 		}
-		// 多个条件用 && 连接
+		// Join multiple conditions with &&
 		if len(queries) > 0 {
 			return strings.Join(queries, " && ")
 		}
 		return ""
 	}
 
-	// 处理字符串类型
+	// Process string types
 	if str, ok := shodanQueryValue.(string); ok {
 		return parseShodanQuery(str)
 	}
@@ -42,34 +42,34 @@ func ConvertShodanToCustomQuery(shodanQueryValue interface{}) string {
 	return ""
 }
 
-// parseShodanQuery 解析 shodan 查询语句，支持括号和逻辑连接符
+// parseShodanQuery parses a shodan query, supporting brackets and logical operators
 func parseShodanQuery(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 先处理括号，递归解析
+	// Process brackets first, parsing recursively
 	return parseShodanQueryWithBrackets(query)
 }
 
-// parseShodanQueryWithBrackets 解析带括号的 shodan 查询
+// parseShodanQueryWithBrackets parses a bracketed shodan query
 func parseShodanQueryWithBrackets(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 查找并替换所有括号内的内容
+	// Find and replace all bracketed content
 	for {
-		// 查找最外层的左括号
+		// Find the outermost opening bracket
 		start := strings.Index(query, "(")
 		if start == -1 {
-			// 没有括号了，解析逻辑表达式
+			// No more brackets, parse the logical expression
 			break
 		}
 
-		// 找到匹配的右括号
+		// Find the matching closing bracket
 		depth := 0
 		end := -1
 		for i := start; i < len(query); i++ {
@@ -85,30 +85,30 @@ func parseShodanQueryWithBrackets(query string) string {
 		}
 
 		if end == -1 {
-			// 括号不匹配，跳出循环，当作普通查询处理
+			// Unmatched bracket, break out of the loop and treat it as a normal query
 			break
 		}
 
-		// 递归解析括号内的内容
+		// Recursively parse the bracketed content
 		innerQuery := query[start+1 : end]
 		parsedInner := parseShodanQueryWithBrackets(innerQuery)
 
-		// 替换括号内容为解析后的结果
+		// Replace the bracketed content with the parsed result
 		query = query[:start] + "(" + parsedInner + ")" + query[end+1:]
 	}
 
-	// 所有括号都处理完了，解析逻辑表达式
+	// All brackets processed, parse the logical expression
 	return parseShodanLogicExpression(query)
 }
 
-// parseShodanLogicExpression 解析逻辑表达式（处理 AND、OR、NOT）
+// parseShodanLogicExpression parses a logical expression (handling AND, OR, NOT)
 func parseShodanLogicExpression(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 按 || 分割（优先级最低，符号形式）
+	// Split by || (lowest precedence, symbolic form)
 	if hasOperator(query, "||") {
 		parts := splitByShodanOperatorSymbol(query, "||")
 		var results []string
@@ -124,7 +124,7 @@ func parseShodanLogicExpression(query string) string {
 		return ""
 	}
 
-	// 按 OR 分割（优先级最低，需要处理大小写，文本形式）
+	// Split by OR (lowest precedence, handling case; text form)
 	if strings.Contains(strings.ToUpper(query), " OR ") {
 		parts := splitByShodanOperator(query, " OR ")
 		var results []string
@@ -140,7 +140,7 @@ func parseShodanLogicExpression(query string) string {
 		return ""
 	}
 
-	// 按 && 分割（符号形式）
+	// Split by && (symbolic form)
 	if hasOperator(query, "&&") {
 		parts := splitByShodanOperatorSymbol(query, "&&")
 		var results []string
@@ -156,7 +156,7 @@ func parseShodanLogicExpression(query string) string {
 		return ""
 	}
 
-	// 按 AND 分割（需要处理大小写和空格，文本形式）
+	// Split by AND (case- and space-sensitive, text form)
 	if strings.Contains(strings.ToUpper(query), " AND ") {
 		parts := splitByShodanOperator(query, " AND ")
 		var results []string
@@ -172,11 +172,11 @@ func parseShodanLogicExpression(query string) string {
 		return ""
 	}
 
-	// 没有逻辑连接符，解析单个条件（可能包含多个空格分隔的过滤器，默认是 AND）
+	// No logical operator, parse a single condition (may contain multiple space-separated filters; the default is AND)
 	return parseShodanFilters(query)
 }
 
-// splitByShodanOperator 按操作符分割，但要注意括号内的内容和大小写
+// splitByShodanOperator splits by the operator, taking care of bracketed content and case
 func splitByShodanOperator(query, operator string) []string {
 	var parts []string
 	var current strings.Builder
@@ -192,13 +192,13 @@ func splitByShodanOperator(query, operator string) []string {
 			depth--
 			current.WriteByte(query[i])
 		} else if depth == 0 {
-			// 检查是否匹配操作符（不区分大小写）
+			// Check whether the operator matches (case-insensitive)
 			if i+operatorLen <= len(query) {
 				substr := strings.ToUpper(query[i : i+operatorLen])
 				if substr == operatorUpper {
 					parts = append(parts, current.String())
 					current.Reset()
-					i += operatorLen - 1 // 跳过操作符
+					i += operatorLen - 1 // Skip the operator
 					continue
 				}
 			}
@@ -215,7 +215,7 @@ func splitByShodanOperator(query, operator string) []string {
 	return parts
 }
 
-// hasOperator 检查查询中是否包含操作符（不在引号内）
+// hasOperator checks whether the query contains an operator (outside quotes)
 func hasOperator(query, operator string) bool {
 	inQuotes := false
 	quoteChar := byte(0)
@@ -224,7 +224,7 @@ func hasOperator(query, operator string) bool {
 	for i := 0; i <= len(query)-len(operator); i++ {
 		char := query[i]
 
-		// 处理引号
+		// Handle quotes
 		if (char == '"' || char == '\'') && (i == 0 || query[i-1] != '\\') {
 			if !inQuotes {
 				inQuotes = true
@@ -236,12 +236,12 @@ func hasOperator(query, operator string) bool {
 			continue
 		}
 
-		// 如果在引号内，跳过
+		// Skip if inside quotes
 		if inQuotes {
 			continue
 		}
 
-		// 处理括号深度
+		// Handle bracket depth
 		if char == '(' {
 			depth++
 			continue
@@ -250,7 +250,7 @@ func hasOperator(query, operator string) bool {
 			continue
 		}
 
-		// 检查操作符（不在引号内，不在括号内）
+		// Check the operator (outside quotes and brackets)
 		if depth == 0 && query[i:i+len(operator)] == operator {
 			return true
 		}
@@ -259,7 +259,7 @@ func hasOperator(query, operator string) bool {
 	return false
 }
 
-// splitByShodanOperatorSymbol 按符号操作符（如 || 或 &&）分割，但要注意括号和引号内的内容
+// splitByShodanOperatorSymbol splits by a symbolic operator (such as || or &&), taking care of bracketed and quoted content
 func splitByShodanOperatorSymbol(query, operator string) []string {
 	var parts []string
 	var current strings.Builder
@@ -271,7 +271,7 @@ func splitByShodanOperatorSymbol(query, operator string) []string {
 	for i := 0; i < len(query); i++ {
 		char := query[i]
 
-		// 处理引号
+		// Handle quotes
 		if (char == '"' || char == '\'') && (i == 0 || query[i-1] != '\\') {
 			if !inQuotes {
 				inQuotes = true
@@ -284,13 +284,13 @@ func splitByShodanOperatorSymbol(query, operator string) []string {
 			continue
 		}
 
-		// 如果在引号内，直接添加字符
+		// Append the character directly if inside quotes
 		if inQuotes {
 			current.WriteByte(char)
 			continue
 		}
 
-		// 处理括号
+		// Handle brackets
 		if char == '(' {
 			depth++
 			current.WriteByte(char)
@@ -298,11 +298,11 @@ func splitByShodanOperatorSymbol(query, operator string) []string {
 			depth--
 			current.WriteByte(char)
 		} else if depth == 0 {
-			// 检查是否匹配操作符（不在引号内，不在括号内）
+			// Check whether the operator matches (outside quotes and brackets)
 			if i+operatorLen <= len(query) && query[i:i+operatorLen] == operator {
 				parts = append(parts, current.String())
 				current.Reset()
-				i += operatorLen - 1 // 跳过操作符
+				i += operatorLen - 1 // Skip the operator
 				continue
 			}
 			current.WriteByte(char)
@@ -318,18 +318,18 @@ func splitByShodanOperatorSymbol(query, operator string) []string {
 	return parts
 }
 
-// parseShodanFilters 解析 shodan 过滤器（可能包含多个空格分隔的过滤器）
+// parseShodanFilters parses shodan filters (may contain multiple space-separated filters)
 func parseShodanFilters(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// 移除括号（如果整个查询被括号包围）
+	// Remove brackets (if the whole query is wrapped in brackets)
 	query = strings.Trim(query, "()")
 	query = strings.TrimSpace(query)
 
-	// 分割过滤器（按空格，但要考虑引号内的内容）
+	// Split the filters (by space, taking care of quoted content)
 	filters := splitShodanFilters(query)
 	if len(filters) == 0 {
 		return ""
@@ -351,15 +351,15 @@ func parseShodanFilters(query string) string {
 		return ""
 	}
 
-	// 多个过滤器用 && 连接
+	// Join multiple filters with &&
 	if len(results) == 1 {
 		return results[0]
 	}
 	return strings.Join(results, " && ")
 }
 
-// splitShodanFilters 分割 shodan 过滤器，考虑引号内的内容
-// 注意：此函数只处理空格分隔的过滤器，OR 和 AND 已经在 parseShodanLogicExpression 中处理
+// splitShodanFilters splits shodan filters, taking care of quoted content
+// Note: this function only handles space-separated filters; OR and AND are handled in parseShodanLogicExpression
 func splitShodanFilters(query string) []string {
 	var filters []string
 	var current strings.Builder
@@ -369,7 +369,7 @@ func splitShodanFilters(query string) []string {
 	for i := 0; i < len(query); i++ {
 		char := query[i]
 
-		// 处理引号
+		// Handle quotes
 		if (char == '"' || char == '\'') && (i == 0 || query[i-1] != '\\') {
 			if !inQuotes {
 				inQuotes = true
@@ -385,13 +385,13 @@ func splitShodanFilters(query string) []string {
 			continue
 		}
 
-		// 如果在引号内，直接添加字符
+		// Append the character directly if inside quotes
 		if inQuotes {
 			current.WriteByte(char)
 			continue
 		}
 
-		// 空格分隔（但不在引号内）
+		// Space-separated (but outside quotes)
 		if char == ' ' {
 			if current.Len() > 0 {
 				filters = append(filters, current.String())
@@ -410,14 +410,14 @@ func splitShodanFilters(query string) []string {
 	return filters
 }
 
-// parseShodanFilter 解析单个 shodan 过滤器
+// parseShodanFilter parses a single shodan filter
 func parseShodanFilter(filter string) string {
 	filter = strings.TrimSpace(filter)
 	if filter == "" {
 		return ""
 	}
 
-	// 定义 shodan 字段映射（shodan字段 -> 自定义字段）
+	// Define the shodan field mappings (shodan field -> custom field)
 	fieldMap := map[string]string{
 		"http.title":        "title",
 		"http.html":         "body",
@@ -433,50 +433,50 @@ func parseShodanFilter(filter string) string {
 		"status":            "statuscode",
 	}
 
-	// 检查是否是 NOT 查询（以 - 开头或 NOT 开头，不区分大小写）
+	// Check whether it is a NOT query (starts with - or NOT, case-insensitive)
 	isNot := false
 	if strings.HasPrefix(filter, "-") {
 		isNot = true
 		filter = strings.TrimPrefix(filter, "-")
 		filter = strings.TrimSpace(filter)
 	} else {
-		// 检查是否以 NOT 开头（不区分大小写）
+		// Check whether it starts with NOT (case-insensitive)
 		filterUpper := strings.ToUpper(filter)
 		if strings.HasPrefix(filterUpper, "NOT ") {
 			isNot = true
-			// 找到原始字符串中 NOT 的位置（不区分大小写）
+			// Find the position of NOT in the original string (case-insensitive)
 			notIndex := strings.Index(filterUpper, "NOT ")
 			if notIndex == 0 {
-				filter = filter[4:] // 移除 "NOT " (4个字符)
+				filter = filter[4:] // Remove "NOT " (4 characters)
 				filter = strings.TrimSpace(filter)
 			}
 		}
 	}
 
-	// 匹配 shodan 过滤器格式: filter:value 或 "filter:value"
-	// 支持带引号的值
+	// Match the shodan filter format: filter:value or "filter:value"
+	// Support quoted values
 	pattern := regexp.MustCompile(`^([\w.]+)\s*:\s*(.+)$`)
 	matches := pattern.FindStringSubmatch(filter)
 	if len(matches) == 3 {
 		field := strings.ToLower(matches[1])
 		value := strings.TrimSpace(matches[2])
 
-		// 如果字段是 country，直接跳过（不支持 country 字段）
+		// If the field is country, skip it directly (the country field is not supported)
 		if field == "country" {
 			return ""
 		}
 
-		// 移除值两端的引号（如果存在）
+		// Remove quotes at both ends of the value (if present)
 		value = strings.Trim(value, `"'`)
 
-		// 检查字段是否在映射中
+		// Check whether the field is in the mapping
 		customField, exists := fieldMap[field]
 		if !exists {
-			// 如果字段不在映射中，默认使用 body
+			// If the field is not in the mapping, default to body
 			customField = "body"
 		}
 
-		// 根据是否是 NOT 查询选择操作符
+		// Choose the operator based on whether it is a NOT query
 		operator := "="
 		if isNot {
 			operator = "!="
@@ -485,8 +485,8 @@ func parseShodanFilter(filter string) string {
 		return fmt.Sprintf(`%s%s"%s"`, customField, operator, value)
 	}
 
-	// 如果没有匹配到过滤器格式，检查是否是纯文本查询
-	// 纯文本查询默认作为 body 查询
+	// If no filter format matched, check whether it is a plain text query
+	// Plain text queries default to a body query
 	if !strings.Contains(filter, ":") {
 		value := strings.Trim(filter, `"'`)
 		operator := "="

@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, reactive, h, nextTick, Ref } from 'vue'
+import { ref, reactive } from 'vue'
 import {
   ElButton,
   ElCol,
@@ -14,20 +14,17 @@ import {
   UploadProps,
   UploadRawFile,
   UploadInstance,
-  ElTag,
-  InputInstance
+  ElTag
 } from 'element-plus'
 import { Table, TableColumn } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { Icon } from '@/components/Icon'
 import { useIcon } from '@/hooks/web/useIcon'
 import { BaseButton } from '@/components/Button'
-import { getPocDataApi, getPocContentApi, deletePocDataApi, getPocDetailApi } from '@/api/poc'
+import { getPocDataApi, deletePocDataApi, getPocDetailApi } from '@/api/poc'
 import Detail from './components/Detail.vue'
 import { Dialog } from '@/components/Dialog'
 import { useUserStore } from '@/store/modules/user'
-import { RowState } from '@/api/asset/types'
-import { addTagApi, deleteTagApi } from '@/api/asset'
 const searchicon = useIcon({ icon: 'iconoir:search' })
 const { t } = useI18n()
 const dialogVisible = ref(false)
@@ -35,7 +32,6 @@ const search = ref('')
 const handleSearch = () => {
   getList()
 }
-const rowStateMap = reactive<Record<string, RowState>>({})
 const nodeColums = reactive<TableColumn[]>([
   {
     field: 'selection',
@@ -101,7 +97,7 @@ const nodeColums = reactive<TableColumn[]>([
     field: 'tags',
     label: 'TAG',
     fit: 'true',
-    formatter: (row: Recordable, __: TableColumn, tags: string[]) => {
+    formatter: (_row: Recordable, __: TableColumn, tags: string[]) => {
       if (tags.length != 0) {
         return (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -272,11 +268,6 @@ const userStore = useUserStore()
 const uploadHeaders = ref({ Authorization: `${userStore.getToken}` })
 
 const upload = ref<UploadInstance>()
-const uploadSuccess = async () => {
-  console.log('导入中')
-  ElMessage.success('导入中')
-}
-
 const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles()
   const file = files[0] as UploadRawFile
@@ -296,7 +287,7 @@ const handleUploadSuccess = (response) => {
   getList()
   upload.value?.clearFiles()
 }
-const handleFileChange = (file, fileList) => {
+const handleFileChange = (_file, fileList) => {
   if (fileList.length > 0) {
     upload.value!.submit()
   }

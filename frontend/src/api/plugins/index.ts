@@ -1,6 +1,6 @@
 import request from '@/axios'
 import axios from 'axios'
-import type { LogRespData, pluginData, RemotePluginResponse } from './types'
+import type { LogRespData, pluginData } from './types'
 import { commonRespData } from '../scommon/types'
 
 interface pluginDataResponse {
@@ -122,7 +122,7 @@ export const uninstallPluginApi = (
   return request.post({ url: '/api/plugin/uninstall', data: { node, hash, module } })
 }
 
-// 获取本地已安装的插件列表
+// Get the list of locally installed plugins
 export const getLocalPluginListApi = (): Promise<IResponse<pluginDataResponse>> => {
   return request.post({
     url: '/api/plugin',
@@ -130,9 +130,9 @@ export const getLocalPluginListApi = (): Promise<IResponse<pluginDataResponse>> 
   })
 }
 
-// 获取远程插件市场数据
+// Get remote plugin marketplace data
 export const getRemotePluginMarketApi = (): Promise<any> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
+  // Use native axios to call the remote API directly, avoiding adding an Authorization header
   return axios
     .post(
       'https://api.scope-sentry.top/api/common/plugin/search',
@@ -153,9 +153,9 @@ export const getRemotePluginMarketApi = (): Promise<any> => {
     .then((res) => res.data)
 }
 
-// 获取插件导出数据
+// Get plugin export data
 export const getPluginExportDataApi = (hash: string, token?: string): Promise<any> => {
-  // 使用原生 axios 直接调用远程 API
+  // Use native axios to call the remote API directly
   let url = `https://api.scope-sentry.top/api/common/plugin/export-data/${hash}`
   if (token) {
     url += `?token=${token}`
@@ -169,7 +169,7 @@ export const getPluginExportDataApi = (hash: string, token?: string): Promise<an
     .then((res) => res.data)
 }
 
-// 导入插件
+// Import plugin
 export const importPluginApi = (
   json: string,
   source: string,
@@ -187,7 +187,7 @@ export const importPluginApi = (
   })
 }
 
-// 更新插件状态
+// Update plugin status
 export const updatePluginStatusApi = (
   id: string,
   status: boolean
@@ -201,7 +201,7 @@ export const updatePluginStatusApi = (
   })
 }
 
-// 运行插件一次
+// Run plugin once
 export const runPluginOnceApi = (hash: string): Promise<IResponse<commonRespData>> => {
   return request.post({
     url: '/api/plugin/run',

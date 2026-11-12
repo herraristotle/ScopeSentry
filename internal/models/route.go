@@ -9,7 +9,7 @@ package models
 
 import "github.com/gin-gonic/gin"
 
-// RouteGroup 路由组配置
+// RouteGroup route group configuration
 type RouteGroup struct {
 	Path        string
 	Middlewares []gin.HandlerFunc
@@ -17,7 +17,7 @@ type RouteGroup struct {
 	Groups      []RouteGroup
 }
 
-// Route 路由配置
+// Route route configuration
 type Route struct {
 	Method      string
 	Path        string

@@ -29,13 +29,13 @@ func init() {
 	exportService = export.NewService()
 }
 
-// Export 处理导出请求
-// @Summary 导出数据
-// @Description 根据请求参数导出数据到文件
+// Export handle an export request
+// @Summary Export data
+// @Description Export data to a file based on request parameters
 // @Tags export
 // @Accept json
 // @Produce json
-// @Param request body ExportRequest true "导出请求参数"
+// @Param request body ExportRequest true "Export request parameters"
 // @Success 200 {object} ExportResponse
 // @Router /api/export [post]
 func Export(c *gin.Context) {
@@ -45,19 +45,19 @@ func Export(c *gin.Context) {
 		return
 	}
 
-	// 验证必要参数
+	// Validate required parameters
 	if req.Index == "" || req.Quantity == 0 || req.Type == "" {
 		response.BadRequest(c, "api.invalid_params", fmt.Errorf("index, quantity, and type are required"))
 		return
 	}
 
-	// 验证文件类型
+	// Validate file type
 	if req.FileType != "xlsx" && req.FileType != "json" {
 		response.BadRequest(c, "api.invalid_file_type", fmt.Errorf("filetype must be csv or json"))
 		return
 	}
 
-	// 验证字段
+	// Validate fields
 	if len(req.Field) == 0 {
 		response.BadRequest(c, "api.invalid_fields", fmt.Errorf("fields cannot be empty"))
 		return
@@ -78,10 +78,10 @@ func Export(c *gin.Context) {
 	}
 	filter := bson.M(searchQuery)
 
-	// 生成文件名
+	// Generate file name
 	fileName := fmt.Sprintf("%s.%s", uuid.New().String(), req.FileType)
 
-	// 创建导出任务
+	// Create export task
 	err = exportService.CreateExportTask(c, &models.ExportTask{
 		FileName:   fileName,
 		CreateTime: helper.GetNowTimeString(),
@@ -103,7 +103,7 @@ func Export(c *gin.Context) {
 		Field:    req.Field,
 		Quantity: req.Quantity,
 	}
-	// 异步处理导出任务
+	// Process the export task asynchronously
 	go exportService.ProcessExportTask(context.Background(), run)
 
 	response.Success(c, models.ExportResponse{
@@ -112,13 +112,13 @@ func Export(c *gin.Context) {
 	}, "api.success")
 }
 
-// GetExportFields 获取导出字段
-// @Summary 获取导出字段
-// @Description 根据索引获取可导出的字段列表
+// GetExportFields get export fields
+// @Summary Get export fields
+// @Description Get the list of exportable fields by index
 // @Tags export
 // @Accept json
 // @Produce json
-// @Param request body map[string]string true "请求参数"
+// @Param request body map[string]string true "Request parameters"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/export/fields [post]
 func GetExportFields(c *gin.Context) {
@@ -140,9 +140,9 @@ func GetExportFields(c *gin.Context) {
 	}, "api.success")
 }
 
-// GetExportRecords 获取导出记录
-// @Summary 获取导出记录
-// @Description 获取所有导出任务的记录
+// GetExportRecords get export records
+// @Summary Get export records
+// @Description Get the records of all export tasks
 // @Tags export
 // @Produce json
 // @Success 200 {object} map[string]interface{}
@@ -159,13 +159,13 @@ func GetExportRecords(c *gin.Context) {
 	}, "api.success")
 }
 
-// DeleteExport 删除导出文件
-// @Summary 删除导出文件
-// @Description 删除指定的导出文件
+// DeleteExport delete export files
+// @Summary Delete export files
+// @Description Delete the specified export files
 // @Tags export
 // @Accept json
 // @Produce json
-// @Param request body map[string][]string true "请求参数"
+// @Param request body map[string][]string true "Request parameters"
 // @Success 200 {object} ExportResponse
 // @Router /api/export/delete [post]
 func DeleteExport(c *gin.Context) {
@@ -193,12 +193,12 @@ func DeleteExport(c *gin.Context) {
 	}, "api.success")
 }
 
-// DownloadExport 下载导出文件
-// @Summary 下载导出文件
-// @Description 下载指定的导出文件
+// DownloadExport download export file
+// @Summary Download export file
+// @Description Download the specified export file
 // @Tags export
 // @Produce application/octet-stream
-// @Param filename query string true "文件名"
+// @Param filename query string true "File name"
 // @Success 200 {file} binary
 // @Router /api/export/download [get]
 func DownloadExport(c *gin.Context) {

@@ -49,7 +49,7 @@ const nodeColums = reactive<TableColumn[]>([
     field: 'category',
     label: t('common.category'),
     minWidth: 40,
-    formatter: (row, __: TableColumn, value: string) => {
+    formatter: (_row, __: TableColumn, value: string) => {
       return (
         <ElTag type="success" effect="light" size="large">
           {value}
@@ -86,7 +86,7 @@ const nodeColums = reactive<TableColumn[]>([
               getList()
             },
             onError: (err) => {
-              // 如果上传失败，触发该回调
+              // Triggered when the upload fails
               ElMessage.error(`Upload failed: ${err}`)
             }
           },
@@ -193,9 +193,9 @@ async function customRequest(option) {
     formData.append('file', file)
     formData.append('name', form.value.name)
     formData.append('category', form.value.category)
-    // 在这里可以处理实际的文件数据
-    await createDictApi(formData) // 传递文件和其他参数
-    getList() // 假设 getList 是一个用于获取更新后的数据的函数
+    // Handle the actual file data here
+    await createDictApi(formData) // Pass the file and other parameters
+    getList() // Assume getList fetches the updated data
     dialogVisible.value = false
     ElMessage.success('Upload success')
   } catch (error) {
@@ -216,7 +216,7 @@ const downloadFile = async (id, name) => {
   const url = window.URL.createObjectURL(new Blob([response.data]))
   const link = document.createElement('a')
   link.href = url
-  link.setAttribute('download', name) // 设置文件名
+  link.setAttribute('download', name) // Set the file name
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)

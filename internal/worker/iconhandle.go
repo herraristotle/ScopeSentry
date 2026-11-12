@@ -26,50 +26,50 @@ import (
 func IconHandle(ctx context.Context) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("任务发生错误，已恢复:", r)
-			// 出现 panic 后，如果未取消，则重启任务循环
+			fmt.Println("Task panic recovered:", r)
+			// After a panic, restart the task loop if not cancelled
 			select {
 			case <-ctx.Done():
-				fmt.Println("任务已取消，IconHandle不再重启")
+				fmt.Println("Task cancelled, IconHandle will not restart")
 			default:
 				go IconHandle(ctx)
 			}
 		}
 	}()
 
-	// 初始化 common repository
+	// Initialize the common repository
 	repo := common.NewRepository()
 
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("任务被取消，IconHandle停止执行")
+			fmt.Println("Task cancelled, IconHandle stopped")
 			return
 		default:
-			// 批量查询 icon 集合数据，每次查询 100 条
+			// Batch query the icon collection, 100 records per query
 			limit := int64(100)
 			opts := options.Find().SetLimit(limit)
 
-			// 查询数据
+			// Query the data
 			results, err := repo.FindMany(ctx, "icon", bson.M{}, opts)
 			if err != nil {
-				logger.Error(fmt.Sprintf("查询 icon 数据失败: %v\n", err))
-				time.Sleep(10 * time.Second) // 出错后等待 5 秒再重试
+				logger.Error(fmt.Sprintf("Failed to query icon data: %v\n", err))
+				time.Sleep(10 * time.Second) // Wait 10 seconds after an error before retrying
 				continue
 			}
 
-			// 如果没有数据，说明处理完毕
+			// If there is no data, processing is complete
 			if len(results) == 0 {
-				time.Sleep(60 * time.Second) // 等待一段时间后再次检查
+				time.Sleep(60 * time.Second) // Wait a while before checking again
 				continue
 			}
 
-			// 收集要删除的 _id
+			// Collect the _ids to delete
 			var ids []primitive.ObjectID
 
-			// 打印并收集数据
+			// Print and collect the data
 			for _, item := range results {
-				// 提取 fav3 和 content 字段
+				// Extract the fav3 and content fields
 				fav3, _ := item["fav3"].(string)
 				content, _ := item["content"].(string)
 				filepath := path.Join(config.GlobalConfig.System.IconDir, fmt.Sprintf("%v.png", fav3))
@@ -84,22 +84,22 @@ func IconHandle(ctx context.Context) {
 					continue
 				}
 
-				// 收集 _id 用于批量删除
+				// Collect _ids for batch deletion
 				if id, ok := item["_id"].(primitive.ObjectID); ok {
 					ids = append(ids, id)
 				}
 			}
 
-			// 批量删除数据
+			// Batch delete the data
 			if len(ids) > 0 {
 				filter := bson.M{"_id": bson.M{"$in": ids}}
 				_, err := repo.DeleteMany(ctx, "icon", filter)
 				if err != nil {
-					fmt.Printf("删除 icon 数据失败: %v\n", err)
+					fmt.Printf("Failed to delete icon data: %v\n", err)
 				}
 			}
 
-			// 处理完一批后短暂休眠，避免过于频繁的数据库操作
+			// Brief sleep after each batch to avoid overly frequent database operations
 			time.Sleep(3 * time.Second)
 		}
 	}

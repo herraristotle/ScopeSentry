@@ -16,15 +16,15 @@ func init() {
 }
 
 // GetRootDomainData godoc
-// @Summary 获取根域名数据
-// @Description 分页获取根域名数据列表
-// @Tags 根域名管理
+// @Summary Get root domain data
+// @Description Get the root domain data list with pagination
+// @Tags Root Domain Management
 // @Accept json
 // @Produce json
-// @Param request body GetRootDomainDataRequest true "请求参数"
-// @Success 200 {object} response.Response{data=map[string]interface{}} "成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Param request body GetRootDomainDataRequest true "Request parameters"
+// @Success 200 {object} response.Response{data=map[string]interface{}} "Success"
+// @Failure 400 {object} response.Response "Invalid request parameters"
+// @Failure 500 {object} response.Response "Internal server error"
 // @Security ApiKeyAuth
 // @Router /api/assets/root_domain [post]
 func GetRootDomainData(c *gin.Context) {

@@ -11,10 +11,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// AuthMiddleware JWT认证中间件
+// AuthMiddleware JWT authentication middleware
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 获取Authorization header
+		// Get the Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			response.Unauthorized(c, "Authorization header is required", nil)
@@ -22,7 +22,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 检查Bearer token格式
+		// Check the Bearer token format
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			response.Unauthorized(c, "Invalid authorization header format", nil)
@@ -32,7 +32,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		// 解析token
+		// Parse the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
@@ -47,9 +47,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 验证token
+		// Validate the token
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			// 将用户信息存储到上下文中
+			// Store user information in the context
 			c.Set("userID", claims["userID"])
 			c.Set("username", claims["username"])
 			c.Set("role", claims["role"])

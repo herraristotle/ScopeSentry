@@ -138,20 +138,20 @@ const confirmDelete = async () => {
   }
 }
 
-// 更新相关的状态
+// Update-related state
 const updateCount = ref(0)
 const currentVersion = ref('')
 const updateLoading = ref(false)
 
-// 获取版本和数量
+// Get version and count
 const fetchVersionAndCount = async () => {
   try {
-    // 获取版本
+    // Get the version
     const versionRes = await getFingerprintVersionApi()
     const version = versionRes.data.version
     currentVersion.value = version
 
-    // 使用版本获取数量
+    // Get the count using the version
     const countRes = await getCountByUpdateTimeApi(version)
     updateCount.value = Number(countRes.data.count) || 0
   } catch (error) {
@@ -160,45 +160,49 @@ const fetchVersionAndCount = async () => {
   }
 }
 
-// 页面加载时获取版本和数量
+// Fetch version and count on page load
 onMounted(() => {
   fetchVersionAndCount()
 })
 
-// 更新按钮点击处理
+// Update button click handler
 const handleUpdate = async () => {
   try {
-    // 二次确认
-    await ElMessageBox.confirm(`确定要更新 ${updateCount.value} 条指纹数据吗？`, '确认更新', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    // Confirm twice
+    await ElMessageBox.confirm(
+      `Are you sure you want to update ${updateCount.value} fingerprint entries?`,
+      'Confirm Update',
+      {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }
+    )
 
     updateLoading.value = true
 
-    // 获取需要更新的指纹列表
+    // Get the list of fingerprints to update
     const fingerprintsRes = await getFingerprintsByUpdateTimeApi(currentVersion.value)
     const fingerprints = fingerprintsRes.data.data || []
 
     if (fingerprints.length === 0) {
-      ElMessage.warning('没有需要更新的数据')
+      ElMessage.warning('No data needs updating')
       updateLoading.value = false
       return
     }
 
-    // 批量添加指纹
+    // Add fingerprints in batch
     await batchAddFingerprintApi(fingerprints)
 
-    ElMessage.success(`成功更新 ${fingerprints.length} 条指纹数据`)
+    ElMessage.success(`Successfully updated ${fingerprints.length} fingerprint entries`)
 
-    // 刷新列表和数量
+    // Refresh the list and count
     await getList()
     await fetchVersionAndCount()
   } catch (error: any) {
     if (error !== 'cancel') {
       console.error('Error updating fingerprints:', error)
-      ElMessage.error(error?.message || '更新失败，请稍后重试')
+      ElMessage.error(error?.message || 'Update failed, please try again later')
     }
   } finally {
     updateLoading.value = false
@@ -240,7 +244,7 @@ const handleUpdate = async () => {
         <div class="mb-10px">
           <ElBadge :value="updateCount" :hidden="updateCount === 0" :max="999999">
             <BaseButton type="success" :loading="updateLoading" @click="handleUpdate">
-              {{ t('common.update') || '更新' }}
+              {{ t('common.update') || 'Update' }}
             </BaseButton>
           </ElBadge>
         </div>

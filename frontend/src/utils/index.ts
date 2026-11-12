@@ -1,7 +1,7 @@
 /**
  *
- * @param component 需要注册的组件
- * @param alias 组件别名
+ * @param component component to register
+ * @param alias component alias
  * @returns any
  */
 export const withInstall = <T>(component: T, alias?: string) => {
@@ -16,16 +16,16 @@ export const withInstall = <T>(component: T, alias?: string) => {
 }
 
 /**
- * @param str 需要转下划线的驼峰字符串
- * @returns 字符串下划线
+ * @param str camelCase string to convert to snake/underline case
+ * @returns the underlined string
  */
 export const humpToUnderline = (str: string): string => {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 }
 
 /**
- * @param str 需要转驼峰的下划线字符串
- * @returns 字符串驼峰
+ * @param str underline string to convert to camelCase
+ * @returns the camelCased string
  */
 export const underlineToHump = (str: string): string => {
   if (!str) return ''
@@ -35,7 +35,7 @@ export const underlineToHump = (str: string): string => {
 }
 
 /**
- * 驼峰转横杠
+ * Convert camelCase to dash-case
  */
 export const humpToDash = (str: string): string => {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase()
@@ -46,9 +46,9 @@ export const setCssVar = (prop: string, val: any, dom = document.documentElement
 }
 
 /**
- * 查找数组对象的某个下标
- * @param {Array} ary 查找的数组
- * @param {Functon} fn 判断的方法
+ * Find the index of an item in an array
+ * @param {Array} ary the array to search
+ * @param {Functon} fn the predicate function
  */
 // eslint-disable-next-line
 export const findIndex = <T = Recordable>(ary: Array<T>, fn: Fn): number => {
@@ -74,8 +74,8 @@ export const getCssVar = (prop: string, dom = document.documentElement) => {
   return getComputedStyle(dom).getPropertyValue(prop)
 }
 /**
- * @param {Date | number | string} time 需要转换的时间
- * @param {String} fmt 需要转换的格式 如 yyyy-MM-dd、yyyy-MM-dd HH:mm:ss
+ * @param {Date | number | string} time the time to convert
+ * @param {String} fmt the target format, e.g. yyyy-MM-dd, yyyy-MM-dd HH:mm:ss
  */
 export function formatTime(time: Date | number | string, fmt: string) {
   if (!time) return ''
@@ -106,7 +106,7 @@ export function formatTime(time: Date | number | string, fmt: string) {
 }
 
 /**
- * 生成随机字符串
+ * Generate a random string
  */
 export function toAnyString() {
   const str: string = 'xxxxx-xxxxx-4xxxx-yxxxx-xxxxx'.replace(/[xy]/g, (c: string) => {
@@ -118,7 +118,7 @@ export function toAnyString() {
 }
 
 /**
- * 首字母大写
+ * Capitalize the first letter
  */
 export function firstUpperCase(str: string) {
   return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase())

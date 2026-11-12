@@ -18,12 +18,12 @@ func init() {
 }
 
 // GetAssets godoc
-// @Summary 获取资产列表
-// @Description 获取资产列表，支持分页、排序和过滤
-// @Tags 资产
+// @Summary Get asset list
+// @Description Get the asset list, supporting pagination, sorting, and filtering
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.Asset}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -47,12 +47,12 @@ func GetAssets(c *gin.Context) {
 }
 
 // GetAssetByID godoc
-// @Summary 获取单个资产
-// @Description 根据ID获取单个资产的详细信息
-// @Tags 资产
+// @Summary Get a single asset
+// @Description Get the details of a single asset by ID
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param id path string true "资产ID"
+// @Param id path string true "Asset ID"
 // @Success 200 {object} response.SuccessResponse{data=models.Asset}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 404 {object} response.NotFoundResponse
@@ -80,12 +80,12 @@ func GetAssetByID(c *gin.Context) {
 }
 
 // CreateAsset godoc
-// @Summary 创建资产
-// @Description 创建新的资产
-// @Tags 资产
+// @Summary Create asset
+// @Description Create a new asset
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param asset body models.Asset true "资产信息"
+// @Param asset body models.Asset true "Asset information"
 // @Success 201 {object} response.SuccessResponse{data=models.Asset}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -106,13 +106,13 @@ func CreateAsset(c *gin.Context) {
 }
 
 // UpdateAsset godoc
-// @Summary 更新资产
-// @Description 更新指定ID的资产信息
-// @Tags 资产
+// @Summary Update asset
+// @Description Update the asset information for the specified ID
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param id path string true "资产ID"
-// @Param asset body models.Asset true "资产信息"
+// @Param id path string true "Asset ID"
+// @Param asset body models.Asset true "Asset information"
 // @Success 200 {object} response.SuccessResponse{data=models.Asset}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 404 {object} response.NotFoundResponse
@@ -135,12 +135,12 @@ func UpdateAsset(c *gin.Context) {
 }
 
 // DeleteAsset godoc
-// @Summary 删除资产
-// @Description 删除指定ID的资产
-// @Tags 资产
+// @Summary Delete asset
+// @Description Delete the asset with the specified ID
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param id path string true "资产ID"
+// @Param id path string true "Asset ID"
 // @Success 200 {object} response.SuccessResponse
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 404 {object} response.NotFoundResponse
@@ -157,12 +157,12 @@ func DeleteAsset(c *gin.Context) {
 }
 
 // GetScreenshot godoc
-// @Summary 获取资产截图
-// @Description 获取指定ID资产的截图
-// @Tags 资产
+// @Summary Get asset screenshot
+// @Description Get the screenshot of the asset with the specified ID
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param id path string true "资产ID"
+// @Param id path string true "Asset ID"
 // @Success 200 {object} response.SuccessResponse{data=string}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 404 {object} response.NotFoundResponse
@@ -185,12 +185,12 @@ func GetScreenshot(c *gin.Context) {
 }
 
 // GetChangeLog godoc
-// @Summary 获取资产变更日志
-// @Description 获取指定ID资产的变更历史记录
-// @Tags 资产
+// @Summary Get asset change log
+// @Description Get the change history of the asset with the specified ID
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param id path string true "资产ID"
+// @Param id path string true "Asset ID"
 // @Success 200 {object} response.SuccessResponse{data=[]models.AssetChangeLog}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 404 {object} response.NotFoundResponse
@@ -212,14 +212,14 @@ func GetChangeLog(c *gin.Context) {
 }
 
 // DeduplicateAssets godoc
-// @Summary 资产去重
-// @Description 对指定类型的资产进行去重处理
-// @Tags 资产
+// @Summary Deduplicate assets
+// @Description Deduplicate assets of the specified type
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param assetType path string true "资产类型"
-// @Param filter body map[string]interface{} true "过滤条件"
-// @Param groupFields body []string true "分组字段"
+// @Param assetType path string true "Asset type"
+// @Param filter body map[string]interface{} true "Filter conditions"
+// @Param groupFields body []string true "Grouping fields"
 // @Success 200 {object} response.SuccessResponse
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -245,12 +245,12 @@ func DeduplicateAssets(c *gin.Context) {
 }
 
 // GetAssetCardData godoc
-// @Summary 获取资产卡片数据
-// @Description 获取资产卡片数据列表，支持分页和搜索条件
-// @Tags 资产
+// @Summary Get asset card data
+// @Description Get the asset card data list, supporting pagination and search conditions
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.Asset}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -274,12 +274,12 @@ func GetAssetCardData(c *gin.Context) {
 }
 
 // GetHostsByRootDomain godoc
-// @Summary 根据根域名获取主机列表
-// @Description 根据 rootDomain 字段全等查询资产数据，返回 host 列表，支持分页
-// @Tags 资产
+// @Summary Get host list by root domain
+// @Description Query asset data with an exact match on the rootDomain field and return the host list, supporting pagination
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param query body object{rootDomain=string,pageIndex=int,pageSize=int} true "查询参数"
+// @Param query body object{rootDomain=string,pageIndex=int,pageSize=int} true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]string,total=int64}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -296,7 +296,7 @@ func GetHostsByRootDomain(c *gin.Context) {
 		return
 	}
 
-	// 设置默认分页大小
+	// Set default page size
 	if request.PageSize <= 0 {
 		request.PageSize = 10
 	}
@@ -317,12 +317,12 @@ func GetHostsByRootDomain(c *gin.Context) {
 }
 
 // GetAssetsByHost godoc
-// @Summary 根据主机名获取资产列表
-// @Description 根据 host 字段查询资产数据，返回 ip、port、service、statuscode、faviconmmh3 字段，支持分页
-// @Tags 资产
+// @Summary Get asset list by hostname
+// @Description Query asset data by the host field and return the ip, port, service, statuscode, and faviconmmh3 fields, supporting pagination
+// @Tags Assets
 // @Accept json
 // @Produce json
-// @Param query body object{host=string,pageIndex=int,pageSize=int} true "查询参数"
+// @Param query body object{host=string,pageIndex=int,pageSize=int} true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.Asset,total=int64}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse
@@ -339,7 +339,7 @@ func GetAssetsByHost(c *gin.Context) {
 		return
 	}
 
-	// 设置默认分页大小
+	// Set default page size
 	if request.PageSize <= 0 {
 		request.PageSize = 10
 	}

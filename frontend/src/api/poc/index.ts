@@ -1,5 +1,5 @@
 import request from '@/axios'
-import type { pocData, pocRespData, pocContent, pocNameList } from './types'
+import type { pocData, pocRespData, pocContent } from './types'
 
 interface pocDataResponse {
   list: pocData[]

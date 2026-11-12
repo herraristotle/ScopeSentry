@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElIcon, ElTableV2, ElTag, ElTooltip } from 'element-plus'
+import { ElTableV2 } from 'element-plus'
 import type { Column } from 'element-plus'
-import { TableV2FixedDir } from 'element-plus'
 import { ref } from 'vue'
 const { t } = useI18n()
 
-const props = defineProps<{
+defineProps<{
   closeDialog: () => void
   getProgressInfoID: string
   getProgressInfotype: string

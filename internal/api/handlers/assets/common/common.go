@@ -22,13 +22,13 @@ func init() {
 	commonService = common.NewService()
 }
 
-// DeleteData 删除数据
-// @Summary 删除数据
-// @Description 根据ID列表删除指定集合中的数据
-// @Tags 通用操作
+// DeleteData deletes data
+// @Summary Delete data
+// @Description Delete data from the specified collection by a list of IDs
+// @Tags Common Operations
 // @Accept json
 // @Produce json
-// @Param request body common.DeleteRequest true "删除请求参数"
+// @Param request body common.DeleteRequest true "Delete request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/asset/common/delete [post]
 func DeleteData(c *gin.Context) {
@@ -53,13 +53,13 @@ func DeleteData(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// AddTag 添加标签
-// @Summary 添加标签
-// @Description 为指定文档添加标签
-// @Tags 通用操作
+// AddTag adds a tag
+// @Summary Add a tag
+// @Description Add a tag to the specified document
+// @Tags Common Operations
 // @Accept json
 // @Produce json
-// @Param request body common.TagRequest true "标签请求参数"
+// @Param request body common.TagRequest true "Tag request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/assets/common/add_tag [post]
 func AddTag(c *gin.Context) {
@@ -83,13 +83,13 @@ func AddTag(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// DeleteTag 删除标签
-// @Summary 删除标签
-// @Description 从指定文档中删除标签
-// @Tags 通用操作
+// DeleteTag deletes a tag
+// @Summary Delete a tag
+// @Description Remove a tag from the specified document
+// @Tags Common Operations
 // @Accept json
 // @Produce json
-// @Param request body common.TagRequest true "标签请求参数"
+// @Param request body common.TagRequest true "Tag request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/common/delete_tag [post]
 func DeleteTag(c *gin.Context) {
@@ -112,13 +112,13 @@ func DeleteTag(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// UpdateStatus 更新状态
-// @Summary 更新状态
-// @Description 更新指定文档的状态
-// @Tags 通用操作
+// UpdateStatus updates status
+// @Summary Update status
+// @Description Update the status of the specified document
+// @Tags Common Operations
 // @Accept json
 // @Produce json
-// @Param request body common.StatusRequest true "状态请求参数"
+// @Param request body common.StatusRequest true "Status request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/common/update_status [post]
 func UpdateStatus(c *gin.Context) {
@@ -141,13 +141,13 @@ func UpdateStatus(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// TotalData 获取总数
-// @Summary 获取总数
-// @Description 获取指定集合的数据总数
-// @Tags 通用操作
+// TotalData gets the total count
+// @Summary Get total count
+// @Description Get the total number of data entries in the specified collection
+// @Tags Common Operations
 // @Accept json
 // @Produce json
-// @Param request body common.TotalRequest true "总数请求参数"
+// @Param request body common.TotalRequest true "Total request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/assets/common/total [post]
 func TotalData(c *gin.Context) {

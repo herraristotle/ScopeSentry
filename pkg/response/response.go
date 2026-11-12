@@ -12,14 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 响应结构
+// Response struct
 type Response struct {
-	Code    int         `json:"code"`    // 状态码
-	Message string      `json:"message"` // 消息
-	Data    interface{} `json:"data"`    // 数据
+	Code    int         `json:"code"`    // Status code
+	Message string      `json:"message"` // Message
+	Data    interface{} `json:"data"`    // Data
 }
 
-// Ok 成功响应
+// Ok success response
 func Ok(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    200,
@@ -27,7 +27,7 @@ func Ok(c *gin.Context) {
 	})
 }
 
-// OkWithMessage 带消息的成功响应
+// OkWithMessage success response with message
 func OkWithMessage(message string, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    200,
@@ -35,7 +35,7 @@ func OkWithMessage(message string, c *gin.Context) {
 	})
 }
 
-// OkWithData 带数据的成功响应
+// OkWithData success response with data
 func OkWithData(data interface{}, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    200,
@@ -44,7 +44,7 @@ func OkWithData(data interface{}, c *gin.Context) {
 	})
 }
 
-// OkWithMessageAndData 带消息和数据的成功响应
+// OkWithMessageAndData success response with message and data
 func OkWithMessageAndData(message string, data interface{}, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    200,
@@ -53,7 +53,7 @@ func OkWithMessageAndData(message string, data interface{}, c *gin.Context) {
 	})
 }
 
-// Fail 失败响应
+// Fail failure response
 func Fail(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    500,
@@ -61,7 +61,7 @@ func Fail(c *gin.Context) {
 	})
 }
 
-// FailWithMessage 带消息的失败响应
+// FailWithMessage failure response with message
 func FailWithMessage(message string, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    500,
@@ -69,7 +69,7 @@ func FailWithMessage(message string, c *gin.Context) {
 	})
 }
 
-// FailWithCodeAndMessage 带状态码和消息的失败响应
+// FailWithCodeAndMessage failure response with status code and message
 func FailWithCodeAndMessage(code int, message string, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    code,
@@ -77,7 +77,7 @@ func FailWithCodeAndMessage(code int, message string, c *gin.Context) {
 	})
 }
 
-// FailWithCodeAndMessageAndData 带状态码、消息和数据的失败响应
+// FailWithCodeAndMessageAndData failure response with status code, message and data
 func FailWithCodeAndMessageAndData(code int, message string, data interface{}, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Code:    code,

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Repository 定义页面监控仓库接口
+// Repository defines the page monitoring repository interface
 type Repository interface {
 	FindHistory(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]*models.PageMonitoring, error)
 	FindContent(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error)
@@ -20,7 +20,7 @@ type Repository interface {
 	Find(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]models.PageMonitoringResult, error)
 }
 
-// repository 实现页面监控仓库接口
+// repository implements the page monitoring repository interface
 type repository struct {
 	pageCollection    *mongo.Collection
 	contentCollection *mongo.Collection
@@ -33,7 +33,7 @@ func NewRepository() Repository {
 	}
 }
 
-// FindHistory 获取页面监控历史记录
+// FindHistory gets page monitoring history records
 func (r *repository) FindHistory(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]*models.PageMonitoring, error) {
 	cursor, err := r.pageCollection.Find(ctx, filter, opts)
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *repository) FindHistory(ctx context.Context, filter interface{}, opts *
 	return pages, nil
 }
 
-// FindContent 获取页面监控内容
+// FindContent gets page monitoring content
 func (r *repository) FindContent(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error) {
 	var content models.PageMonitoringBody
 	err := r.contentCollection.FindOne(ctx, filter, opts).Decode(&content)
@@ -59,7 +59,7 @@ func (r *repository) FindContent(ctx context.Context, filter interface{}, opts *
 	return &content, nil
 }
 
-// FindDiff 获取页面监控差异
+// FindDiff gets page monitoring differences
 func (r *repository) FindDiff(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error) {
 	var content models.PageMonitoringBody
 	err := r.contentCollection.FindOne(ctx, filter, opts).Decode(&content)
@@ -77,12 +77,12 @@ func (r *repository) FindDiff(ctx context.Context, filter interface{}, opts *opt
 	return &content, nil
 }
 
-// Count 获取文档数量
+// Count gets the number of documents
 func (r *repository) Count(ctx context.Context, filter interface{}) (int64, error) {
 	return r.pageCollection.CountDocuments(ctx, filter)
 }
 
-// Find 查询文档
+// Find queries documents
 func (r *repository) Find(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]models.PageMonitoringResult, error) {
 	cursor, err := r.pageCollection.Find(ctx, filter, opts)
 	if err != nil {

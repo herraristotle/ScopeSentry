@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterTaskRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the route group
 	taskRoutes := models.RouteGroup{
 		Path: "/task",
 		Groups: []models.RouteGroup{
@@ -24,6 +24,6 @@ func RegisterTaskRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the route group
 	common.RegisterRouteGroup(api, taskRoutes)
 }

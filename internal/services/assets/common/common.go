@@ -30,7 +30,7 @@ var (
 	}
 )
 
-// Service 定义通用服务接口
+// Service defines the common service interface
 type Service interface {
 	DeleteData(ctx *gin.Context, req *models.DeleteRequest) error
 	AddTag(ctx *gin.Context, req *models.TagRequest) error
@@ -45,7 +45,7 @@ type service struct {
 	commonRepo   commonrepo.Repository
 }
 
-// NewService 创建新的service实例
+// NewService creates a new service instance
 func NewService() Service {
 	return &service{
 		repo:         common.NewRepository(),
@@ -54,7 +54,7 @@ func NewService() Service {
 	}
 }
 
-// DeleteData 删除数据
+// DeleteData deletes data
 func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error {
 	if !isValidCollection(req.Index) {
 		return ErrInvalidCollection
@@ -101,7 +101,7 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 		if err != nil {
 			return err
 		}
-		// 收集所有 bodyhash，去重并过滤空值
+		// Collect all bodyhash values, deduplicate and filter out empty ones
 		hashMap := make(map[string]bool)
 		for _, asset := range assets {
 			if asset.ResponseBodyHash != "" {
@@ -124,10 +124,10 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 		return ErrNoDocumentsDeleted
 	}
 
-	// 删除资产后，检查并清理不再使用的 HttpBody 数据
+	// After deleting assets, check and clean up HttpBody data that is no longer used
 	if req.Index == "asset" && len(bodyHashesToCheck) > 0 {
 		go func() {
-			// 使用聚合查询，一次性获取所有还在使用的 bodyhash
+			// Use an aggregation query to fetch all still-in-use bodyhash values at once
 			pipeline := mongo.Pipeline{
 				{{Key: "$match", Value: bson.M{"bodyhash": bson.M{"$in": bodyHashesToCheck}}}},
 				{{Key: "$group", Value: bson.M{"_id": "$bodyhash"}}},
@@ -140,7 +140,7 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 			}
 			defer cursor.Close(context.Background())
 
-			// 收集还在使用的 bodyhash
+			// Collect bodyhash values still in use
 			usedHashes := make(map[string]bool)
 			for cursor.Next(context.Background()) {
 				var result struct {
@@ -155,7 +155,7 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 				}
 			}
 
-			// 找出不再使用的 bodyhash
+			// Find bodyhash values that are no longer used
 			unusedHashes := make([]string, 0)
 			for _, hash := range bodyHashesToCheck {
 				if !usedHashes[hash] {
@@ -163,7 +163,7 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 				}
 			}
 
-			// 一次性删除所有不再使用的 HttpBody 数据
+			// Delete all unused HttpBody data in one go
 			if len(unusedHashes) > 0 {
 				httpBodyFilter := bson.M{"hash": bson.M{"$in": unusedHashes}}
 				_, err := s.repo.DeleteMany(context.Background(), "HttpBody", httpBodyFilter)
@@ -179,7 +179,7 @@ func (s *service) DeleteData(ctx *gin.Context, req *models.DeleteRequest) error 
 	return nil
 }
 
-// AddTag 添加标签
+// AddTag adds a tag
 func (s *service) AddTag(ctx *gin.Context, req *models.TagRequest) error {
 	if !isValidCollection(req.Type) || req.ID == "" || req.Tag == "" {
 		return ErrInvalidRequest
@@ -204,7 +204,7 @@ func (s *service) AddTag(ctx *gin.Context, req *models.TagRequest) error {
 	return s.repo.UpdateOne(ctx.Request.Context(), req.Type, bson.M{"_id": objID}, bson.M{"$set": bson.M{"tags": doc.Tags}})
 }
 
-// DeleteTag 删除标签
+// DeleteTag deletes a tag
 func (s *service) DeleteTag(ctx *gin.Context, req *models.TagRequest) error {
 	if !isValidCollection(req.Type) || req.ID == "" || req.Tag == "" {
 		return ErrInvalidRequest
@@ -234,7 +234,7 @@ func (s *service) DeleteTag(ctx *gin.Context, req *models.TagRequest) error {
 	return s.repo.UpdateOne(ctx.Request.Context(), req.Type, bson.M{"_id": objID}, bson.M{"$set": bson.M{"tags": newTags}})
 }
 
-// UpdateStatus 更新状态
+// UpdateStatus updates the status
 func (s *service) UpdateStatus(ctx *gin.Context, req *models.StatusRequest) error {
 	validTypes := []string{"SensitiveResult", "vulnerability"}
 	if !contains(validTypes, req.Type) || req.ID == "" {
@@ -249,7 +249,7 @@ func (s *service) UpdateStatus(ctx *gin.Context, req *models.StatusRequest) erro
 	return s.repo.UpdateOne(ctx.Request.Context(), req.Type, bson.M{"_id": objID}, bson.M{"$set": bson.M{"status": req.Status}})
 }
 
-// TotalData 获取总数
+// TotalData gets the total count
 func (s *service) TotalData(ctx context.Context, req *models.SearchRequest) (int64, error) {
 	if !isValidCollection(req.Index) {
 		return 0, ErrInvalidCollection
@@ -265,14 +265,14 @@ func (s *service) TotalData(ctx context.Context, req *models.SearchRequest) (int
 		return 0, err
 	}
 	if len(searchQuery) == 0 {
-		// 使用estimatedDocumentCount获取估计的文档数量
+		// Use estimatedDocumentCount to get the estimated document count
 		return s.repo.EstimatedDocumentCount(ctx, req.Index)
 	}
 	filter := bson.M(searchQuery)
 	return s.repo.CountDocuments(ctx, req.Index, filter)
 }
 
-// 辅助函数
+// Helper functions
 func isValidCollection(collection string) bool {
 	return contains(validCollections, collection)
 }
@@ -286,13 +286,13 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-// getSearchQuery 获取搜索查询条件
+// getSearchQuery gets the search query conditions
 func getSearchQuery(index string, body io.ReadCloser) (bson.M, error) {
-	// TODO: 实现搜索查询条件的解析逻辑
+	// TODO: implement the parsing logic for search query conditions
 	return bson.M{}, nil
 }
 
-// 错误定义
+// Error definitions
 var (
 	ErrInvalidCollection  = errors.New("invalid collection")
 	ErrInvalidRequest     = errors.New("invalid request")
@@ -302,14 +302,14 @@ var (
 )
 
 // ---------------------------------------------
-// 资产去重服务（从 Python 的 do_asset_deduplication/asset_data_dedup 重构）
+// Asset deduplication service (refactored from Python's do_asset_deduplication/asset_data_dedup)
 // ---------------------------------------------
 
-// DedupService 定义资产去重相关接口
+// DedupService defines the asset deduplication interfaces
 type DedupService interface {
-	// AssetDataDedup 针对单集合执行去重
+	// AssetDataDedup runs deduplication on a single collection
 	AssetDataDedup(ctx context.Context, collection string, filters bson.M, groups []string, subdomain bool) error
-	// DoAssetDeduplication 读取配置并批量触发去重
+	// DoAssetDeduplication reads the config and triggers deduplication in batch
 	DoAssetDeduplication() error
 }
 
@@ -321,22 +321,22 @@ func NewDedupService() DedupService {
 	return &dedupService{repo: commonrepo.NewRepository()}
 }
 
-// DoAssetDeduplication 读取 config.name=deduplication 的配置并按集合执行去重
+// DoAssetDeduplication reads the config.name=deduplication config and runs deduplication per collection
 func (s *dedupService) DoAssetDeduplication() error {
-	// 读取 deduplication 配置
+	// Read the deduplication config
 	ctx := context.Background()
 	cfg, err := s.repo.FindOne(ctx, "config", bson.M{"name": "deduplication"}, nil)
 	if err != nil {
 		return err
 	}
 
-	// 移除不参与判断的字段
+	// Remove fields that do not participate in the comparison
 	delete(cfg, "_id")
 	delete(cfg, "name")
 	delete(cfg, "hour")
 	delete(cfg, "flag")
 
-	// 预设各集合的 filters 与 groups
+	// Preset filters and groups for each collection
 	fgk := map[string]struct {
 		Filters bson.M
 		Groups  []string
@@ -347,7 +347,7 @@ func (s *dedupService) DoAssetDeduplication() error {
 		"crawler":              {Filters: bson.M{}, Groups: []string{"url", "body"}},
 		"subdomain":            {Filters: bson.M{}, Groups: []string{"host", "type", "sorted_ip"}},
 		"vulnerability":        {Filters: bson.M{}, Groups: []string{"url", "vulnid", "matched"}},
-		// PageMonitoring / SensitiveResult 可按需开启
+		// PageMonitoring / SensitiveResult can be enabled as needed
 	}
 
 	for key, val := range cfg {
@@ -359,12 +359,12 @@ func (s *dedupService) DoAssetDeduplication() error {
 		switch key {
 		case "asset":
 			logger.Info("dedup start", zap.String("collection", "asset"))
-			// http 资产去重（type != other）
+			// http asset deduplication (type != other)
 			if err := s.AssetDataDedup(ctx, "asset", bson.M{"type": bson.M{"$ne": "other"}}, []string{"url", "statuscode", "hashes.body_mmh3"}, false); err != nil {
 				logger.Error("dedup failed", zap.String("collection", "asset"), zap.Error(err))
 				return err
 			}
-			// other 资产去重（type == other）
+			// other asset deduplication (type == other)
 			if err := s.AssetDataDedup(ctx, "asset", bson.M{"type": "other"}, []string{"host", "ip", "protocol"}, false); err != nil {
 				logger.Error("dedup failed", zap.String("collection", "asset"), zap.Error(err))
 				return err
@@ -393,12 +393,12 @@ func (s *dedupService) DoAssetDeduplication() error {
 	return nil
 }
 
-// AssetDataDedup 执行与 Python 逻辑一致的聚合去重
+// AssetDataDedup performs aggregation deduplication consistent with the Python logic
 func (s *dedupService) AssetDataDedup(ctx context.Context, collection string, filters bson.M, groups []string, subdomain bool) error {
-	// 标记批次
+	// Mark the batch
 	processFlag := random.GenerateString(12)
 
-	// 1) 批量打上 process_flag
+	// 1) Batch tag with process_flag
 	updatedFlagCount, err := s.repo.UpdateMany(ctx, collection, filters, bson.M{"$set": bson.M{"process_flag": processFlag}})
 	if err != nil {
 		logger.Error("set process_flag failed", zap.String("collection", collection), zap.Error(err))
@@ -406,20 +406,20 @@ func (s *dedupService) AssetDataDedup(ctx context.Context, collection string, fi
 	}
 	logger.Info("set process_flag", zap.String("collection", collection), zap.Int64("matched", updatedFlagCount))
 
-	// 2) 组合匹配条件（包含 process_flag 与原 filters）
+	// 2) Combine match conditions (including process_flag and the original filters)
 	match := bson.M{"process_flag": processFlag}
 	for k, v := range filters {
 		match[k] = v
 	}
 
-	// 3) 构造 group _id 字段（将键名中的 '.' 去掉）
+	// 3) Build the group _id fields (remove '.' from key names)
 	idGroup := bson.M{}
 	for _, g := range groups {
 		cleaned := strings.ReplaceAll(g, ".", "")
 		idGroup[cleaned] = "$" + g
 	}
 
-	// 4) 管道
+	// 4) Pipeline
 	pipeline := mongo.Pipeline{
 		bson.D{{Key: "$match", Value: match}},
 		bson.D{{Key: "$sort", Value: bson.D{{Key: "_id", Value: -1}}}},
@@ -466,7 +466,7 @@ func (s *dedupService) AssetDataDedup(ctx context.Context, collection string, fi
 		return err
 	}
 
-	// 5) 标记最新记录 latest=true
+	// 5) Mark the latest record latest=true
 	if len(ids) > 0 {
 		setLatestCount, err := s.repo.UpdateMany(ctx, collection, bson.M{"_id": bson.M{"$in": ids}}, bson.M{"$set": bson.M{"latest": true}})
 		if err != nil {
@@ -476,7 +476,7 @@ func (s *dedupService) AssetDataDedup(ctx context.Context, collection string, fi
 		logger.Info("set latest", zap.String("collection", collection), zap.Int("ids", len(ids)), zap.Int64("modified", setLatestCount))
 	}
 
-	// 6) 删除非最新的重复项
+	// 6) Delete duplicates that are not the latest
 	deletedCount, err := s.repo.DeleteMany(ctx, collection, bson.M{"process_flag": processFlag, "latest": bson.M{"$ne": true}})
 	if err != nil {
 		logger.Error("delete duplicates failed", zap.String("collection", collection), zap.Error(err))
@@ -484,7 +484,7 @@ func (s *dedupService) AssetDataDedup(ctx context.Context, collection string, fi
 	}
 	logger.Info("delete duplicates", zap.String("collection", collection), zap.Int64("deleted", deletedCount))
 
-	// 7) 清理标记字段
+	// 7) Clean up the marker fields
 	unsetCount, err := s.repo.UpdateMany(ctx, collection, bson.M{"process_flag": processFlag}, bson.M{"$unset": bson.M{"process_flag": "", "latest": ""}})
 	if err != nil {
 		logger.Error("unset flags failed", zap.String("collection", collection), zap.Error(err))

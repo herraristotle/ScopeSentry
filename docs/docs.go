@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/api/assets": {
             "post": {
-                "description": "创建新的资产",
+                "description": "Create a new asset",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,12 +34,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "创建资产",
+                "summary": "Create asset",
                 "parameters": [
                     {
-                        "description": "资产信息",
+                        "description": "Asset information",
                         "name": "asset",
                         "in": "body",
                         "required": true,
@@ -84,7 +84,7 @@ const docTemplate = `{
         },
         "/api/assets/asset": {
             "post": {
-                "description": "获取资产列表，支持分页、排序和过滤",
+                "description": "Get asset list with pagination, sorting and filtering",
                 "consumes": [
                     "application/json"
                 ],
@@ -92,12 +92,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "获取资产列表",
+                "summary": "Get the asset list",
                 "parameters": [
                     {
-                        "description": "查询参数",
+                        "description": "Query parameters",
                         "name": "query",
                         "in": "body",
                         "required": true,
@@ -150,7 +150,7 @@ const docTemplate = `{
         },
         "/api/assets/deduplicate/{assetType}": {
             "post": {
-                "description": "对指定类型的资产进行去重处理",
+                "description": "Deduplicate assets of the specified type",
                 "consumes": [
                     "application/json"
                 ],
@@ -158,19 +158,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "资产去重",
+                "summary": "Deduplicate assets",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产类型",
+                        "description": "Asset type",
                         "name": "assetType",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "过滤条件",
+                        "description": "Filter conditions",
                         "name": "filter",
                         "in": "body",
                         "required": true,
@@ -180,7 +180,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "description": "分组字段",
+                        "description": "Grouping fields",
                         "name": "groupFields",
                         "in": "body",
                         "required": true,
@@ -216,7 +216,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}": {
             "get": {
-                "description": "根据ID获取单个资产的详细信息",
+                "description": "Get detailed information of a single asset by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -224,13 +224,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "获取单个资产",
+                "summary": "Get a single asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -276,7 +276,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "更新指定ID的资产信息",
+                "description": "Update the information of the asset with the specified ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -284,19 +284,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "更新资产",
+                "summary": "Update asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "资产信息",
+                        "description": "Asset information",
                         "name": "asset",
                         "in": "body",
                         "required": true,
@@ -345,7 +345,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "删除指定ID的资产",
+                "description": "Delete the asset with the specified ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -353,13 +353,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "删除资产",
+                "summary": "Delete asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -395,7 +395,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}/changelog": {
             "get": {
-                "description": "获取指定ID资产的变更历史记录",
+                "description": "Get the change history of the asset with the specified ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -403,13 +403,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "获取资产变更日志",
+                "summary": "Get asset change log",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -460,7 +460,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}/screenshot": {
             "get": {
-                "description": "获取指定ID资产的截图",
+                "description": "Get the screenshot of the asset with the specified ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -468,13 +468,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Asset"
                 ],
-                "summary": "获取资产截图",
+                "summary": "Get asset screenshot",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -527,7 +527,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取所有在线节点的数据",
+                "description": "Get data of all online nodes",
                 "consumes": [
                     "application/json"
                 ],
@@ -581,7 +581,7 @@ const docTemplate = `{
         },
         "/page-monitoring/content": {
             "post": {
-                "description": "获取页面监控内容接口",
+                "description": "Get page monitoring content",
                 "consumes": [
                     "application/json"
                 ],
@@ -593,7 +593,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "内容请求",
+                        "description": "Content request",
                         "name": "contentRequest",
                         "in": "body",
                         "required": true,
@@ -644,7 +644,7 @@ const docTemplate = `{
         },
         "/page-monitoring/diff": {
             "post": {
-                "description": "获取页面监控差异接口",
+                "description": "Get page monitoring diff",
                 "consumes": [
                     "application/json"
                 ],
@@ -656,7 +656,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "差异请求",
+                        "description": "Diff request",
                         "name": "diffRequest",
                         "in": "body",
                         "required": true,
@@ -712,7 +712,7 @@ const docTemplate = `{
         },
         "/page-monitoring/history": {
             "post": {
-                "description": "获取页面监控历史记录接口",
+                "description": "Get page monitoring history",
                 "consumes": [
                     "application/json"
                 ],
@@ -724,7 +724,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "历史记录请求",
+                        "description": "History request",
                         "name": "historyRequest",
                         "in": "body",
                         "required": true,
@@ -778,7 +778,7 @@ const docTemplate = `{
         },
         "/query": {
             "post": {
-                "description": "支持name字段模糊搜索与分页",
+                "description": "Supports fuzzy search on the name field with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -788,10 +788,10 @@ const docTemplate = `{
                 "tags": [
                     "task"
                 ],
-                "summary": "获取任务列表",
+                "summary": "Get the task list",
                 "parameters": [
                     {
-                        "description": "查询参数",
+                        "description": "Query parameters",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -847,7 +847,7 @@ const docTemplate = `{
         },
         "/system/version": {
             "get": {
-                "description": "获取 ScopeSentry 服务端及所有节点的当前版本信息",
+                "description": "Get the current version information of the ScopeSentry server and all nodes",
                 "consumes": [
                     "application/json"
                 ],
@@ -910,7 +910,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取用户列表接口",
+                "description": "Get the user list",
                 "consumes": [
                     "application/json"
                 ],
@@ -924,14 +924,14 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "页码",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "每页数量",
+                        "description": "Items per page",
                         "name": "size",
                         "in": "query"
                     }
@@ -975,7 +975,7 @@ const docTemplate = `{
         },
         "/users/login": {
             "post": {
-                "description": "用户登录接口",
+                "description": "User login",
                 "consumes": [
                     "application/json"
                 ],
@@ -985,10 +985,10 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "用户登录",
+                "summary": "User login",
                 "parameters": [
                     {
-                        "description": "登录信息",
+                        "description": "Login information",
                         "name": "loginRequest",
                         "in": "body",
                         "required": true,
@@ -1044,7 +1044,7 @@ const docTemplate = `{
         },
         "/users/register": {
             "post": {
-                "description": "用户注册接口",
+                "description": "Register a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -1056,7 +1056,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "注册信息",
+                        "description": "Registration information",
                         "name": "registerRequest",
                         "in": "body",
                         "required": true,
@@ -1118,7 +1118,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取单个用户接口",
+                "description": "Get a single user",
                 "consumes": [
                     "application/json"
                 ],
@@ -1131,7 +1131,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1182,7 +1182,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "更新用户接口",
+                "description": "Update a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -1195,13 +1195,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新信息",
+                        "description": "Update information",
                         "name": "updateRequest",
                         "in": "body",
                         "required": true,
@@ -1261,7 +1261,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "删除用户接口",
+                "description": "Delete a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -1274,7 +1274,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1314,14 +1314,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "请求错误状态码",
+                    "description": "Request error status code",
                     "type": "integer",
                     "example": 400
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "请求错误"
+                    "example": "Request error"
                 }
             }
         },
@@ -1329,14 +1329,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "服务器错误状态码",
+                    "description": "Server error status code",
                     "type": "integer",
                     "example": 500
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "服务器内部错误"
+                    "example": "Internal server error"
                 }
             }
         },
@@ -1344,14 +1344,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "未找到状态码",
+                    "description": "Not found status code",
                     "type": "integer",
                     "example": 404
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "资源未找到"
+                    "example": "Resource not found"
                 }
             }
         },
@@ -1359,17 +1359,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "成功状态码",
+                    "description": "Success status code",
                     "type": "integer",
                     "example": 200
                 },
                 "data": {
-                    "description": "响应数据"
+                    "description": "Response data"
                 },
                 "message": {
-                    "description": "成功消息",
+                    "description": "Success message",
                     "type": "string",
-                    "example": "操作成功"
+                    "example": "Operation successful"
                 }
             }
         },
@@ -1377,14 +1377,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "未授权状态码",
+                    "description": "Unauthorized status code",
                     "type": "integer",
                     "example": 401
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "未授权访问"
+                    "example": "Unauthorized access"
                 }
             }
         },
@@ -1581,7 +1581,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "flag": {
-                    "description": "1: 获取上一次响应, 2: 获取当前响应",
+                    "description": "1: Get the previous response, 2: Get the current response",
                     "type": "string"
                 },
                 "id": {
@@ -1609,7 +1609,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "filters": {
-                    "description": "Filter 过滤条件",
+                    "description": "Filter Filter conditions",
                     "type": "object",
                     "additionalProperties": {
                         "type": "array",
@@ -1625,11 +1625,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "search": {
-                    "description": "SearchExpression 搜索表达式，如 \"url=example.com \u0026\u0026 statuscode=200\"",
+                    "description": "SearchExpression search expression, e.g. \"url=example.com \u0026\u0026 statuscode=200\"",
                     "type": "string"
                 },
                 "searchType": {
-                    "description": "SearchType 搜索类型，对应SearchKey中的key",
+                    "description": "SearchType search type, corresponding to the key in SearchKey",
                     "type": "string"
                 },
                 "sort": {
@@ -1781,7 +1781,7 @@ const docTemplate = `{
             }
         },
         "internal_api_handlers_system.VersionListResponse": {
-            "description": "版本信息列表",
+            "description": "Version information list",
             "type": "object",
             "properties": {
                 "list": {
@@ -1869,7 +1869,7 @@ const docTemplate = `{
                 },
                 "search": {
                     "type": "string",
-                    "example": "测试"
+                    "example": "test"
                 }
             }
         }
@@ -1891,7 +1891,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "ScopeSentry API",
-	Description:      "ScopeSentry 是一个安全扫描和资产管理平台",
+	Description:      "ScopeSentry is a security scanning and asset management platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

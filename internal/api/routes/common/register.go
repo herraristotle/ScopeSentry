@@ -12,28 +12,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterRouteGroup 注册路由组
+// RegisterRouteGroup registers a route group
 func RegisterRouteGroup(group *gin.RouterGroup, routeGroup models.RouteGroup) {
-	// 创建子路由组
+	// Create a child route group
 	subGroup := group.Group(routeGroup.Path)
 
-	// 应用路由组级别的中间件
+	// Apply group-level middleware
 	for _, handlerFunc := range routeGroup.Middlewares {
 		subGroup.Use(handlerFunc)
 	}
 
-	// 注册路由
+	// Register routes
 	for _, route := range routeGroup.Routes {
-		// 创建路由处理器链
+		// Create the route handler chain
 		handlers := make([]gin.HandlerFunc, 0)
 
-		// 添加路由级别的中间件
+		// Add route-level middleware
 		handlers = append(handlers, route.Middlewares...)
 
-		// 添加路由处理器
+		// Add the route handler
 		handlers = append(handlers, route.Handler)
 
-		// 根据HTTP方法注册路由
+		// Register the route according to the HTTP method
 		switch route.Method {
 		case "GET":
 			subGroup.GET(route.Path, handlers...)

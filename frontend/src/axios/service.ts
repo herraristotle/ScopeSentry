@@ -27,14 +27,14 @@ axiosInstance.interceptors.response.use(
   (res: AxiosResponse) => {
     const url = res.config.url || ''
     abortControllerMap.delete(url)
-    // 这里不能做任何处理，否则后面的 interceptors 拿不到完整的上下文了
+    // Do not process anything here, otherwise the later interceptors cannot get the full context
     return res
   },
   (error: AxiosError) => {
     console.log('err： ' + error) // for debug
     if (error.response?.data) {
       const responseData = error.response.data as { message: string; data: string }
-      // 显示后端返回的具体错误消息
+      // Show the specific error message returned by the backend
       const errorMsg =
         responseData.data && responseData.data !== ''
           ? responseData.message + ':' + responseData.data
@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
         userStore.logout()
       }
     } else {
-      // 如果没有响应数据，显示网络错误或其他错误
+      // If there is no response data, show a network error or other error
       ElMessage.error(error.message || 'NetworkError')
     }
     return Promise.reject(error)

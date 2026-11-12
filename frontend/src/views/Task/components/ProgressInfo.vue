@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { reactive, h, effect } from 'vue'
+import { reactive, h } from 'vue'
 import { Table, TableColumn } from '@/components/Table'
 import { getTaskProgressApi } from '@/api/task'
 import { useTable } from '@/hooks/web/useTable'
-import { ElTag, ElTooltip, ElTooltipProps, ElCard, ElPagination } from 'element-plus'
+import { ElTag, ElTooltip, ElCard, ElPagination } from 'element-plus'
 import { Icon } from '@/components/Icon'
 const { t } = useI18n()
 
@@ -26,11 +26,11 @@ const progressColums = reactive<TableColumn[]>([
           ElTooltip,
           { content: tooltipContent, placement: 'top', rawContent: true },
           {
-            default: () => cellValue // 用 cellValue 作为原始数据显示
+            default: () => cellValue // Use cellValue to display the raw data
           }
         )
       } else {
-        return cellValue // 如果 row.node 是空字符串，则直接显示 cellValue
+        return cellValue // If row.node is an empty string, display cellValue directly
       }
     }
   },

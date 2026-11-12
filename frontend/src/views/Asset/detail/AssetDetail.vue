@@ -170,7 +170,7 @@ const schema = reactive<DescriptionsSchema[]>([
         if (!Array.isArray(products) || products.length === 0) {
           return h('div', '-')
         }
-        const rows = []
+        const rows: any[][] = []
         for (let i = 0; i < products.length; i += 6) {
           const sliceStart = i
           const sliceEnd = i + 6

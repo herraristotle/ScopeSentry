@@ -27,7 +27,7 @@ import (
 	"github.com/Autumn-27/ScopeSentry/internal/utils/random"
 )
 
-// API 响应结构
+// API response structures
 type templateResult struct {
 	TemplateID string `json:"template_id"`
 	Severity   string `json:"severity"`
@@ -43,7 +43,7 @@ func GetName() string {
 	return "Nuclei Monitor"
 }
 
-// formatSeverityWithColor 根据危险等级格式化Severity，添加颜色标记
+// formatSeverityWithColor formats Severity by risk level, adding color markers
 func formatSeverityWithColor(severity string) string {
 	severityUpper := strings.ToUpper(severity)
 	var color string
@@ -51,22 +51,22 @@ func formatSeverityWithColor(severity string) string {
 
 	switch severityUpper {
 	case "CRITICAL":
-		color = "#ff6b6b" // 红色
+		color = "#ff6b6b" // red
 		bold = true
 	case "HIGH":
-		color = "#ff8787" // 浅红色
+		color = "#ff8787" // light red
 		bold = true
 	case "MEDIUM":
-		color = "#ffd43b" // 黄色
+		color = "#ffd43b" // yellow
 		bold = false
 	case "LOW":
-		color = "#51cf66" // 绿色
+		color = "#51cf66" // green
 		bold = false
 	case "INFO":
-		color = "#74c0fc" // 蓝色
+		color = "#74c0fc" // blue
 		bold = false
 	default:
-		// 默认不添加颜色
+		// No color by default
 		return severity
 	}
 
@@ -76,7 +76,7 @@ func formatSeverityWithColor(severity string) string {
 	return fmt.Sprintf(`<color value="%s">%s</color>`, color, severity)
 }
 
-// formatAssetCountWithColor 根据影响资产数量格式化，如果大于0则标记为红色
+// formatAssetCountWithColor formats by affected asset count; if greater than 0, marks it red
 func formatAssetCountWithColor(count int64) string {
 	if count > 0 {
 		return fmt.Sprintf(`<color value="#ff6b6b" bold>%v</color>`, count)
@@ -84,7 +84,7 @@ func formatAssetCountWithColor(count int64) string {
 	return fmt.Sprintf("%v", count)
 }
 
-// Cycle 运行周期
+// Cycle run cycle
 func Cycle() string {
 	return "0 * * * *"
 }
@@ -93,22 +93,22 @@ func Install() error {
 	return nil
 }
 
-// CreatTask 是否自动创建任务
-// true: 自动创建任务（⚠️ 高风险）
-// false: 手动创建任务（✅ 推荐）
+// CreatTask whether to create tasks automatically
+// true: create tasks automatically (warning: high risk)
+// false: create tasks manually (recommended)
 //
-// ⚠️ 重要安全警告：
-// 1. 部分PoC可能包含数据删除、系统破坏等危险操作
-// 2. 自动执行可能对业务造成不可逆影响
-// 3. 建议始终设置为 false，在人工审核后手动创建任务
+// Important security warnings:
+// 1. Some PoCs may include dangerous operations such as data deletion or system damage
+// 2. Automatic execution may cause irreversible impact on production systems
+// 3. It is recommended to always set this to false and create tasks manually after human review
 //
-// 🔒 安全建议：
-// - 生产环境：务必设置为 false
-// - 测试环境：谨慎评估后再考虑开启
-// - 新PoC测试：必须先人工验证再执行
+// Security recommendations:
+// - Production environments: always set to false
+// - Test environments: enable only after careful evaluation
+// - New PoC testing: must be verified manually before execution
 var CreatTask = false
 
-// SkipScanName poc名称包含以下列表时会跳过该poc的扫描
+// SkipScanName scanning of a PoC is skipped when its name contains any string in this list
 var SkipScanName = []string{
 	"WordPress",
 }
@@ -116,7 +116,7 @@ var SkipScanName = []string{
 func Execute(op options.PluginOption) error {
 	value := op.GetStringVariable("nuclei_init")
 	if value != "true" {
-		// 进行初始化直接导入poc zip
+		// Initialization: import the PoC zip directly
 		tempDir := os.TempDir()
 		fileName := random.GenerateString(5) + ".zip"
 		filePath := filepath.Join(tempDir, fileName)
@@ -135,7 +135,7 @@ func Execute(op options.PluginOption) error {
 		op.Log("download nuclei-templates success")
 		return nil
 	}
-	// 监控poc
+	// Monitor PoCs
 	ctx := context.Background()
 	offset := 0
 	limit := 20
@@ -143,38 +143,38 @@ func Execute(op options.PluginOption) error {
 	for {
 		results, err := fetchPocTemplates(offset, limit)
 		if err != nil {
-			op.Log(fmt.Sprintf("获取 POC 模板失败: %s", err.Error()), "e")
+			op.Log(fmt.Sprintf("Failed to fetch POC templates: %s", err.Error()), "e")
 			return err
 		}
 
-		// 如果没有结果，退出循环
+		// If there are no results, exit the loop
 		if len(results) == 0 {
 			break
 		}
 
-		// 遍历结果
+		// Iterate over the results
 		for _, result := range results {
 			result.TemplateID = strings.Replace(result.TemplateID, "-draft", "", 1)
-			// 检查 template_id 是否存在
+			// Check whether the template_id already exists
 			exists, err := op.PocService.TemplateIdExists(ctx, result.TemplateID)
 			if err != nil {
-				op.Log(fmt.Sprintf("检查 TemplateId 失败: %s, 错误: %s", result.TemplateID, err.Error()), "e")
+				op.Log(fmt.Sprintf("Failed to check TemplateId: %s, error: %s", result.TemplateID, err.Error()), "e")
 				continue
 			}
 
 			if exists {
-				// 如果存在，说明所有 poc 已经更新完毕，退出遍历
-				op.Log("所有 poc 已更新完毕")
+				// If it exists, all PoCs have been updated; stop iterating
+				op.Log("All PoCs have been updated")
 				return nil
 			}
 
-			// 插入poc 获取pocid
+			// Insert the PoC to get its poc ID
 			pocID, err := op.PocService.AddPoc(context.Background(), &models.PocAddRequest{Content: result.Raw})
 			if err != nil {
 				op.Log(fmt.Sprintf("AddPoc error: %s", err.Error()), "e")
 				return err
 			}
-			// 给扫描端更新poc的时间
+			// Give the scanning side time to update the PoC
 			time.Sleep(3 * time.Second)
 
 			var pt models.PocTemplate
@@ -184,25 +184,25 @@ func Execute(op options.PluginOption) error {
 			}
 			var searchValueOld interface{}
 			var customQuery string
-			var scanStatus = "未创建"
+			var scanStatus = "Not created"
 			var affectedAssetCount = int64(0)
 			if pt.Info.Metadata != nil {
-				// 先尝试从 fofa-query 解析
+				// First try parsing from fofa-query
 				if fofaQueryValue := pt.Info.Metadata["fofa-query"]; fofaQueryValue != nil {
 					searchValueOld = fofaQueryValue
 					customQuery = helper.ConvertFofaToCustomQuery(fofaQueryValue)
-					//op.Log(fmt.Sprintf("Fofa:%v 转换后的搜索语句: %s", fofaQueryValue, customQuery))
+					//op.Log(fmt.Sprintf("Fofa:%v converted search expression: %s", fofaQueryValue, customQuery))
 				}
-				// 如果 fofa 解析结果为空，尝试从 shodan-query 解析
+				// If the fofa result is empty, try parsing from shodan-query
 				if customQuery == "" {
 					if shodanQueryValue := pt.Info.Metadata["shodan-query"]; shodanQueryValue != nil {
 						searchValueOld = shodanQueryValue
 						customQuery = helper.ConvertShodanToCustomQuery(shodanQueryValue)
-						//op.Log(fmt.Sprintf("Shodan:%v 转换后的搜索语句: %s", shodanQueryValue, customQuery))
+						//op.Log(fmt.Sprintf("Shodan:%v converted search expression: %s", shodanQueryValue, customQuery))
 					}
 				}
 				if customQuery != "" {
-					// 获取影响数量
+					// Get the affected count
 					searchRequest := models.SearchRequest{
 						Index:            "asset",
 						SearchExpression: customQuery,
@@ -211,19 +211,19 @@ func Execute(op options.PluginOption) error {
 					if err != nil {
 						return err
 					}
-					// 如果有搜索条件 且开启自动创建任务 则进行创建任务
+					// If there is a search condition and automatic task creation is enabled, create the task
 					if CreatTask && affectedAssetCount != 0 {
 
-						// 判断poc是否是白名单
+						// Check whether the PoC is in the whitelist
 						skipFlag := false
 						for _, v := range SkipScanName {
 							if strings.Contains(result.Name, strings.ToLower(v)) {
 								skipFlag = true
-								scanStatus = "跳过"
+								scanStatus = "Skipped"
 								break
 							}
 						}
-						// 创建扫描模板
+						// Create the scan template
 						template := models.ScanTemplate{
 							Name:              fmt.Sprintf("nuclei-template-%v-%v", result.Name, helper.GetNowTimeString()),
 							VulnerabilityScan: []string{"ed93b8af6b72fe54a60efdb932cf6fbc"}, //nuclei
@@ -240,7 +240,7 @@ func Execute(op options.PluginOption) error {
 							return err
 						}
 
-						// 创建任务
+						// Create the task
 						if !skipFlag {
 							task := models.Task{
 								Name:           fmt.Sprintf("[nuclei monitor ]-%v-%v[plugin]", result.Name, helper.GetNowTimeString()),
@@ -255,33 +255,33 @@ func Execute(op options.PluginOption) error {
 							if err != nil {
 								return err
 							}
-							scanStatus = "创建成功"
+							scanStatus = "Created successfully"
 						}
 					}
 				}
 			}
 			severityFormatted := formatSeverityWithColor(result.Severity)
 			assetCountFormatted := formatAssetCountWithColor(affectedAssetCount)
-			op.Log(fmt.Sprintf("发现新的 POC: TemplateID=%s, Name=%s, Severity=%s, OldSearch=%v, SaSSearch=%v,影响资产数量:%s,任务创建状态:%v", result.TemplateID, result.Name, severityFormatted, searchValueOld, customQuery, assetCountFormatted, scanStatus))
-			notificationMsg := fmt.Sprintf("发现新的 POC: \nTemplateID:%s\nName:%s\nSeverity:%s\nOldSearch:%v\nSaSSearch:%v\n影响资产数量:%v\n任务创建状态:%v", result.TemplateID, result.Name, result.Severity, searchValueOld, customQuery, affectedAssetCount, scanStatus)
+			op.Log(fmt.Sprintf("New POC found: TemplateID=%s, Name=%s, Severity=%s, OldSearch=%v, SaSSearch=%v, affected assets: %s, task creation status: %v", result.TemplateID, result.Name, severityFormatted, searchValueOld, customQuery, assetCountFormatted, scanStatus))
+			notificationMsg := fmt.Sprintf("New POC found: \nTemplateID:%s\nName:%s\nSeverity:%s\nOldSearch:%v\nSaSSearch:%v\nAffected assets: %v\nTask creation status: %v", result.TemplateID, result.Name, result.Severity, searchValueOld, customQuery, affectedAssetCount, scanStatus)
 			op.Notification(notificationMsg)
 		}
 
-		// 如果返回的结果数量小于 limit，说明已经是最后一页
+		// If fewer results than limit were returned, this is the last page
 		if len(results) < limit {
 			break
 		}
 
-		// 移动到下一页
+		// Move to the next page
 		offset += limit
 	}
 
 	return nil
 }
 
-// fetchPocTemplates 从 API 获取 POC 模板列表
+// fetchPocTemplates fetches the POC template list from the API
 func fetchPocTemplates(offset, limit int) ([]templateResult, error) {
-	// 构建请求 URL
+	// Build the request URL
 	reqURL := "https://api.projectdiscovery.io/v2/template/search"
 	params := url.Values{}
 	params.Set("scope", "public")
@@ -291,13 +291,13 @@ func fetchPocTemplates(offset, limit int) ([]templateResult, error) {
 
 	fullURL := reqURL + "?" + params.Encode()
 
-	// 创建请求
+	// Create the request
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// 设置请求头
+	// Set request headers
 	req.Header.Set("accept", "*/*")
 	req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
 	req.Header.Set("content-type", "application/json")
@@ -313,24 +313,24 @@ func fetchPocTemplates(offset, limit int) ([]templateResult, error) {
 	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36")
 	req.Header.Set("x-team-id", "cus16bdim6vs73cqnh0g")
 
-	// 创建 HTTP 客户端并发送请求
+	// Create the HTTP client and send the request
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("请求失败: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP 状态码异常: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected HTTP status code: %d", resp.StatusCode)
 	}
 
-	// 解析响应
+	// Parse the response
 	var apiResp apiResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("解析响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	return apiResp.Results, nil

@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterPluginRoutes 注册插件相关路由
+// RegisterPluginRoutes registers plugin-related routes
 func RegisterPluginRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the route group
 	pluginRoutes := models.RouteGroup{
 		Path: "/plugin",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+			// Routes requiring authentication and user:read permission
 			{
 				Method:      "POST",
 				Path:        "",
@@ -119,6 +119,6 @@ func RegisterPluginRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the route group
 	common.RegisterRouteGroup(api, pluginRoutes)
 }

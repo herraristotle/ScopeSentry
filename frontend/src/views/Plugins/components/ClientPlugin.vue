@@ -53,7 +53,7 @@ const handleSearch = () => {
   getList()
 }
 
-// 从父组件注入插件市场相关方法
+// Inject plugin market related methods from the parent component
 const openMarketDialog = inject<() => void>('openMarketDialog', () => {})
 const pendingPluginsCount = inject<Ref<number>>('pendingPluginsCount', ref(0))
 const pendingPluginsCountValue = computed(() => pendingPluginsCount.value)
@@ -90,7 +90,7 @@ const taskColums = reactive<TableColumn[]>([
     field: 'module',
     label: t('plugin.module'),
     formatter: (_, __: TableColumn, value: string) => {
-      const color = moduleColorMap[value] || '#FFFFFF' // 默认白色
+      const color = moduleColorMap[value] || '#FFFFFF' // default white
       return <ElTag style={{ backgroundColor: color, color: '#000' }}>{value}</ElTag>
     }
   },
@@ -147,11 +147,11 @@ const taskColums = reactive<TableColumn[]>([
                 style: { outline: 'none', boxShadow: 'none' }
               },
               () => [
-                t('common.operation'), // 下拉菜单触发按钮文字
+                t('common.operation'), // dropdown trigger button text
                 h(
                   ElIcon,
                   {},
-                  () => h(ArrowDown) // 向下箭头图标
+                  () => h(ArrowDown) // down arrow icon
                 )
               ]
             ),
@@ -199,26 +199,26 @@ const taskColums = reactive<TableColumn[]>([
 ])
 
 const moduleColorMap = {
-  TargetHandler: '#2243dda6', // 浅红色
-  SubdomainScan: '#FF9B85', // 更深的浅橙色
-  SubdomainSecurity: '#FFFFBA', // 浅黄色
-  PortScanPreparation: '#BAFFB3', // 浅绿色
-  PortScan: '#BAE1FF', // 浅蓝色
-  AssetMapping: '#e3ffba', // 浅粉红色
-  URLScan: '#D1BAFF', // 浅紫色
-  WebCrawler: '#FFABAB', // 浅红
-  DirScan: '#3ccde6', // 选择浅桃色
-  VulnerabilityScan: '#FF677D', // 浅粉色
-  AssetHandle: '#B2E1FF', // 浅青色
-  PortFingerprint: '#ffb5e4', // 更亮的浅橙色
-  URLSecurity: '#FFE4BA', // 浅米色
+  TargetHandler: '#2243dda6', // light red
+  SubdomainScan: '#FF9B85', // deeper light orange
+  SubdomainSecurity: '#FFFFBA', // light yellow
+  PortScanPreparation: '#BAFFB3', // light green
+  PortScan: '#BAE1FF', // light blue
+  AssetMapping: '#e3ffba', // light pink
+  URLScan: '#D1BAFF', // light purple
+  WebCrawler: '#FFABAB', // light red
+  DirScan: '#3ccde6', // selected light peach
+  VulnerabilityScan: '#FF677D', // light pink
+  AssetHandle: '#B2E1FF', // light cyan
+  PortFingerprint: '#ffb5e4', // brighter light orange
+  URLSecurity: '#FFE4BA', // light beige
   PassiveScan: '#A2DFF7'
 }
 
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
     const { currentPage, pageSize } = tableState
-    // 不传递 type 参数，默认为扫描端插件
+    // Do not pass the type parameter; defaults to scan-side plugin
     const res = await getPluginDataApi(search.value, currentPage.value, pageSize.value, 'scan')
     return {
       list: res.data.list,
@@ -382,7 +382,7 @@ const openLogDialogVisible = async (data) => {
   logHash.value = data.hash
   await refreshLog()
   logDialogVisible.value = true
-  // 等待DOM更新后滚动到底部
+  // Wait for the DOM to update, then scroll to the bottom
   setTimeout(() => {
     scrollToBottom()
   }, 100)
@@ -426,7 +426,7 @@ const copyLog = async () => {
   }
 }
 
-// 过滤后的日志内容（用于搜索高亮）
+// Filtered log content (used for search highlighting)
 const filteredLogContent = computed(() => {
   if (!logSearchText.value || !logContent.value) {
     return logContent.value
@@ -436,7 +436,7 @@ const filteredLogContent = computed(() => {
   return lines.filter((line) => line.toLowerCase().includes(searchText.toLowerCase())).join('\n')
 })
 
-// 高亮搜索关键词
+// Highlight search keywords
 const highlightLog = (text: string) => {
   if (!logSearchText.value || !text) {
     return text
@@ -473,7 +473,7 @@ const handleFileChange = (_file, fileList) => {
   }
 }
 
-// 暴露刷新列表方法给父组件
+// Expose the refresh list method to the parent component
 defineExpose({
   refreshList: getList
 })

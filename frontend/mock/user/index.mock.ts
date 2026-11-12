@@ -26,7 +26,7 @@ const List: {
 ]
 
 export default [
-  // 列表接口
+  // List endpoint
   {
     url: '/mock/user/list',
     method: 'get',
@@ -50,7 +50,7 @@ export default [
       }
     }
   },
-  // 登录接口
+  // Login endpoint
   {
     url: '/mock/user/login',
     method: 'post',
@@ -70,12 +70,12 @@ export default [
       if (!hasUser) {
         return {
           code: 500,
-          message: '账号或密码错误'
+          message: 'Incorrect account or password'
         }
       }
     }
   },
-  // 退出接口
+  // Logout endpoint
   {
     url: '/mock/user/loginOut',
     method: 'get',

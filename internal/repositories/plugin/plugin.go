@@ -16,7 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Repository 定义插件仓库接口
+// Repository defines the plugin repository interface
 type Repository interface {
 	FindWithPagination(ctx context.Context, query bson.M, opts *options.FindOptions) ([]models.Plugin, error)
 	FindByModule(ctx context.Context, module string) ([]models.Plugin, error)
@@ -33,13 +33,13 @@ type Repository interface {
 	CleanAllLogs(ctx context.Context) error
 }
 
-// repository 实现插件仓库接口
+// repository implements the plugin repository interface
 type repository struct {
 	collection  *mongo.Collection
 	redisClient *redisdriver.Client
 }
 
-// NewRepository 创建新的插件仓库实例
+// NewRepository creates a new plugin repository instance
 func NewRepository() Repository {
 	return &repository{
 		collection:  mongodb.DB.Collection("plugins"),
@@ -47,7 +47,7 @@ func NewRepository() Repository {
 	}
 }
 
-// FindWithPagination 分页查询插件
+// FindWithPagination queries plugins with pagination
 func (r *repository) FindWithPagination(ctx context.Context, query bson.M, opts *options.FindOptions) ([]models.Plugin, error) {
 	cursor, err := r.collection.Find(ctx, query, opts)
 	if err != nil {
@@ -63,7 +63,7 @@ func (r *repository) FindWithPagination(ctx context.Context, query bson.M, opts 
 	return results, nil
 }
 
-// FindByModule 根据模块查询插件
+// FindByModule queries plugins by module
 func (r *repository) FindByModule(ctx context.Context, module string) ([]models.Plugin, error) {
 	query := bson.M{"module": module}
 
@@ -85,7 +85,7 @@ func (r *repository) FindByModule(ctx context.Context, module string) ([]models.
 	return results, nil
 }
 
-// FindByID 根据ID查询插件
+// FindByID queries a plugin by ID
 func (r *repository) FindByID(ctx context.Context, id primitive.ObjectID) (*models.Plugin, error) {
 	var result models.Plugin
 	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&result)
@@ -98,7 +98,7 @@ func (r *repository) FindByID(ctx context.Context, id primitive.ObjectID) (*mode
 	return &result, nil
 }
 
-// FindByHash 根据hash查询插件
+// FindByHash queries a plugin by hash
 func (r *repository) FindByHash(ctx context.Context, hash string) (*models.Plugin, error) {
 	var result models.Plugin
 	err := r.collection.FindOne(ctx, bson.M{"hash": hash}).Decode(&result)
@@ -111,13 +111,13 @@ func (r *repository) FindByHash(ctx context.Context, hash string) (*models.Plugi
 	return &result, nil
 }
 
-// Create 创建插件
+// Create creates a plugin
 func (r *repository) Create(ctx context.Context, plugin *models.Plugin) (string, error) {
 	result, err := r.collection.InsertOne(ctx, plugin)
 	if err != nil {
 		return "", fmt.Errorf("failed to insert document: %w", err)
 	}
-	// 转换 ID 为字符串
+	// Convert the ID to a string
 	objectID, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return "", fmt.Errorf("inserted ID is not an ObjectID")
@@ -125,7 +125,7 @@ func (r *repository) Create(ctx context.Context, plugin *models.Plugin) (string,
 	return objectID.Hex(), err
 }
 
-// Update 更新插件
+// Update updates a plugin
 func (r *repository) Update(ctx context.Context, id primitive.ObjectID, update bson.M) error {
 	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": update})
 	if err != nil {
@@ -134,7 +134,7 @@ func (r *repository) Update(ctx context.Context, id primitive.ObjectID, update b
 	return nil
 }
 
-// UpdateByHash 根据hash更新插件
+// UpdateByHash updates a plugin by hash
 func (r *repository) UpdateByHash(ctx context.Context, hash string, update bson.M) error {
 	_, err := r.collection.UpdateOne(ctx, bson.M{"hash": hash}, bson.M{"$set": update})
 	if err != nil {
@@ -143,7 +143,7 @@ func (r *repository) UpdateByHash(ctx context.Context, hash string, update bson.
 	return nil
 }
 
-// UpsertByHash 根据hash插入或更新插件（如果存在则更新，不存在则插入）
+// UpsertByHash inserts or updates a plugin by hash (updates if it exists, inserts otherwise)
 func (r *repository) UpsertByHash(ctx context.Context, plugin *models.Plugin) (string, error) {
 	opts := options.FindOneAndReplace().
 		SetUpsert(true).
@@ -158,7 +158,7 @@ func (r *repository) UpsertByHash(ctx context.Context, plugin *models.Plugin) (s
 	return result.ID.Hex(), nil
 }
 
-// DeleteByHash 根据哈希删除插件
+// DeleteByHash deletes plugins by hash
 func (r *repository) DeleteByHash(ctx context.Context, hashes []string) error {
 	_, err := r.collection.DeleteMany(ctx, bson.M{"hash": bson.M{"$in": hashes}})
 	if err != nil {
@@ -167,7 +167,7 @@ func (r *repository) DeleteByHash(ctx context.Context, hashes []string) error {
 	return nil
 }
 
-// Count 统计插件数量
+// Count returns the number of matching plugins
 func (r *repository) Count(ctx context.Context, query bson.M) (int64, error) {
 	count, err := r.collection.CountDocuments(ctx, query)
 	if err != nil {
@@ -177,7 +177,7 @@ func (r *repository) Count(ctx context.Context, query bson.M) (int64, error) {
 }
 
 func (r *repository) GetLogs(ctx context.Context, key string) (string, error) {
-	// 从 Redis 获取 set 中的所有日志
+	// Fetch all logs from the Redis list
 	logs, err := r.redisClient.LRange(ctx, key, 0, -1).Result()
 	if err != nil {
 		return "", fmt.Errorf("failed to get logs from Redis: %w", err)
@@ -189,7 +189,7 @@ func (r *repository) GetLogs(ctx context.Context, key string) (string, error) {
 }
 
 func (r *repository) CleanLogs(ctx context.Context, key string) error {
-	// 从 Redis 获取 set 中的所有日志
+	// Fetch all logs from the Redis list
 	err := r.redisClient.Del(ctx, key).Err()
 	if err != nil {
 		return fmt.Errorf("failed to get logs from Redis: %w", err)
@@ -198,18 +198,18 @@ func (r *repository) CleanLogs(ctx context.Context, key string) error {
 }
 
 func (r *repository) CleanAllLogs(ctx context.Context) error {
-	// 获取所有以 logs:plugins: 开头的键
+	// Get all keys starting with logs:plugins:
 	keys, err := r.redisClient.Keys(ctx, "logs:plugins:*").Result()
 	if err != nil {
 		return fmt.Errorf("failed to get log keys from Redis: %w", err)
 	}
 
-	// 如果没有匹配的键，直接返回
+	// If no keys match, return immediately
 	if len(keys) == 0 {
 		return nil
 	}
 
-	// 删除所有匹配的键
+	// Delete all matching keys
 	err = r.redisClient.Del(ctx, keys...).Err()
 	if err != nil {
 		return fmt.Errorf("failed to delete logs from Redis: %w", err)

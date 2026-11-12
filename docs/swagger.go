@@ -2,7 +2,7 @@ package docs
 
 // @title           ScopeSentry API
 // @version         1.0
-// @description     ScopeSentry 是一个安全扫描和资产管理平台
+// @description     ScopeSentry is a security scanning and asset management platform
 // @termsOfService  http://swagger.io/terms/
 
 // @contact.name   API Support
@@ -21,7 +21,7 @@ package docs
 // @description               Bearer token for authentication
 
 // @tag.name   user
-// @tag.description  用户管理相关接口
+// @tag.description  User management APIs
 
 // @tag.name   role
-// @tag.description  角色管理相关接口
+// @tag.description  Role management APIs

@@ -13,10 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// ProjectList 存储项目ID和名称的映射关系
+// ProjectList stores the mapping between project IDs and names
 var ProjectList = make(map[string]string)
 
-// GetProjectList 从MongoDB获取项目列表并更新到ProjectList中
+// GetProjectList fetches the project list from MongoDB and updates ProjectList
 func GetProjectList() error {
 	collection := mongodb.DB.Collection("project")
 	opts := options.Find().SetProjection(bson.M{"_id": 1, "name": 1})

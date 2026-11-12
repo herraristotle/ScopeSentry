@@ -37,7 +37,7 @@ const getProjectTag = async (pageIndex: number, pageSize: number) => {
   }
   try {
     const res = await getProjectDataApi(search.value, pageIndex, pageSize)
-    // 更新响应式对象
+    // Update the reactive object
     Object.assign(allProjectData, res.data.result)
     tabNames.value = Object.keys(res.data.tag)
     Object.assign(tagNum, res.data.tag)

@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterUserRoutes 注册用户相关路由
+// RegisterUserRoutes registers user-related routes
 func RegisterUserRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the user route group
 	userRoutes := models.RouteGroup{
 		Path: "/user",
 		Routes: []models.Route{
-			// 公开路由
+			// Public routes
 			{
 				Method:  "POST",
 				Path:    "/login",
 				Handler: user.Login,
 			},
-			// 修改密码（需要认证）
+			// Change password (requires authentication)
 			{
 				Method:      "POST",
 				Path:        "/changePassword",
@@ -31,7 +31,7 @@ func RegisterUserRoutes(api *gin.RouterGroup) {
 			//	Path:    "/register",
 			//	Handler: user.Register,
 			//},
-			//// 需要认证和user:read权限的路由
+			//// Routes requiring authentication and user:read permission
 			//{
 			//	Method:      "GET",
 			//	Path:        "",
@@ -44,14 +44,14 @@ func RegisterUserRoutes(api *gin.RouterGroup) {
 			//	Handler:     user.Get,
 			//	Middlewares: common.WithAuthAndPermission(constants.PermissionUserRead),
 			//},
-			//// 需要认证和user:update权限的路由
+			//// Routes requiring authentication and user:update permission
 			//{
 			//	Method:      "PUT",
 			//	Path:        "/:id",
 			//	Handler:     user.Update,
 			//	Middlewares: common.WithAuthAndPermission(constants.PermissionUserUpdate),
 			//},
-			//// 需要认证和user:delete权限的路由
+			//// Routes requiring authentication and user:delete permission
 			//{
 			//	Method:      "DELETE",
 			//	Path:        "/:id",
@@ -61,6 +61,6 @@ func RegisterUserRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the user route group
 	common.RegisterRouteGroup(api, userRoutes)
 }

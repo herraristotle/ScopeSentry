@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Repository 定义通用数据访问接口
+// Repository defines the generic data access interface
 type Repository interface {
 	DeleteMany(ctx context.Context, collection string, filter bson.M) (int64, error)
 	FindOne(ctx context.Context, collection string, filter bson.M) (*models.Document, error)
@@ -25,7 +25,7 @@ type repository struct {
 	db *mongo.Database
 }
 
-// NewRepository 创建新的repository实例
+// NewRepository creates a new repository instance
 func NewRepository() Repository {
 	return &repository{
 		db: mongodb.DB,
@@ -53,7 +53,7 @@ func (r *repository) Find(ctx context.Context, collection string, filter bson.M,
 	return cur.All(ctx, result)
 }
 
-// DeleteMany 批量删除文档
+// DeleteMany deletes documents in batches
 func (r *repository) DeleteMany(ctx context.Context, collection string, filter bson.M) (int64, error) {
 	result, err := r.db.Collection(collection).DeleteMany(ctx, filter)
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *repository) DeleteMany(ctx context.Context, collection string, filter b
 	return result.DeletedCount, nil
 }
 
-// FindOne 查找单个文档
+// FindOne finds a single document
 func (r *repository) FindOne(ctx context.Context, collection string, filter bson.M) (*models.Document, error) {
 	var doc models.Document
 	err := r.db.Collection(collection).FindOne(ctx, filter).Decode(&doc)
@@ -72,23 +72,23 @@ func (r *repository) FindOne(ctx context.Context, collection string, filter bson
 	return &doc, nil
 }
 
-// UpdateOne 更新单个文档
+// UpdateOne updates a single document
 func (r *repository) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M) error {
 	_, err := r.db.Collection(collection).UpdateOne(ctx, filter, update)
 	return err
 }
 
-// CountDocuments 统计文档数量
+// CountDocuments counts the number of documents
 func (r *repository) CountDocuments(ctx context.Context, collection string, filter bson.M) (int64, error) {
 	return r.db.Collection(collection).CountDocuments(ctx, filter)
 }
 
-// EstimatedDocumentCount 获取集合的估计文档数量
+// EstimatedDocumentCount gets the estimated number of documents in the collection
 func (r *repository) EstimatedDocumentCount(ctx context.Context, collection string) (int64, error) {
 	return r.db.Collection(collection).EstimatedDocumentCount(ctx)
 }
 
-// DeleteManyByFilter 根据过滤条件批量删除
+// DeleteManyByFilter deletes in batches according to filter conditions
 func (r *repository) DeleteManyByFilter(ctx context.Context, collection string, filter bson.M) (int64, error) {
 	result, err := r.db.Collection(collection).DeleteMany(ctx, filter)
 	if err != nil {

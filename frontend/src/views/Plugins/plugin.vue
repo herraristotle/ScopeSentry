@@ -16,7 +16,7 @@ import type { RemotePluginData, pluginData } from '@/api/plugins/types'
 const { t } = useI18n()
 const activeTab = ref('client')
 
-// 插件市场相关状态
+// Plugin market related state
 const marketDrawerVisible = ref(false)
 const remotePluginList = ref<RemotePluginData[]>([])
 const marketLoading = ref(false)
@@ -24,7 +24,7 @@ const pluginKey = ref('')
 const clientPluginRef = ref<InstanceType<typeof ClientPlugin>>()
 const serverPluginRef = ref<InstanceType<typeof ServerPlugin>>()
 
-// 加载插件市场数据（只获取一次）
+// Load plugin market data (only fetched once)
 const loadRemotePlugins = async () => {
   marketLoading.value = true
   try {
@@ -62,7 +62,7 @@ const loadRemotePlugins = async () => {
 
         return {
           id: plugin.id,
-          name: plugin.name?.trim() || plugin.hash || `插件-${plugin.id}`,
+          name: plugin.name?.trim() || plugin.hash || `Plugin-${plugin.id}`,
           module: plugin.module || '',
           priceStatus: plugin.priceStatus,
           price: plugin.price,
@@ -74,7 +74,7 @@ const loadRemotePlugins = async () => {
           isInstalled,
           needUpdate,
           isSystem,
-          type: plugin.type || 'scan' // 空字符串视为 'scan'
+          type: plugin.type || 'scan' // empty string is treated as 'scan'
         }
       })
     }
@@ -82,19 +82,19 @@ const loadRemotePlugins = async () => {
     remotePluginList.value = remotePlugins
   } catch (error) {
     console.error('Error loading plugins:', error)
-    ElMessage.error('获取插件列表失败')
+    ElMessage.error('Failed to get plugin list')
   } finally {
     marketLoading.value = false
   }
 }
 
-// 处理插件安装
+// Handle plugin installation
 const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => {
   try {
     const action =
       plugin.isInstalled && plugin.needUpdate ? t('plugin.update') : t('plugin.install')
 
-    let pluginName = '未知插件'
+    let pluginName = 'Unknown plugin'
     if (plugin && plugin.name) {
       const trimmedName = String(plugin.name).trim()
       if (trimmedName) {
@@ -102,7 +102,7 @@ const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => 
       }
     }
 
-    // 如果是收费插件且没有 token，不需要确认（已经在子组件中处理了 token 输入）
+    // For paid plugins without a token, no confirmation is needed (token input is already handled in the child component)
     if (plugin.priceStatus === 0) {
       const confirmMessage = t('plugin.confirmInstall', {
         action,
@@ -117,7 +117,7 @@ const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => 
     }
 
     const loadingMessage = ElMessage({
-      message: `${action}中...`,
+      message: `${action} in progress...`,
       type: 'info',
       duration: 0,
       showClose: false
@@ -128,7 +128,7 @@ const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => 
 
       if (exportRes.status !== '200' || !exportRes.data) {
         loadingMessage.close()
-        ElMessage.error(exportRes.message || '获取插件数据失败')
+        ElMessage.error(exportRes.message || 'Failed to get plugin data')
         return
       }
 
@@ -146,10 +146,10 @@ const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => 
       if (importRes.code === 200) {
         const successMessage = t('plugin.installSuccess', { action })
         ElMessage.success(successMessage)
-        // 刷新两个插件列表
+        // Refresh both plugin lists
         ;(clientPluginRef.value as any)?.refreshList?.()
         ;(serverPluginRef.value as any)?.refreshList?.()
-        // 刷新插件市场列表
+        // Refresh the plugin market list
         loadRemotePlugins()
       } else {
         ElMessage.error(importRes.message || t('plugin.installFailed'))
@@ -166,7 +166,7 @@ const handleInstallPlugin = async (plugin: RemotePluginData, token?: string) => 
   }
 }
 
-// 打开插件市场
+// Open the plugin market
 const openMarketDialog = () => {
   marketDrawerVisible.value = true
   if (remotePluginList.value.length === 0) {
@@ -174,20 +174,20 @@ const openMarketDialog = () => {
   }
 }
 
-// 计算待处理插件数量
+// Calculate the number of pending plugins
 const pendingPluginsCount = computed(() => {
   return remotePluginList.value.filter((plugin) => !plugin.isInstalled || plugin.needUpdate).length
 })
 
-// 提供给子组件
+// Provide to child components
 provide('openMarketDialog', openMarketDialog)
 provide('pendingPluginsCount', pendingPluginsCount)
 
 onMounted(() => {
-  // 加载插件 key
+  // Load the plugin key
   const key = localStorage.getItem('plugin_key') as string
   pluginKey.value = key || ''
-  // 页面加载时自动查询远程插件列表，用于显示角标
+  // Automatically query the remote plugin list on page load, used to show the badge
   loadRemotePlugins()
 })
 </script>
@@ -205,7 +205,7 @@ onMounted(() => {
       </keep-alive>
     </ElTabPane>
   </ElTabs>
-  <!-- 插件市场组件 -->
+  <!-- Plugin market component -->
   <PluginMarket
     :visible="marketDrawerVisible"
     :remote-plugin-list="remotePluginList"

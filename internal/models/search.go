@@ -7,16 +7,16 @@
 
 package models
 
-// SearchRequest 定义了搜索请求的参数结构
+// SearchRequest defines the parameter structure of a search request
 type SearchRequest struct {
 	PageIndex int `json:"pageIndex"`
 	PageSize  int `json:"pageSize"`
-	// Index 搜索类型，对应SearchKey中的key
+	// Index search type, corresponding to the key in SearchKey
 	Index            string `json:"index"`
 	SearchExpression string `json:"search"`
-	// Filter 过滤条件
+	// Filter filter conditions
 	Filter map[string][]interface{} `json:"filter"`
-	// FuzzyQuery 模糊查询条件
+	// FuzzyQuery fuzzy query conditions
 	FuzzyQuery map[string]string `json:"-"`
 	Sort       map[string]string `json:"sort"`
 	Sid        string            `json:"sid"`

@@ -4,7 +4,7 @@
 // @contact   : rainy-autumn@outlook.com
 // @time      : 2025/01/24 21:00
 // -------------------------------------------
-// CT日志监听SDK - 事件和回调定义
+// CT log monitoring SDK - event and callback definitions
 // ============================================
 
 package models
@@ -14,166 +14,166 @@ import (
 	"time"
 )
 
-// EventType 事件类型
+// EventType is the event type
 type EventType string
 
 const (
-	// 子域名发现事件
+	// Subdomain discovery event
 	EventTypeSubdomainDiscovered EventType = "subdomain_discovered"
 
-	// 证书处理事件
+	// Certificate processing event
 	EventTypeCertificateProcessed EventType = "certificate_processed"
 
-	// 错误事件
+	// Error event
 	EventTypeErrorOccurred EventType = "error_occurred"
 
-	// 监听器状态事件
+	// Watcher status event
 	EventTypeWatcherStatusChanged EventType = "watcher_status_changed"
 
-	// SDK生命周期事件
+	// SDK lifecycle events
 	EventTypeSDKStarted EventType = "sdk_started"
 	EventTypeSDKStopped EventType = "sdk_stopped"
 )
 
-// Event 基础事件接口
+// Event is the base event interface
 type Event interface {
 	GetType() EventType
 	GetTimestamp() time.Time
 	GetID() string
 }
 
-// BaseEvent 基础事件结构
+// BaseEvent is the base event structure
 type BaseEvent struct {
-	Type      EventType `json:"type"`      // 事件类型
-	ID        string    `json:"id"`        // 事件唯一ID
-	Timestamp time.Time `json:"timestamp"` // 事件时间戳
+	Type      EventType `json:"type"`      // Event type
+	ID        string    `json:"id"`        // Unique event ID
+	Timestamp time.Time `json:"timestamp"` // Event timestamp
 }
 
-// GetType 实现Event接口
+// GetType implements the Event interface
 func (e *BaseEvent) GetType() EventType {
 	return e.Type
 }
 
-// GetTimestamp 实现Event接口
+// GetTimestamp implements the Event interface
 func (e *BaseEvent) GetTimestamp() time.Time {
 	return e.Timestamp
 }
 
-// GetID 实现Event接口
+// GetID implements the Event interface
 func (e *BaseEvent) GetID() string {
 	return e.ID
 }
 
-// SubdomainDiscoveredEvent 子域名发现事件
+// SubdomainDiscoveredEvent is the subdomain discovery event
 type SubdomainDiscoveredEvent struct {
 	BaseEvent
 	SubdomainEvent SubdomainEvent `json:"subdomain_event"`
 }
 
-// SubdomainEvent 子域名事件详情
+// SubdomainEvent is the subdomain event details
 type SubdomainEvent struct {
-	Subdomain    string    `json:"subdomain"`     // 发现的子域名
-	RootDomain   string    `json:"root_domain"`   // 根域名
-	Certificate  *CertInfo `json:"certificate"`   // 证书信息（简化版）
-	DiscoveredAt time.Time `json:"discovered_at"` // 发现时间
-	EventID      string    `json:"event_id"`      // 事件ID
-	IsNew        bool      `json:"is_new"`        // 是否为新发现
+	Subdomain    string    `json:"subdomain"`     // Discovered subdomain
+	RootDomain   string    `json:"root_domain"`   // Root domain
+	Certificate  *CertInfo `json:"certificate"`   // Certificate information (simplified)
+	DiscoveredAt time.Time `json:"discovered_at"` // Discovery time
+	EventID      string    `json:"event_id"`      // Event ID
+	IsNew        bool      `json:"is_new"`        // Whether it is a new discovery
 }
 
-// CertInfo 证书信息（简化版，只包含必要字段）
+// CertInfo is the certificate information (simplified, only essential fields)
 type CertInfo struct {
-	LogURL     string    `json:"log_url"`     // CT日志URL
-	LogID      string    `json:"log_id"`      // 日志ID
-	Index      int64     `json:"index"`       // 证书索引
-	Timestamp  time.Time `json:"timestamp"`   // 证书时间戳
-	CommonName string    `json:"common_name"` // 证书CN
-	AllDomains []string  `json:"all_domains"` // 证书中所有域名
+	LogURL     string    `json:"log_url"`     // CT log URL
+	LogID      string    `json:"log_id"`      // Log ID
+	Index      int64     `json:"index"`       // Certificate index
+	Timestamp  time.Time `json:"timestamp"`   // Certificate timestamp
+	CommonName string    `json:"common_name"` // Certificate CN
+	AllDomains []string  `json:"all_domains"` // All domains in the certificate
 }
 
-// CertificateProcessedEvent 证书处理事件
+// CertificateProcessedEvent is the certificate processing event
 type CertificateProcessedEvent struct {
 	BaseEvent
-	Certificate    *CertInfo     `json:"certificate"`     // 证书信息
-	ProcessingTime time.Duration `json:"processing_time"` // 处理耗时
-	Success        bool          `json:"success"`         // 是否成功
-	Error          string        `json:"error,omitempty"` // 错误信息
+	Certificate    *CertInfo     `json:"certificate"`     // Certificate information
+	ProcessingTime time.Duration `json:"processing_time"` // Processing time
+	Success        bool          `json:"success"`         // Whether it succeeded
+	Error          string        `json:"error,omitempty"` // Error message
 }
 
-// ErrorOccurredEvent 错误发生事件
+// ErrorOccurredEvent is the error event
 type ErrorOccurredEvent struct {
 	BaseEvent
-	ErrorType    string                 `json:"error_type"`    // 错误类型
-	ErrorMessage string                 `json:"error_message"` // 错误消息
-	Context      map[string]interface{} `json:"context"`       // 错误上下文
-	Severity     string                 `json:"severity"`      // 严重程度 (low/medium/high/critical)
-	Recoverable  bool                   `json:"recoverable"`   // 是否可恢复
+	ErrorType    string                 `json:"error_type"`    // Error type
+	ErrorMessage string                 `json:"error_message"` // Error message
+	Context      map[string]interface{} `json:"context"`       // Error context
+	Severity     string                 `json:"severity"`      // Severity (low/medium/high/critical)
+	Recoverable  bool                   `json:"recoverable"`   // Whether it is recoverable
 }
 
-// WatcherStatusChangedEvent 监听器状态变化事件
+// WatcherStatusChangedEvent is the watcher status change event
 type WatcherStatusChangedEvent struct {
 	BaseEvent
-	LogURL    string `json:"log_url"`    // CT日志URL
-	OldStatus string `json:"old_status"` // 旧状态
-	NewStatus string `json:"new_status"` // 新状态
-	Reason    string `json:"reason"`     // 变化原因
+	LogURL    string `json:"log_url"`    // CT log URL
+	OldStatus string `json:"old_status"` // Old status
+	NewStatus string `json:"new_status"` // New status
+	Reason    string `json:"reason"`     // Reason for the change
 }
 
-// SDKLifecycleEvent SDK生命周期事件
+// SDKLifecycleEvent is the SDK lifecycle event
 type SDKLifecycleEvent struct {
 	BaseEvent
-	Action   string         `json:"action"`             // 动作 (start/stop/restart)
-	Reason   string         `json:"reason"`             // 原因
-	Duration *time.Duration `json:"duration,omitempty"` // 持续时间（停止时）
-	Stats    *SDKStats      `json:"stats,omitempty"`    // 当前统计信息
+	Action   string         `json:"action"`             // Action (start/stop/restart)
+	Reason   string         `json:"reason"`             // Reason
+	Duration *time.Duration `json:"duration,omitempty"` // Duration (on stop)
+	Stats    *SDKStats      `json:"stats,omitempty"`    // Current statistics
 }
 
-// SDKStats SDK统计信息
+// SDKStats holds SDK statistics
 type SDKStats struct {
-	TotalProcessedCertificates int64         `json:"total_processed_certificates"` // 总处理证书数
-	TotalDiscoveredSubdomains  int64         `json:"total_discovered_subdomains"`  // 总发现子域名数
-	TotalErrors                int64         `json:"total_errors"`                 // 总错误数
-	Uptime                     time.Duration `json:"uptime"`                       // 运行时间
+	TotalProcessedCertificates int64         `json:"total_processed_certificates"` // Total processed certificates
+	TotalDiscoveredSubdomains  int64         `json:"total_discovered_subdomains"`  // Total discovered subdomains
+	TotalErrors                int64         `json:"total_errors"`                 // Total errors
+	Uptime                     time.Duration `json:"uptime"`                       // Uptime
 }
 
-// 回调函数类型定义
+// Callback function type definitions
 
-// SubdomainCallback 子域名发现回调函数
+// SubdomainCallback is the subdomain discovery callback function
 type SubdomainCallback func(event SubdomainEvent)
 
-// CertificateCallback 证书处理回调函数
+// CertificateCallback is the certificate processing callback function
 type CertificateCallback func(cert *CertInfo, success bool, err error)
 
-// ErrorCallback 错误回调函数
+// ErrorCallback is the error callback function
 type ErrorCallback func(err error, context map[string]interface{})
 
-// StatusCallback 状态变化回调函数
+// StatusCallback is the status change callback function
 type StatusCallback func(logURL string, oldStatus, newStatus string)
 
-// 事件处理器接口
+// Event handler interface definitions
 
-// EventHandler 事件处理器接口
+// EventHandler is the event handler interface
 type EventHandler interface {
 	HandleEvent(event Event) error
 }
 
-// EventBus 事件总线
+// EventBus is the event bus
 type EventBus struct {
 	handlers map[EventType][]EventHandler
 }
 
-// NewEventBus 创建新的事件总线
+// NewEventBus creates a new event bus
 func NewEventBus() *EventBus {
 	return &EventBus{
 		handlers: make(map[EventType][]EventHandler),
 	}
 }
 
-// Subscribe 订阅事件
+// Subscribe subscribes to an event
 func (eb *EventBus) Subscribe(eventType EventType, handler EventHandler) {
 	eb.handlers[eventType] = append(eb.handlers[eventType], handler)
 }
 
-// Publish 发布事件
+// Publish publishes an event
 func (eb *EventBus) Publish(event Event) error {
 	handlers, exists := eb.handlers[event.GetType()]
 	if !exists {
@@ -182,14 +182,14 @@ func (eb *EventBus) Publish(event Event) error {
 
 	for _, handler := range handlers {
 		if err := handler.HandleEvent(event); err != nil {
-			// 记录错误但不中断其他处理器
+			// Record the error but do not interrupt the other handlers
 			continue
 		}
 	}
 	return nil
 }
 
-// GenerateEventID 生成事件ID
+// GenerateEventID generates an event ID
 func GenerateEventID() string {
 	return fmt.Sprintf("evt_%d", time.Now().UnixNano())
 }

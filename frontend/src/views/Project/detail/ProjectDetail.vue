@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { ContentDetailWrap } from '@/components/ContentDetailWrap'
-import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useRouter, useRoute } from 'vue-router'
-import { DescriptionsSchema } from '@/components/Descriptions'
-import { getAssetDetailApi } from '@/api/asset'
 import { ElTabs } from 'element-plus'
 import { ElTabPane } from 'element-plus'
 import Dashboard from './components/Dashboard.vue'

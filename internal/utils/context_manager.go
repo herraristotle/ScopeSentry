@@ -12,30 +12,30 @@ import (
 	"sync"
 )
 
-// contextInfo 存储context和对应的cancel函数
+// contextInfo stores a context and its corresponding cancel function
 type contextInfo struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 }
 
 var (
-	// pluginContexts 全局变量，存储所有插件的上下文
+	// pluginContexts global variable storing all plugin contexts
 	pluginContexts = make(map[string]*contextInfo)
-	// contextMutex 保护pluginContexts的互斥锁
+	// contextMutex mutex protecting pluginContexts
 	contextMutex sync.RWMutex
 )
 
-// GetContext 根据插件ID获取context，如果不存在则创建新的
+// GetContext returns the context for a plugin ID, creating a new one if it does not exist
 func GetContext(id string) context.Context {
 	contextMutex.Lock()
 	defer contextMutex.Unlock()
 
-	// 如果已存在，直接返回
+	// If it already exists, return it directly
 	if info, exists := pluginContexts[id]; exists && info != nil {
 		return info.ctx
 	}
 
-	// 不存在则创建新的context
+	// If it does not exist, create a new context
 	ctx, cancel := context.WithCancel(context.Background())
 	pluginContexts[id] = &contextInfo{
 		ctx:    ctx,
@@ -45,19 +45,19 @@ func GetContext(id string) context.Context {
 	return ctx
 }
 
-// CancelContext 根据插件ID取消并删除context
+// CancelContext cancels and deletes the context for a plugin ID
 func CancelContext(id string) {
 	contextMutex.Lock()
 	defer contextMutex.Unlock()
 
-	// 如果存在，先取消，然后删除
+	// If it exists, cancel it first and then delete it
 	if info, exists := pluginContexts[id]; exists && info != nil {
 		info.cancel()
 		delete(pluginContexts, id)
 	}
 }
 
-// HasContext 检查插件是否已有context
+// HasContext checks whether a plugin already has a context
 func HasContext(id string) bool {
 	contextMutex.RLock()
 	defer contextMutex.RUnlock()

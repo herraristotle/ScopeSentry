@@ -29,6 +29,9 @@ const getCount = async () => {
     .finally(() => {
       loading.value = false
     })
+  if (!res) {
+    return
+  }
   totalState.asetCount = res.data.assetCount
   totalState.subdomainCount = res.data.subdomainCount
   totalState.sensitiveCount = res.data.sensitiveCount

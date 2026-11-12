@@ -14,7 +14,7 @@ func init() {
 	mcpApiKeyService = apikey.NewService()
 }
 
-// MCPAPIKeyMiddleware MCP 端点 API Key 认证中间件
+// MCPAPIKeyMiddleware API Key authentication middleware for MCP endpoints
 func MCPAPIKeyMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rawKey := extractAPIKey(c)

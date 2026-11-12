@@ -11,13 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Port 仅用于基础端口键值
+// Port only used for basic port key-value pairs
 type Port struct {
 	Name  string `json:"name" bson:"name"`
 	Value string `json:"value" bson:"value"`
 }
 
-// DictionaryMeta 字典元数据
+// DictionaryMeta dictionary metadata
 type DictionaryMeta struct {
 	ID       primitive.ObjectID `json:"id" bson:"_id"`
 	Name     string             `json:"name" bson:"name"`
@@ -25,7 +25,7 @@ type DictionaryMeta struct {
 	Size     string             `json:"size" bson:"size"`
 }
 
-// PortDoc 带有ID的端口字典文档
+// PortDoc port dictionary document with ID
 type PortDoc struct {
 	ID    primitive.ObjectID `json:"id" bson:"_id"`
 	Name  string             `json:"name" bson:"name"`

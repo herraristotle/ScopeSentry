@@ -37,14 +37,14 @@ func NewRepository() Repository {
 }
 
 func (r *repository) FindWithPagination(ctx context.Context, query bson.M, opts *options.FindOptions) ([]models.Sensitive, error) {
-	// 执行查询
+	// Execute the query
 	cursor, err := r.collection.Find(ctx, query, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
-	// 解析结果
+	// Decode the results
 	var results []models.Sensitive
 	if err := cursor.All(ctx, &results); err != nil {
 		return nil, fmt.Errorf("failed to decode documents: %w", err)

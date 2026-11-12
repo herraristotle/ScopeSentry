@@ -14,12 +14,12 @@ func init() {
 }
 
 // GetCrawlers godoc
-// @Summary 获取爬虫任务列表
-// @Description 获取爬虫任务列表，支持分页、排序和过滤
+// @Summary Get crawler task list
+// @Description Get the crawler task list, supporting pagination, sorting, and filtering
 // @Tags Crawler
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.CrawlerResult}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse

@@ -14,12 +14,12 @@ func init() {
 }
 
 // GetURLs godoc
-// @Summary 获取URL列表
-// @Description 获取URL列表，支持分页、排序和过滤
+// @Summary Get URL list
+// @Description Get the URL list, supporting pagination, sorting, and filtering
 // @Tags URL
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.URL}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse

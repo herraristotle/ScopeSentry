@@ -2,7 +2,6 @@
 import { LoginForm } from './components'
 import { ThemeSwitch } from '@/components/ThemeSwitch'
 import { LocaleDropdown } from '@/components/LocaleDropdown'
-import { useI18n } from '@/hooks/web/useI18n'
 import { underlineToHump } from '@/utils'
 import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
@@ -15,16 +14,10 @@ const prefixCls = getPrefixCls('login')
 
 const appStore = useAppStore()
 
-const { t } = useI18n()
-
 const isLogin = ref(true)
 
 const toRegister = () => {
   isLogin.value = false
-}
-
-const toLogin = () => {
-  isLogin.value = true
 }
 </script>
 

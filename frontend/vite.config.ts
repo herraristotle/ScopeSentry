@@ -32,7 +32,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     plugins: [
       Vue({
         script: {
-          // 开启defineModel
+          // Enable defineModel
           defineModel: true
         }
       }),
@@ -116,7 +116,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     server: {
       port: 4000,
       proxy: {
-        // 选项写法
+        // Option syntax
         '/api': {
           target: 'http://127.0.0.1:8082',
           changeOrigin: true

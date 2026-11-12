@@ -98,12 +98,17 @@ const getAssetData = async () => {
   console.log(currentPage.value)
   console.log(searchParams.value)
   try {
-    const res = await getAssetApi(searchParams.value, currentPage.value, pageSize.value)
+    const res = await getAssetApi(
+      searchParams.value,
+      currentPage.value,
+      pageSize.value,
+      undefined as unknown as Record<string, any>
+    )
     console.log(res)
   } catch (error) {
     console.error('Error fetching node data:', error)
   } finally {
-    // 不论请求成功或失败，都会执行的代码块
+    // Code block that always executes regardless of whether the request succeeds or fails
     loading.value = false
   }
 }
@@ -112,7 +117,7 @@ const textarea = ref(
   '111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111111111111111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx11111xxxxxxxxxxxxxxxxxxx11111'
 )
 
-type Item = { type: TagProps['type']; label: string }
+type Item = { type: TagProps['type'] | ''; label: string }
 
 const items = ref<Array<Item>>([
   { type: '', label: 'Tag 1' },

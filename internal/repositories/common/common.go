@@ -70,7 +70,7 @@ func NewRepository() Repository {
 func (r *repository) Find(ctx context.Context, coll string, filter interface{}, opts *options.FindOptions, result interface{}) error {
 	collection := r.db.Collection(coll)
 
-	// 检查是否是单条（limit=1）
+	// Check whether it is a single record (limit=1)
 	if opts != nil && opts.Limit != nil && *opts.Limit == 1 {
 		single := collection.FindOne(ctx, filter, options.FindOne().SetProjection(opts.Projection))
 		if single.Err() != nil {
@@ -79,7 +79,7 @@ func (r *repository) Find(ctx context.Context, coll string, filter interface{}, 
 		return single.Decode(result)
 	}
 
-	// 多条查询
+	// Multiple-record query
 	cur, err := collection.Find(ctx, filter, opts)
 	if err != nil {
 		return err
@@ -234,12 +234,12 @@ func (r *repository) LPush(ctx context.Context, key string, values interface{}) 
 
 	switch v.Kind() {
 	case reflect.Slice, reflect.Array:
-		// 如果是切片或数组，遍历转换为 []interface{}
+		// If it is a slice or array, iterate and convert to []interface{}
 		for i := 0; i < v.Len(); i++ {
 			elems = append(elems, v.Index(i).Interface())
 		}
 	default:
-		// 否则视为单个值
+		// Otherwise treat it as a single value
 		elems = append(elems, values)
 	}
 

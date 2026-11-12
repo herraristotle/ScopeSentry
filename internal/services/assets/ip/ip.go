@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Service 定义 IP 资产服务接口
+// Service defines the IP asset service interface
 type Service interface {
 	GetIPAssets(ctx *gin.Context, query models.SearchRequest) (*models.IPAssetResponse, error)
 }
@@ -22,14 +22,14 @@ type service struct {
 	repo iprepo.Repository
 }
 
-// NewService 创建 IP 资产服务实例
+// NewService creates an IP asset service instance
 func NewService() Service {
 	return &service{
 		repo: iprepo.NewRepository(),
 	}
 }
 
-// GetIPAssets 获取 IP 资产列表
+// GetIPAssets gets the IP asset list
 func (s *service) GetIPAssets(ctx *gin.Context, query models.SearchRequest) (*models.IPAssetResponse, error) {
 	if query.PageIndex <= 0 {
 		query.PageIndex = 1
@@ -47,17 +47,17 @@ func (s *service) GetIPAssets(ctx *gin.Context, query models.SearchRequest) (*mo
 
 	reqCtx := ctx.Request.Context()
 
-	// 检测是否涉及嵌套字段查询
+	// Detect whether nested field queries are involved
 	hasNestedField := hasNestedFieldQuery(filter)
 
 	var assets []models.IPAsset
 	var total int64
 
 	if hasNestedField {
-		// 使用聚合管道过滤嵌套数组
+		// Use an aggregation pipeline to filter nested arrays
 		pipeline := buildAggregationPipeline(filter, query.PageIndex, query.PageSize)
 
-		// 构建计数管道（不包含分页）
+		// Build the count pipeline (without pagination)
 		countPipeline := buildCountPipeline(filter)
 		total, err = s.repo.CountWithAggregation(reqCtx, countPipeline)
 		if err != nil {
@@ -69,7 +69,7 @@ func (s *service) GetIPAssets(ctx *gin.Context, query models.SearchRequest) (*mo
 			return nil, err
 		}
 	} else {
-		// 使用普通查询（只查询顶级字段，如 ip）
+		// Use a regular query (querying only top-level fields, e.g. ip)
 		total, err = s.repo.Count(reqCtx, filter)
 		if err != nil {
 			return nil, err
@@ -101,7 +101,7 @@ func (s *service) GetIPAssets(ctx *gin.Context, query models.SearchRequest) (*mo
 	}, nil
 }
 
-// hasNestedFieldQuery 检测查询条件是否涉及嵌套字段
+// hasNestedFieldQuery detects whether the query conditions involve nested fields
 func hasNestedFieldQuery(filter bson.M) bool {
 	nestedFields := map[string]bool{
 		"ports.port":                true,
@@ -114,20 +114,20 @@ func hasNestedFieldQuery(filter bson.M) bool {
 	return checkNestedFieldInQuery(filter, nestedFields)
 }
 
-// checkNestedFieldInQuery 递归检查查询条件中是否包含嵌套字段
+// checkNestedFieldInQuery recursively checks whether the query conditions contain nested fields
 func checkNestedFieldInQuery(query interface{}, nestedFields map[string]bool) bool {
 	switch v := query.(type) {
 	case bson.M:
 		for key, value := range v {
-			// 检查 key 本身是否是嵌套字段
+			// Check whether the key itself is a nested field
 			if nestedFields[key] {
 				return true
 			}
-			// 检查 key 是否以 ports. 开头
+			// Check whether the key starts with ports.
 			if strings.HasPrefix(key, "ports.") {
 				return true
 			}
-			// 递归检查值
+			// Recursively check the value
 			if checkNestedFieldInQuery(value, nestedFields) {
 				return true
 			}
@@ -172,9 +172,9 @@ func checkNestedFieldInQuery(query interface{}, nestedFields map[string]bool) bo
 	return false
 }
 
-// buildAggregationPipeline 构建聚合管道，过滤嵌套数组
+// buildAggregationPipeline builds the aggregation pipeline, filtering nested arrays
 func buildAggregationPipeline(filter bson.M, pageIndex, pageSize int) mongo.Pipeline {
-	// 分离顶级字段和嵌套字段的查询条件
+	// Separate top-level and nested field query conditions
 	topLevelFilter := bson.M{}
 	nestedFilter := bson.M{}
 
@@ -191,31 +191,31 @@ func buildAggregationPipeline(filter bson.M, pageIndex, pageSize int) mongo.Pipe
 
 	pipeline := mongo.Pipeline{}
 
-	// 1. 首先匹配顶级字段（如 ip）
+	// 1. First match top-level fields (e.g. ip)
 	if len(topLevelFilter) > 0 {
 		pipeline = append(pipeline, bson.D{{Key: "$match", Value: topLevelFilter}})
 	}
 
-	// 2. 展开 ports 数组
+	// 2. Unwind the ports array
 	pipeline = append(pipeline, bson.D{{Key: "$unwind", Value: bson.M{
 		"path":                       "$ports",
 		"preserveNullAndEmptyArrays": true,
 	}}})
 
-	// 3. 展开 ports.server 数组
+	// 3. Unwind the ports.server array
 	pipeline = append(pipeline, bson.D{{Key: "$unwind", Value: bson.M{
 		"path":                       "$ports.server",
 		"preserveNullAndEmptyArrays": true,
 	}}})
 
-	// 4. 匹配嵌套字段条件
+	// 4. Match nested field conditions
 	if len(nestedFilter) > 0 {
-		// 将嵌套字段路径转换为展开后的路径
+		// Convert the nested field path to the unwound path
 		expandedFilter := expandNestedFilter(nestedFilter)
 		pipeline = append(pipeline, bson.D{{Key: "$match", Value: expandedFilter}})
 	}
 
-	// 5. 按 IP 和端口分组，重新组合 server 数组
+	// 5. Group by IP and port, reassemble the server array
 	pipeline = append(pipeline, bson.D{{Key: "$group", Value: bson.M{
 		"_id": bson.M{
 			"ip":   "$ip",
@@ -228,7 +228,7 @@ func buildAggregationPipeline(filter bson.M, pageIndex, pageSize int) mongo.Pipe
 		"server": bson.M{"$push": "$ports.server"},
 	}}})
 
-	// 6. 按 IP 分组，重新组合 ports 数组
+	// 6. Group by IP, reassemble the ports array
 	pipeline = append(pipeline, bson.D{{Key: "$group", Value: bson.M{
 		"_id":    "$ip",
 		"ip":     bson.M{"$first": "$ip"},
@@ -240,22 +240,22 @@ func buildAggregationPipeline(filter bson.M, pageIndex, pageSize int) mongo.Pipe
 		}},
 	}}})
 
-	// 7. 恢复 _id 字段
+	// 7. Restore the _id field
 	pipeline = append(pipeline, bson.D{{Key: "$addFields", Value: bson.M{
 		"_id": "$origId",
 	}}})
 
-	// 移除临时字段
+	// Remove temporary fields
 	pipeline = append(pipeline, bson.D{{Key: "$project", Value: bson.M{
 		"origId": 0,
 	}}})
 
-	// 8. 排序
+	// 8. Sort
 	pipeline = append(pipeline, bson.D{{Key: "$sort", Value: bson.D{
 		{Key: "time", Value: -1},
 	}}})
 
-	// 9. 分页
+	// 9. Paginate
 	skip := (pageIndex - 1) * pageSize
 	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: skip}})
 	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: pageSize}})
@@ -263,7 +263,7 @@ func buildAggregationPipeline(filter bson.M, pageIndex, pageSize int) mongo.Pipe
 	return pipeline
 }
 
-// buildCountPipeline 构建计数聚合管道
+// buildCountPipeline builds the count aggregation pipeline
 func buildCountPipeline(filter bson.M) mongo.Pipeline {
 	topLevelFilter := bson.M{}
 	nestedFilter := bson.M{}
@@ -300,7 +300,7 @@ func buildCountPipeline(filter bson.M) mongo.Pipeline {
 		pipeline = append(pipeline, bson.D{{Key: "$match", Value: expandedFilter}})
 	}
 
-	// 按 IP 去重计数
+	// Count with deduplication by IP
 	pipeline = append(pipeline, bson.D{{Key: "$group", Value: bson.M{
 		"_id": "$ip",
 	}}})
@@ -308,11 +308,11 @@ func buildCountPipeline(filter bson.M) mongo.Pipeline {
 	return pipeline
 }
 
-// separateFilters 分离顶级字段和嵌套字段的查询条件
+// separateFilters separates top-level and nested field query conditions
 func separateFilters(filter bson.M, topLevelFilter, nestedFilter bson.M, topLevelFields map[string]bool) {
 	for key, value := range filter {
 		if topLevelFields[key] || key == "$and" || key == "$or" {
-			// 处理逻辑运算符
+			// Handle logical operators
 			if key == "$and" || key == "$or" {
 				topLevelArray := []interface{}{}
 				nestedArray := []interface{}{}
@@ -355,23 +355,23 @@ func separateFilters(filter bson.M, topLevelFilter, nestedFilter bson.M, topLeve
 				topLevelFilter[key] = value
 			}
 		} else if strings.HasPrefix(key, "ports.") {
-			// 嵌套字段
+			// Nested field
 			nestedFilter[key] = value
 		} else {
-			// 其他字段，默认放到顶级
+			// Other fields, placed at the top level by default
 			topLevelFilter[key] = value
 		}
 	}
 }
 
-// expandNestedFilter 处理嵌套字段查询条件
-// 注意：在 $unwind 之后，字段路径保持不变（ports.port 仍然是 ports.port）
+// expandNestedFilter processes nested field query conditions
+// Note: after $unwind the field path stays unchanged (ports.port is still ports.port)
 func expandNestedFilter(filter bson.M) bson.M {
 	expanded := bson.M{}
 
 	for key, value := range filter {
 		if key == "$and" || key == "$or" {
-			// 递归处理逻辑运算符
+			// Recursively handle logical operators
 			if arr, ok := value.([]interface{}); ok {
 				expandedArr := []interface{}{}
 				for _, item := range arr {
@@ -386,7 +386,7 @@ func expandNestedFilter(filter bson.M) bson.M {
 				expanded[key] = expandedArr
 			}
 		} else {
-			// 字段路径保持不变，因为 $unwind 后路径仍然有效
+			// The field path stays unchanged because the path is still valid after $unwind
 			expanded[key] = value
 		}
 	}

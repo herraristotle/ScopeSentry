@@ -11,7 +11,6 @@ import {
   ElMessageBox,
   ElMessage,
   ElButton,
-  ElDivider,
   ElText
 } from 'element-plus'
 import { Table, TableColumn } from '@/components/Table'
@@ -33,11 +32,6 @@ const setMaxHeight = () => {
   maxHeight.value = screenHeight * 0.8
 }
 
-const searchParams = ref('')
-const handleSearch = (data: any) => {
-  searchParams.value = data
-  getList()
-}
 const filter = reactive<{ [key: string]: any }>({})
 filter.project = [query.id as string]
 const filterChange = async (newFilters: any) => {

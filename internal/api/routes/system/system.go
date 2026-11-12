@@ -14,11 +14,11 @@ import (
 )
 
 func RegisterSystemRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the route group
 	systemRoutes := models.RouteGroup{
 		Path: "/system",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+			// Routes requiring authentication and user:read permission
 			{
 				Method:      "GET",
 				Path:        "version",
@@ -28,6 +28,6 @@ func RegisterSystemRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the route group
 	common.RegisterRouteGroup(api, systemRoutes)
 }

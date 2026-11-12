@@ -15,22 +15,22 @@ package logger
 //	"go.uber.org/zap"
 //)
 //
-//// GinLogger 中间件，用 zap 替代默认日志
+//// GinLogger middleware, replacing the default logger with zap
 //func GinLogger() gin.HandlerFunc {
 //	return gin.LoggerWithWriter(zapWriter{Logger})
 //}
 //
-//// zapWriter 结构，用于将 gin 的日志写入 zap
+//// zapWriter struct, used to write gin logs into zap
 //type zapWriter struct {
 //	l *zap.Logger
 //}
 //
 //func (z zapWriter) Write(p []byte) (n int, err error) {
-//	z.l.Info(string(p)) // 你也可以在这里做日志结构化处理
+//	z.l.Info(string(p)) // You can also add structured log handling here
 //	return len(p), nil
 //}
 //
-//// GinRecovery 替代默认 panic 恢复逻辑，记录错误日志
+//// GinRecovery replaces the default panic recovery logic and logs errors
 //func GinRecovery() gin.HandlerFunc {
 //	return gin.CustomRecoveryWithWriter(os.Stderr, func(c *gin.Context, err interface{}) {
 //		Logger.Error("Panic recovered",

@@ -32,7 +32,7 @@ func NewRepository() Repository {
 	}
 }
 
-// Create 创建用户
+// Create creates a user
 func (r *repository) Create(ctx context.Context, user *models.User) error {
 	user.ID = primitive.NewObjectID()
 	user.CreatedAt = time.Now()
@@ -42,7 +42,7 @@ func (r *repository) Create(ctx context.Context, user *models.User) error {
 	return err
 }
 
-// FindByID 根据ID获取用户
+// FindByID gets a user by ID
 func (r *repository) FindByID(ctx context.Context, id string) (*models.User, error) {
 	var user models.User
 	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
@@ -52,7 +52,7 @@ func (r *repository) FindByID(ctx context.Context, id string) (*models.User, err
 	return &user, nil
 }
 
-// FindByUsername 根据用户名获取用户
+// FindByUsername gets a user by username
 func (r *repository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
 	err := r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
@@ -62,13 +62,13 @@ func (r *repository) FindByUsername(ctx context.Context, username string) (*mode
 	return &user, nil
 }
 
-// FindAll 获取用户列表
+// FindAll returns the list of users
 func (r *repository) FindAll(ctx context.Context) ([]*models.User, error) {
-	// 设置分页选项
+	// Set pagination options
 	opts := options.Find().
 		SetSort(bson.D{{"createdAt", -1}})
 
-	// 查询用户列表
+	// Query the user list
 	cursor, err := r.collection.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (r *repository) FindAll(ctx context.Context) ([]*models.User, error) {
 	return users, nil
 }
 
-// Update 更新用户
+// Update updates a user
 func (r *repository) Update(ctx context.Context, id string, user *models.User) error {
 	updateDoc := bson.M{
 		"$set": user,
@@ -93,7 +93,7 @@ func (r *repository) Update(ctx context.Context, id string, user *models.User) e
 	return err
 }
 
-// UpdateFields 按字段更新（仅更新传入字段，避免零值覆盖）
+// UpdateFields updates by field (updates only the provided fields to avoid zero-value overwrite)
 func (r *repository) UpdateFields(ctx context.Context, id string, fields bson.M) error {
 	updateDoc := bson.M{
 		"$set": fields,
@@ -103,7 +103,7 @@ func (r *repository) UpdateFields(ctx context.Context, id string, fields bson.M)
 	return err
 }
 
-// Delete 删除用户
+// Delete deletes a user
 func (r *repository) Delete(ctx context.Context, id string) error {
 	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err

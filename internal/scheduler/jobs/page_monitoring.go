@@ -26,7 +26,7 @@ func CreatePageMonitoringTask() error {
 		return fmt.Errorf("failed to get scheduled task: %w", err)
 	}
 	if task.AllNode {
-		// 选择自动加入后 获取所有节点
+		// After auto-join is selected, get all nodes
 		allNode, err := NodeService.GetNodeData(context.Background(), false)
 		if err != nil {
 			return err
@@ -64,7 +64,7 @@ func CreatePageMonitoringTask() error {
 	}
 	jsonData, err := json.Marshal(addRedisTaskData)
 	if err != nil {
-		fmt.Println("JSON 转换错误:", err)
+		fmt.Println("JSON conversion error:", err)
 		return err
 	}
 	for _, d := range data {
@@ -76,7 +76,7 @@ func CreatePageMonitoringTask() error {
 	return nil
 }
 
-// getPageMonitoringData 获取页面监控数据
+// getPageMonitoringData fetches page monitoring data
 func getPageMonitoringData() ([]string, error) {
 	cursor, err := ScanSvc.pageMonitoringCollection.Find(context.Background(), nil, options.Find().SetProjection(bson.M{"url": 1}))
 	if err != nil {

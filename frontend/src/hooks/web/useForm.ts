@@ -5,15 +5,15 @@ import { FormSchema, FormSetProps, FormProps } from '@/components/Form'
 import { isEmptyVal, isObject } from '@/utils/is'
 
 export const useForm = () => {
-  // From实例
+  // Form instance
   const formRef = ref<typeof Form & FormExpose>()
 
-  // ElForm实例
+  // ElForm instance
   const elFormRef = ref<ComponentRef<typeof ElForm>>()
 
   /**
-   * @param ref Form实例
-   * @param elRef ElForm实例
+   * @param ref Form instance
+   * @param elRef ElForm instance
    */
   const register = (ref: typeof Form & FormExpose, elRef: ComponentRef<typeof ElForm>) => {
     formRef.value = ref
@@ -29,11 +29,11 @@ export const useForm = () => {
     return form
   }
 
-  // 一些内置的方法
+  // Some built-in methods
   const methods = {
     /**
-     * @description 设置form组件的props
-     * @param props form组件的props
+     * @description Set the props of the form component
+     * @param props props of the form component
      */
     setProps: async (props: FormProps = {}) => {
       const form = await getForm()
@@ -44,8 +44,8 @@ export const useForm = () => {
     },
 
     /**
-     * @description 设置form的值
-     * @param data 需要设置的数据
+     * @description Set the form values
+     * @param data data to set
      */
     setValues: async (data: Recordable) => {
       const form = await getForm()
@@ -53,8 +53,8 @@ export const useForm = () => {
     },
 
     /**
-     * @description 设置schema
-     * @param schemaProps 需要设置的schemaProps
+     * @description Set the schema
+     * @param schemaProps schema props to set
      */
     setSchema: async (schemaProps: FormSetProps[]) => {
       const form = await getForm()
@@ -62,9 +62,9 @@ export const useForm = () => {
     },
 
     /**
-     * @description 新增schema
-     * @param formSchema 需要新增数据
-     * @param index 在哪里新增
+     * @description Add a schema
+     * @param formSchema schema data to add
+     * @param index where to add it
      */
     addSchema: async (formSchema: FormSchema, index?: number) => {
       const form = await getForm()
@@ -72,8 +72,8 @@ export const useForm = () => {
     },
 
     /**
-     * @description 删除schema
-     * @param field 删除哪个数据
+     * @description Delete a schema
+     * @param field which field to delete
      */
     delSchema: async (field: string) => {
       const form = await getForm()
@@ -81,14 +81,14 @@ export const useForm = () => {
     },
 
     /**
-     * @description 获取表单数据
+     * @description Get form data
      * @returns form data
      */
     getFormData: async <T = Recordable>(filterEmptyVal = true): Promise<T> => {
       const form = await getForm()
       const model = form?.formModel as any
       if (filterEmptyVal) {
-        // 使用reduce过滤空值，并返回一个新对象
+        // Use reduce to filter empty values and return a new object
         return Object.keys(model).reduce((prev, next) => {
           const value = model[next]
           if (!isEmptyVal(value)) {
@@ -108,8 +108,8 @@ export const useForm = () => {
     },
 
     /**
-     * @description 获取表单组件的实例
-     * @param field 表单项唯一标识
+     * @description Get the instance of the form component
+     * @param field unique identifier of the form item
      * @returns component instance
      */
     getComponentExpose: async (field: string) => {
@@ -118,8 +118,8 @@ export const useForm = () => {
     },
 
     /**
-     * @description 获取formItem组件的实例
-     * @param field 表单项唯一标识
+     * @description Get the instance of the formItem component
+     * @param field unique identifier of the form item
      * @returns formItem instance
      */
     getFormItemExpose: async (field: string) => {
@@ -128,7 +128,7 @@ export const useForm = () => {
     },
 
     /**
-     * @description 获取ElForm组件的实例
+     * @description Get the instance of the ElForm component
      * @returns ElForm instance
      */
     getElFormExpose: async () => {

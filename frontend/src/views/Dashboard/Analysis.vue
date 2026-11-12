@@ -8,7 +8,6 @@ import {
   ElText,
   ElTooltip,
   ElButton,
-  ElPopconfirm,
   ElForm,
   ElFormItem,
   ElInput
@@ -232,7 +231,7 @@ const getNodeState = async () => {
   } catch (error) {
     console.error('Error fetching node data:', error)
   } finally {
-    // 不论请求成功或失败，都会执行的代码块
+    // Code block that always executes regardless of whether the request succeeds or fails
     loading.value = false
   }
 }
@@ -294,14 +293,6 @@ onBeforeUnmount(() => {
 })
 
 const pluginKey = ref('')
-const updateSystem = async () => {
-  const key = localStorage.getItem(`plugin_key`) as string
-  if (!key) {
-    keyDialogVisible.value = true
-  } else {
-    UpdatedialogVisible.value = true
-  }
-}
 const savePluginKey = async () => {
   if (pluginKey.value) {
     const res = await checkKeyApi(pluginKey.value)
@@ -422,7 +413,7 @@ async function handleSubmit() {
     :maxHeight="430"
   >
     <ElText type="danger" size="small" style="position: relative; left: 1rem"
-      >*更新目前只支持docker容器搭建的程序，输入的url地址确保docker内可访问，节点最新版在github中releases的linux版本</ElText
+      >*Updates currently only support deployments built with Docker containers; make sure the entered URL is accessible inside Docker. The latest node version is the Linux release on GitHub</ElText
     >
     <ElForm :model="form" label-width="120px" class="upload-form">
       <ElFormItem label="server url">
@@ -450,7 +441,7 @@ async function handleSubmit() {
       <el-tooltip class="item" effect="dark" :content="t('plugin.keyMsg')" placement="top">
         <ElInput v-model="pluginKey" />
       </el-tooltip>
-      <BaseButton @click="savePluginKey" type="primary" class="w-full">确定</BaseButton>
+      <BaseButton @click="savePluginKey" type="primary" class="w-full">OK</BaseButton>
     </div>
   </Dialog>
 </template>

@@ -143,7 +143,7 @@ func (r *manageRepository) DeleteFile(ctx context.Context, filename string) erro
 	if err != nil {
 		return err
 	}
-	// 获取文件ID并关闭read流
+	// Get the file ID and close the read stream
 	file := ds.GetFile()
 	ds.Close()
 	if oid, ok := file.ID.(primitive.ObjectID); ok {
@@ -153,7 +153,7 @@ func (r *manageRepository) DeleteFile(ctx context.Context, filename string) erro
 }
 
 func (r *manageRepository) ReplaceFile(ctx context.Context, filename string, content []byte) error {
-	// 删除旧文件再上传
+	// Delete the old file and then upload
 	if err := r.DeleteFile(ctx, filename); err != nil {
 		return err
 	}

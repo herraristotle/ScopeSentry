@@ -54,7 +54,7 @@ func GetStringVariable(key string) string {
 }
 
 func RunPluginOnce(hash string) {
-	// 判断插件状态 如果是开启 再运行
+	// Check the plugin state; only run if enabled
 	var result PluginInfo
 	ctx := context.Background()
 	collection := mongodb.DB.Collection("plugins")
@@ -73,7 +73,7 @@ func RunPluginOnce(hash string) {
 	plg, flag := GlobalPluginManager.GetPlugin(hash)
 	if flag {
 		go func() {
-			// 根据hash查看是否存在上下文 存在上下文说明 插件已经在运行了 需要暂停之后 再重新开始 上下文的创建一般是在插件内部进行创建的
+			// Look up the context by hash; if a context exists, the plugin is already running, so it must be paused and then restarted. Contexts are usually created inside the plugin itself
 			flag := utils.HasContext(hash)
 			if flag {
 				utils.CancelContext(hash)

@@ -39,8 +39,8 @@ type RemoteVersion struct {
 	ScanMsg   string `json:"scan_msg"`
 }
 
-// GetSystemVersion @Summary      获取系统及节点版本信息
-// @Description  获取 ScopeSentry 服务端及所有节点的当前版本信息
+// GetSystemVersion @Summary      Get system and node version info
+// @Description  Get the current version info of the ScopeSentry server and all nodes
 // @Tags         System
 // @Accept       json
 // @Produce      json
@@ -81,7 +81,7 @@ func GetSystemVersion(c *gin.Context) {
 		}
 	}
 
-	// 如果gitee失败，尝试从github获取
+	// If gitee fails, try fetching from github
 	if serverLVersion == "" {
 		req.SetRequestURI("https://raw.githubusercontent.com/Autumn-27/ScopeSentry/main/version.json")
 		err = client.Do(req, resp)
@@ -131,9 +131,9 @@ func GetSystemVersion(c *gin.Context) {
 	}, "api.system.version.success")
 }
 
-// VersionListResponse 版本列表响应结构
-// 用于统一响应格式
-// @Description 版本信息列表
+// VersionListResponse version list response structure
+// Used for a unified response format
+// @Description List of version info
 // @Author Autumn
 // @Date 2025-05-02
 // @Contact rainy-autumn@outlook.com

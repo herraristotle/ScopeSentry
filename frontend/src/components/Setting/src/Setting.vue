@@ -28,7 +28,7 @@ const layout = computed(() => appStore.getLayout)
 
 const drawer = ref(false)
 
-// 主题色相关
+// Theme color related
 const systemTheme = ref(appStore.getTheme.elColorPrimary)
 
 const setSystemTheme = (color: string) => {
@@ -38,7 +38,7 @@ const setSystemTheme = (color: string) => {
   setMenuTheme(trim(unref(leftMenuBgColor)))
 }
 
-// 头部主题相关
+// Header theme related
 const headerTheme = ref(appStore.getTheme.topHeaderBgColor || '')
 
 const setHeaderTheme = (color: string) => {
@@ -60,41 +60,41 @@ const setHeaderTheme = (color: string) => {
   }
 }
 
-// 菜单主题相关
+// Menu theme related
 const menuTheme = ref(appStore.getTheme.leftMenuBgColor || '')
 
 const setMenuTheme = (color: string) => {
   const primaryColor = useCssVar('--el-color-primary', document.documentElement)
   const isDarkColor = colorIsDark(color)
   const theme: Recordable = {
-    // 左侧菜单边框颜色
+    // Left menu border color
     leftMenuBorderColor: isDarkColor ? 'inherit' : '#eee',
-    // 左侧菜单背景颜色
+    // Left menu background color
     leftMenuBgColor: color,
-    // 左侧菜单浅色背景颜色
+    // Left menu light background color
     leftMenuBgLightColor: isDarkColor ? lighten(color!, 6) : color,
-    // 左侧菜单选中背景颜色
+    // Left menu active background color
     leftMenuBgActiveColor: isDarkColor
       ? 'var(--el-color-primary)'
       : hexToRGB(unref(primaryColor), 0.1),
-    // 左侧菜单收起选中背景颜色
+    // Left menu collapsed active background color
     leftMenuCollapseBgActiveColor: isDarkColor
       ? 'var(--el-color-primary)'
       : hexToRGB(unref(primaryColor), 0.1),
-    // 左侧菜单字体颜色
+    // Left menu text color
     leftMenuTextColor: isDarkColor ? '#bfcbd9' : '#333',
-    // 左侧菜单选中字体颜色
+    // Left menu active text color
     leftMenuTextActiveColor: isDarkColor ? '#fff' : 'var(--el-color-primary)',
-    // logo字体颜色
+    // Logo text color
     logoTitleTextColor: isDarkColor ? '#fff' : 'inherit',
-    // logo边框颜色
+    // Logo border color
     logoBorderColor: isDarkColor ? color : '#eee'
   }
   appStore.setTheme(theme)
   appStore.setCssVarTheme()
 }
 setMenuTheme(unref(menuTheme))
-// 监听layout变化，重置一些主题色
+// Watch layout changes and reset some theme colors
 watch(
   () => layout.value,
   (n) => {
@@ -107,71 +107,71 @@ watch(
   }
 )
 
-// 拷贝
+// Copy
 const copyConfig = async () => {
   const { copy, copied, isSupported } = useClipboard({
     source: `
-      // 面包屑
+      // Breadcrumb
       breadcrumb: ${appStore.getBreadcrumb},
-      // 面包屑图标
+      // Breadcrumb icon
       breadcrumbIcon: ${appStore.getBreadcrumbIcon},
-      // 折叠图标
+      // Collapse icon
       hamburger: ${appStore.getHamburger},
-      // 全屏图标
+      // Fullscreen icon
       screenfull: ${appStore.getScreenfull},
-      // 尺寸图标
+      // Size icon
       size: ${appStore.getSize},
-      // 多语言图标
+      // Language icon
       locale: ${appStore.getLocale},
-      // 标签页
+      // Tags view
       tagsView: ${appStore.getTagsView},
-      // 标签页图标
+      // Tags view icon
       getTagsViewIcon: ${appStore.getTagsViewIcon},
       // logo
       logo: ${appStore.getLogo},
-      // 菜单手风琴
+      // Menu accordion
       uniqueOpened: ${appStore.getUniqueOpened},
-      // 固定header
+      // Fixed header
       fixedHeader: ${appStore.getFixedHeader},
-      // 页脚
+      // Footer
       footer: ${appStore.getFooter},
-      // 灰色模式
+      // Grey mode
       greyMode: ${appStore.getGreyMode},
-      // layout布局
+      // Layout
       layout: '${appStore.getLayout}',
-      // 暗黑模式
+      // Dark mode
       isDark: ${appStore.getIsDark},
-      // 组件尺寸
+      // Component size
       currentSize: '${appStore.getCurrentSize}',
-      // 主题相关
+      // Theme related
       theme: {
-        // 主题色
+        // Theme color
         elColorPrimary: '${appStore.getTheme.elColorPrimary}',
-        // 左侧菜单边框颜色
+        // Left menu border color
         leftMenuBorderColor: '${appStore.getTheme.leftMenuBorderColor}',
-        // 左侧菜单背景颜色
+        // Left menu background color
         leftMenuBgColor: '${appStore.getTheme.leftMenuBgColor}',
-        // 左侧菜单浅色背景颜色
+        // Left menu light background color
         leftMenuBgLightColor: '${appStore.getTheme.leftMenuBgLightColor}',
-        // 左侧菜单选中背景颜色
+        // Left menu active background color
         leftMenuBgActiveColor: '${appStore.getTheme.leftMenuBgActiveColor}',
-        // 左侧菜单收起选中背景颜色
+        // Left menu collapsed active background color
         leftMenuCollapseBgActiveColor: '${appStore.getTheme.leftMenuCollapseBgActiveColor}',
-        // 左侧菜单字体颜色
+        // Left menu text color
         leftMenuTextColor: '${appStore.getTheme.leftMenuTextColor}',
-        // 左侧菜单选中字体颜色
+        // Left menu active text color
         leftMenuTextActiveColor: '${appStore.getTheme.leftMenuTextActiveColor}',
-        // logo字体颜色
+        // Logo text color
         logoTitleTextColor: '${appStore.getTheme.logoTitleTextColor}',
-        // logo边框颜色
+        // Logo border color
         logoBorderColor: '${appStore.getTheme.logoBorderColor}',
-        // 头部背景颜色
+        // Header background color
         topHeaderBgColor: '${appStore.getTheme.topHeaderBgColor}',
-        // 头部字体颜色
+        // Header text color
         topHeaderTextColor: '${appStore.getTheme.topHeaderTextColor}',
-        // 头部悬停颜色
+        // Header hover color
         topHeaderHoverColor: '${appStore.getTheme.topHeaderHoverColor}',
-        // 头部边框颜色
+        // Header border color
         topToolBorderColor: '${appStore.getTheme.topToolBorderColor}'
       }
     `,
@@ -187,7 +187,7 @@ const copyConfig = async () => {
   }
 }
 
-// 清空缓存
+// Clear cache
 const clear = () => {
   storageClear()
   window.location.reload()
@@ -209,15 +209,15 @@ const clear = () => {
     </template>
 
     <div class="text-center">
-      <!-- 主题 -->
+      <!-- Theme -->
       <ElDivider>{{ t('setting.theme') }}</ElDivider>
       <ThemeSwitch />
 
-      <!-- 布局 -->
+      <!-- Layout -->
       <ElDivider>{{ t('setting.layout') }}</ElDivider>
       <LayoutRadioPicker />
 
-      <!-- 系统主题 -->
+      <!-- System theme -->
       <ElDivider>{{ t('setting.systemTheme') }}</ElDivider>
       <ColorRadioPicker
         v-model="systemTheme"
@@ -234,7 +234,7 @@ const clear = () => {
         @change="setSystemTheme"
       />
 
-      <!-- 头部主题 -->
+      <!-- Header theme -->
       <ElDivider>{{ t('setting.headerTheme') }}</ElDivider>
       <ColorRadioPicker
         v-model="headerTheme"
@@ -251,7 +251,7 @@ const clear = () => {
         @change="setHeaderTheme"
       />
 
-      <!-- 菜单主题 -->
+      <!-- Menu theme -->
       <template v-if="layout !== 'top'">
         <ElDivider>{{ t('setting.menuTheme') }}</ElDivider>
         <ColorRadioPicker
@@ -271,7 +271,7 @@ const clear = () => {
       </template>
     </div>
 
-    <!-- 界面显示 -->
+    <!-- Interface display -->
     <ElDivider>{{ t('setting.interfaceDisplay') }}</ElDivider>
     <InterfaceDisplay />
 

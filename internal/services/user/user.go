@@ -57,7 +57,7 @@ func (s *service) Login(ctx context.Context, username, password string) (string,
 		return "", ErrInvalidPassword
 	}
 
-	// 生成JWT token
+	// Generate JWT token
 	now := time.Now()
 	expire := now.Add(config.GlobalConfig.JWT.Expire)
 
@@ -79,12 +79,12 @@ func (s *service) Login(ctx context.Context, username, password string) (string,
 }
 
 func (s *service) Register(ctx context.Context, user *models.User) error {
-	// 验证用户数据
+	// Validate user data
 	if user.Username == "" || user.Password == "" || user.Email == "" {
 		return ErrInvalidUserData
 	}
 
-	// 检查用户名是否已存在
+	// Check whether the username already exists
 	existingUser, err := s.userRepo.FindByUsername(ctx, user.Username)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (s *service) Register(ctx context.Context, user *models.User) error {
 		return ErrUsernameExists
 	}
 
-	// 加密密码
+	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func (s *service) GetUserByID(ctx context.Context, id string) (*models.User, err
 }
 
 func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) error {
-	// 检查用户是否存在
+	// Check whether the user exists
 	existingUser, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) 
 		return ErrUserNotFound
 	}
 
-	// 如果更新了密码，需要重新加密
+	// If the password was updated, it needs to be re-hashed
 	if user.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -134,7 +134,7 @@ func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) 
 }
 
 func (s *service) DeleteUser(ctx context.Context, id string) error {
-	// 检查用户是否存在
+	// Check whether the user exists
 	existingUser, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func (s *service) DeleteUser(ctx context.Context, id string) error {
 	return s.userRepo.Delete(ctx, id)
 }
 
-// ChangePassword 仅更新密码字段，使用与登录一致的 SHA256 存储
+// ChangePassword updates only the password field, using the same SHA256 storage as login
 func (s *service) ChangePassword(ctx context.Context, id string, newPassword string) error {
 	if newPassword == "" {
 		return ErrInvalidUserData

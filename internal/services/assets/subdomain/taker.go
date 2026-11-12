@@ -25,7 +25,7 @@ func NewTakerService() TakerService {
 }
 
 func (s *takerService) GetSubdomainTakerData(ctx *gin.Context, query models.SearchRequest) (*models.SubdomainTakerResponse, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "SubdomainTakerResult"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -33,7 +33,7 @@ func (s *takerService) GetSubdomainTakerData(ctx *gin.Context, query models.Sear
 	}
 	filter := bson.M(searchQuery)
 
-	// 获取总数
+	// Get the total count
 	totalCount, err := s.repo.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
@@ -46,12 +46,12 @@ func (s *takerService) GetSubdomainTakerData(ctx *gin.Context, query models.Sear
 		}, nil
 	}
 
-	// 设置分页选项
+	// Set pagination options
 	opts := options.Find().
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
 		SetLimit(int64(query.PageSize))
 
-	// 查询数据
+	// Query data
 	results, err := s.repo.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)

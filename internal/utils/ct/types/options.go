@@ -4,7 +4,7 @@
 // @contact   : rainy-autumn@outlook.com
 // @time      : 2025/01/24 21:00
 // -------------------------------------------
-// CT日志监听SDK - 配置选项和参数定义
+// CT log monitoring SDK - configuration options and parameter definitions
 // ============================================
 
 package types
@@ -16,78 +16,78 @@ import (
 	"github.com/Autumn-27/ScopeSentry/internal/utils/ct/models"
 )
 
-// SDKOptions SDK配置选项
+// SDKOptions is the SDK configuration options
 type SDKOptions struct {
-	// CT日志服务器配置列表
+	// CT log server configuration list
 	LogServers []*LogServerConfig `json:"log_servers"`
 
-	// 初始关注的域名列表
+	// Initial list of watched domains
 	Domains []string `json:"domains"`
 
-	// 域名匹配器配置
+	// Domain matcher configuration
 	DomainMatcher *DomainMatcherConfig `json:"domain_matcher"`
 
-	// 性能配置
+	// Performance configuration
 	Performance *PerformanceConfig `json:"performance"`
 
-	// Redis配置（用于检查点存储）
+	// Redis configuration (used for checkpoint storage)
 	Redis *RedisConfig `json:"redis"`
 }
 
-// LogServerConfig CT日志服务器配置
+// LogServerConfig is the CT log server configuration
 type LogServerConfig struct {
-	// 基本配置
-	URL string `json:"url"` // CT日志URL (必需)
+	// Basic configuration
+	URL string `json:"url"` // CT log URL (required)
 
-	// Scanner配置
-	BatchSize     int `json:"batch_size"`     // 批量获取大小 (默认100)
-	ParallelFetch int `json:"parallel_fetch"` // 并行获取数 (默认1)
-	BufferSize    int `json:"buffer_size"`    // 缓冲区大小 (默认1000)
+	// Scanner configuration
+	BatchSize     int `json:"batch_size"`     // Batch fetch size (default 100)
+	ParallelFetch int `json:"parallel_fetch"` // Parallel fetch count (default 1)
+	BufferSize    int `json:"buffer_size"`    // Buffer size (default 1000)
 
-	// 网络配置
-	Timeout    time.Duration `json:"timeout"`     // 请求超时 (默认30s)
-	MaxRetries int           `json:"max_retries"` // 最大重试次数 (默认3)
+	// Network configuration
+	Timeout    time.Duration `json:"timeout"`     // Request timeout (default 30s)
+	MaxRetries int           `json:"max_retries"` // Maximum retry count (default 3)
 }
 
-// DomainMatcherConfig 域名匹配器配置
+// DomainMatcherConfig is the domain matcher configuration
 type DomainMatcherConfig struct {
-	// 过滤器配置
-	EnableBloomFilter bool `json:"enable_bloom_filter"` // 启用布隆过滤器 (默认true)
-	BloomFilterSize   uint `json:"bloom_filter_size"`   // 布隆过滤器大小 (默认1000000)
-	BloomFilterHash   uint `json:"bloom_filter_hash"`   // 哈希函数数量 (默认5)
+	// Filter configuration
+	EnableBloomFilter bool `json:"enable_bloom_filter"` // Enable the bloom filter (default true)
+	BloomFilterSize   uint `json:"bloom_filter_size"`   // Bloom filter size (default 1000000)
+	BloomFilterHash   uint `json:"bloom_filter_hash"`   // Number of hash functions (default 5)
 
-	// 缓存配置
-	EnableLRUCache bool `json:"enable_lru_cache"` // 启用LRU缓存 (默认true)
-	LRUCacheSize   int  `json:"lru_cache_size"`   // LRU缓存大小 (默认10000)
+	// Cache configuration
+	EnableLRUCache bool `json:"enable_lru_cache"` // Enable the LRU cache (default true)
+	LRUCacheSize   int  `json:"lru_cache_size"`   // LRU cache size (default 10000)
 
-	// 匹配配置
-	CaseSensitive   bool `json:"case_sensitive"`    // 大小写敏感 (默认false)
-	MaxDomainLength int  `json:"max_domain_length"` // 最大域名长度 (默认253)
+	// Matching configuration
+	CaseSensitive   bool `json:"case_sensitive"`    // Case sensitive (default false)
+	MaxDomainLength int  `json:"max_domain_length"` // Maximum domain length (default 253)
 }
 
-// PerformanceConfig 性能配置
+// PerformanceConfig is the performance configuration
 type PerformanceConfig struct {
-	// 协程池配置
-	MaxWorkers        int `json:"max_workers"`         // 最大工作协程数 (默认10)
-	ChannelBufferSize int `json:"channel_buffer_size"` // 通道缓冲区大小 (默认100)
+	// Goroutine pool configuration
+	MaxWorkers        int `json:"max_workers"`         // Maximum worker goroutines (default 10)
+	ChannelBufferSize int `json:"channel_buffer_size"` // Channel buffer size (default 100)
 
-	// 处理配置
-	ProcessingTimeout time.Duration `json:"processing_timeout"` // 单证书处理超时 (默认5s)
-	BatchProcessSize  int           `json:"batch_process_size"` // 批量处理大小 (默认50)
+	// Processing configuration
+	ProcessingTimeout time.Duration `json:"processing_timeout"` // Per-certificate processing timeout (default 5s)
+	BatchProcessSize  int           `json:"batch_process_size"` // Batch processing size (default 50)
 
-	// 资源限制
-	MaxMemoryUsage int64   `json:"max_memory_usage"` // 最大内存使用(MB) (默认512)
-	MaxCPUUsage    float64 `json:"max_cpu_usage"`    // 最大CPU使用率 (默认0.8)
+	// Resource limits
+	MaxMemoryUsage int64   `json:"max_memory_usage"` // Maximum memory usage (MB) (default 512)
+	MaxCPUUsage    float64 `json:"max_cpu_usage"`    // Maximum CPU usage (default 0.8)
 }
 
-// RedisConfig Redis配置
+// RedisConfig is the Redis configuration
 type RedisConfig struct {
 
-	// 键配置
-	KeyPrefix string `json:"key_prefix"` // 键前缀 (默认"ct_watcher:")
+	// Key configuration
+	KeyPrefix string `json:"key_prefix"` // Key prefix (default "ct_watcher:")
 }
 
-// DefaultSDKOptions 获取默认SDK配置
+// DefaultSDKOptions returns the default SDK configuration
 func DefaultSDKOptions() *SDKOptions {
 	return &SDKOptions{
 		LogServers: []*LogServerConfig{
@@ -124,10 +124,10 @@ func DefaultSDKOptions() *SDKOptions {
 	}
 }
 
-// Validate 验证配置
+// Validate validates the configuration
 func (opts *SDKOptions) Validate() error {
 	if len(opts.LogServers) == 0 {
-		return &ValidationError{Field: "LogServers", Message: "至少需要配置一个CT日志服务器"}
+		return &ValidationError{Field: "LogServers", Message: "at least one CT log server must be configured"}
 	}
 
 	for i, server := range opts.LogServers {
@@ -135,7 +135,7 @@ func (opts *SDKOptions) Validate() error {
 			return &ValidationError{
 				Field:   "LogServers",
 				Index:   i,
-				Message: "CT日志URL不能为空",
+				Message: "CT log URL must not be empty",
 			}
 		}
 
@@ -156,7 +156,7 @@ func (opts *SDKOptions) Validate() error {
 		}
 	}
 
-	// 验证域名匹配器配置
+	// Validate the domain matcher configuration
 	if opts.DomainMatcher == nil {
 		opts.DomainMatcher = &DomainMatcherConfig{
 			EnableBloomFilter: true,
@@ -169,7 +169,7 @@ func (opts *SDKOptions) Validate() error {
 		}
 	}
 
-	// 验证性能配置
+	// Validate the performance configuration
 	if opts.Performance == nil {
 		opts.Performance = &PerformanceConfig{
 			MaxWorkers:        10,
@@ -181,7 +181,7 @@ func (opts *SDKOptions) Validate() error {
 		}
 	}
 
-	// 验证Redis配置
+	// Validate the Redis configuration
 	if opts.Redis == nil {
 		opts.Redis = &RedisConfig{
 			KeyPrefix: "ct_watcher:",
@@ -191,41 +191,41 @@ func (opts *SDKOptions) Validate() error {
 	return nil
 }
 
-// ValidationError 配置验证错误
+// ValidationError is a configuration validation error
 type ValidationError struct {
 	Field   string
 	Index   int
 	Message string
 }
 
-// Status SDK状态
+// Status is the SDK status
 type Status struct {
-	// 运行状态
-	IsRunning bool          `json:"is_running"` // 是否正在运行
-	StartTime time.Time     `json:"start_time"` // 启动时间
-	Uptime    time.Duration `json:"uptime"`     // 运行时间
+	// Running status
+	IsRunning bool          `json:"is_running"` // Whether the SDK is running
+	StartTime time.Time     `json:"start_time"` // Start time
+	Uptime    time.Duration `json:"uptime"`     // Uptime
 
-	// 处理统计
-	ProcessedCertificates int64 `json:"processed_certificates"` // 已处理证书总数
-	DiscoveredSubdomains  int64 `json:"discovered_subdomains"`  // 发现的子域名总数
-	ActiveWatchers        int   `json:"active_watchers"`        // 活跃的监听器数
+	// Processing statistics
+	ProcessedCertificates int64 `json:"processed_certificates"` // Total processed certificates
+	DiscoveredSubdomains  int64 `json:"discovered_subdomains"`  // Total discovered subdomains
+	ActiveWatchers        int   `json:"active_watchers"`        // Number of active watchers
 
-	// 错误统计
-	TotalErrors  int64    `json:"total_errors"`  // 总错误数
-	RecentErrors []string `json:"recent_errors"` // 最近错误
+	// Error statistics
+	TotalErrors  int64    `json:"total_errors"`  // Total errors
+	RecentErrors []string `json:"recent_errors"` // Recent errors
 
-	// 资源使用
-	MemoryUsage    int64   `json:"memory_usage"`    // 内存使用量
-	CPUUsage       float64 `json:"cpu_usage"`       // CPU使用率
-	GoroutineCount int     `json:"goroutine_count"` // 协程数量
+	// Resource usage
+	MemoryUsage    int64   `json:"memory_usage"`    // Memory usage
+	CPUUsage       float64 `json:"cpu_usage"`       // CPU usage
+	GoroutineCount int     `json:"goroutine_count"` // Goroutine count
 
-	// 监听器状态
-	WatcherStatuses map[string]*models.LogStatus `json:"watcher_statuses"` // 各监听器状态
+	// Watcher status
+	WatcherStatuses map[string]*models.LogStatus `json:"watcher_statuses"` // Status of each watcher
 }
 
 func (e *ValidationError) Error() string {
 	if e.Index >= 0 {
-		return fmt.Sprintf("配置验证失败 [%s[%d]]: %s", e.Field, e.Index, e.Message)
+		return fmt.Sprintf("configuration validation failed [%s[%d]]: %s", e.Field, e.Index, e.Message)
 	}
-	return fmt.Sprintf("配置验证失败 [%s]: %s", e.Field, e.Message)
+	return fmt.Sprintf("configuration validation failed [%s]: %s", e.Field, e.Message)
 }

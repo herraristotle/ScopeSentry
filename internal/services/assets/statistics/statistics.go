@@ -37,51 +37,51 @@ func (s *service) GetStatisticsData(ctx *gin.Context) (*models.StatisticsData, e
 	var wg sync.WaitGroup
 	var err error
 
-	// 创建变量来存储每个查询的结果
+	// Create variables to store the result of each query
 	var assetCount, subdomainCount, sensitiveCount, urlCount, vulnerabilityCount int64
 
-	// 查询并发执行
-	wg.Add(5) // 添加五个任务到WaitGroup
+	// Execute queries concurrently
+	wg.Add(5) // Add five tasks to the WaitGroup
 
-	// 查询资产数量
+	// Query the asset count
 	go func() {
 		defer wg.Done()
 		assetCount, err = s.commonRepo.EstimatedDocumentCount(ctx, "asset")
 	}()
 
-	// 查询子域数量
+	// Query the subdomain count
 	go func() {
 		defer wg.Done()
 		subdomainCount, err = s.commonRepo.EstimatedDocumentCount(ctx, "subdomain")
 	}()
 
-	// 查询敏感信息数量
+	// Query the sensitive information count
 	go func() {
 		defer wg.Done()
 		sensitiveCount, err = s.commonRepo.EstimatedDocumentCount(ctx, "SensitiveResult")
 	}()
 
-	// 查询URL扫描数量
+	// Query the URL scan count
 	go func() {
 		defer wg.Done()
 		urlCount, err = s.commonRepo.EstimatedDocumentCount(ctx, "UrlScan")
 	}()
 
-	// 查询漏洞数量
+	// Query the vulnerability count
 	go func() {
 		defer wg.Done()
 		vulnerabilityCount, err = s.commonRepo.EstimatedDocumentCount(ctx, "vulnerability")
 	}()
 
-	// 等待所有 goroutine 完成
+	// Wait for all goroutines to finish
 	wg.Wait()
 
-	// 如果有错误，返回错误
+	// If there is an error, return it
 	if err != nil {
 		return nil, err
 	}
 
-	// 返回结果
+	// Return the results
 	return &models.StatisticsData{
 		AssetCount:         assetCount,
 		SubdomainCount:     subdomainCount,
@@ -124,14 +124,14 @@ func (s *service) GetPortStatistics(ctx *gin.Context, query *models.SearchReques
 		},
 	}
 
-	// 返回 *mongo.Cursor
+	// Return a *mongo.Cursor
 	cursor, err := s.repo.Aggregate(ctx, "asset", pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	// 直接将结果写入结构体切片
+	// Write the results directly into the struct slice
 	var items []models.PortItem
 	if err := cursor.All(ctx, &items); err != nil {
 		return nil, err
@@ -211,14 +211,14 @@ func (s *service) GetTypeStatistics(ctx *gin.Context, query *models.SearchReques
 		},
 	}
 
-	// 返回 *mongo.Cursor
+	// Return a *mongo.Cursor
 	cursor, err := s.repo.Aggregate(ctx, "asset", pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	// 直接将结果写入结构体切片
+	// Write the results directly into the struct slice
 	var items []models.TypeItem
 	if err := cursor.All(ctx, &items); err != nil {
 		return nil, err
@@ -258,14 +258,14 @@ func (s *service) GetIconStatistics(ctx *gin.Context, query *models.SearchReques
 		{"$limit": query.PageSize},
 	}
 
-	// 返回 *mongo.Cursor
+	// Return a *mongo.Cursor
 	cursor, err := s.repo.Aggregate(ctx, "asset", pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	// 直接将结果写入结构体切片
+	// Write the results directly into the struct slice
 	var items []models.IconItem
 	if err := cursor.All(ctx, &items); err != nil {
 		return nil, err
@@ -284,37 +284,37 @@ func (s *service) GetAppStatistics(ctx *gin.Context, query *models.SearchRequest
 	}
 	filter := bson.M(searchQuery)
 
-	// 定义管道（只处理 technologies）
+	// Define the pipeline (only processes technologies)
 	pipeline := []bson.M{
-		{"$match": filter}, // 基于过滤条件匹配数据
+		{"$match": filter}, // Match data based on the filter conditions
 		{"$project": bson.M{
-			"technologies": 1, // 只保留必要的字段
+			"technologies": 1, // Keep only the necessary fields
 		}},
-		{"$unwind": "$technologies"}, // 展开 technologies 数组
+		{"$unwind": "$technologies"}, // Unwind the technologies array
 		{"$group": bson.M{
-			"_id":    "$technologies",   // 按技术栈分组
-			"number": bson.M{"$sum": 1}, // 统计数量
+			"_id":    "$technologies",   // Group by technology stack
+			"number": bson.M{"$sum": 1}, // Count the total
 		}},
-		{"$sort": bson.M{"number": -1}}, // 按数量倒序排序
+		{"$sort": bson.M{"number": -1}}, // Sort by count in descending order
 		{
 			"$limit": 200,
 		},
 	}
 
-	// 执行聚合查询
+	// Execute the aggregation query
 	cursor, err := s.repo.Aggregate(ctx, "asset", pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	// 直接将结果写入结构体切片
+	// Write the results directly into the struct slice
 	var items []models.AppItem
 	if err := cursor.All(ctx, &items); err != nil {
 		return nil, err
 	}
 
-	// 返回统计结果
+	// Return the statistics
 	return &models.AppStatisticsResponse{
 		Product: items,
 	}, nil

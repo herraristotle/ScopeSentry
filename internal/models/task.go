@@ -10,10 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Task 任务模型
+// Task is the task model
 type Task struct {
 	ID             primitive.ObjectID       `bson:"_id,omitempty" json:"id"`
-	TaskID         string                   `bson:"id"` // 关联的任务ID
+	TaskID         string                   `bson:"id"` // Associated task ID
 	Name           string                   `bson:"name" json:"name"`
 	Node           []string                 `bson:"node" json:"node"`
 	AllNode        bool                     `bson:"allNode" json:"allNode"`
@@ -44,32 +44,32 @@ type Task struct {
 	IsStart        bool                     `bson:"isStart" json:"isStart"`
 	LastTime       string                   `bson:"lastTime"  json:"lastTime"`
 	NextTime       string                   `bson:"nextTime" json:"nextTime"`
-	Cycle          string                   `bson:"-" json:"cycle"` // 周期描述（计算字段）
+	Cycle          string                   `bson:"-" json:"cycle"` // Cycle description (computed field)
 }
 
-// TaskProgress 任务进度模型
+// TaskProgress is the task progress model
 type TaskProgress struct {
 	ID                  primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	TargetHandler       int                `bson:"targetHandler" json:"targetHandler"`             // 目标处理
-	SubdomainScan       int                `bson:"subdomainScan" json:"subdomainScan"`             // 子域名扫描
-	SubdomainSecurity   int                `bson:"subdomainSecurity" json:"subdomainSecurity"`     // 子域名安全
-	PortScanPreparation int                `bson:"portScanPreparation" json:"portScanPreparation"` // 端口扫描准备
-	PortScan            int                `bson:"portScan" json:"portScan"`                       // 端口扫描
-	PortFingerprint     int                `bson:"portFingerprint" json:"portFingerprint"`         // 端口指纹
-	AssetMapping        int                `bson:"assetMapping" json:"assetMapping"`               // 资产映射
-	AssetHandle         int                `bson:"assetHandle" json:"assetHandle"`                 // 资产处理
-	URLScan             int                `bson:"urlScan" json:"urlScan"`                         // URL扫描
-	WebCrawler          int                `bson:"webCrawler" json:"webCrawler"`                   // Web爬虫
-	URLSecurity         int                `bson:"urlSecurity" json:"urlSecurity"`                 // URL安全
-	DirScan             int                `bson:"dirScan" json:"dirScan"`                         // 目录扫描
-	VulnerabilityScan   int                `bson:"vulnerabilityScan" json:"vulnerabilityScan"`     // 漏洞扫描
-	All                 int                `bson:"all" json:"all"`                                 // 总进度
-	Target              string             `bson:"target" json:"target"`                           // 目标
-	Node                string             `bson:"node" json:"node"`                               // 节点
-	Children            []TaskProgress     `bson:"children" json:"children"`                       // 子任务进度
+	TargetHandler       int                `bson:"targetHandler" json:"targetHandler"`             // Target processing
+	SubdomainScan       int                `bson:"subdomainScan" json:"subdomainScan"`             // Subdomain scanning
+	SubdomainSecurity   int                `bson:"subdomainSecurity" json:"subdomainSecurity"`     // Subdomain security
+	PortScanPreparation int                `bson:"portScanPreparation" json:"portScanPreparation"` // Port scan preparation
+	PortScan            int                `bson:"portScan" json:"portScan"`                       // Port scanning
+	PortFingerprint     int                `bson:"portFingerprint" json:"portFingerprint"`         // Port fingerprinting
+	AssetMapping        int                `bson:"assetMapping" json:"assetMapping"`               // Asset mapping
+	AssetHandle         int                `bson:"assetHandle" json:"assetHandle"`                 // Asset handling
+	URLScan             int                `bson:"urlScan" json:"urlScan"`                         // URL scanning
+	WebCrawler          int                `bson:"webCrawler" json:"webCrawler"`                   // Web crawler
+	URLSecurity         int                `bson:"urlSecurity" json:"urlSecurity"`                 // URL security
+	DirScan             int                `bson:"dirScan" json:"dirScan"`                         // Directory scanning
+	VulnerabilityScan   int                `bson:"vulnerabilityScan" json:"vulnerabilityScan"`     // Vulnerability scanning
+	All                 int                `bson:"all" json:"all"`                                 // Total progress
+	Target              string             `bson:"target" json:"target"`                           // Target
+	Node                string             `bson:"node" json:"node"`                               // Node
+	Children            []TaskProgress     `bson:"children" json:"children"`                       // Subtask progress
 }
 
-// TaskProgressDetail 任务进度详情（用于API响应）
+// TaskProgressDetail is the task progress detail (used for API responses)
 type TaskProgressDetail struct {
 	ID                  primitive.ObjectID   `bson:"_id,omitempty" json:"_id"`
 	TargetHandler       []string             `json:"TargetHandler"`       // [start, end]
@@ -91,61 +91,61 @@ type TaskProgressDetail struct {
 	Children            []TaskProgressDetail `json:"children,omitempty"`
 }
 
-// ListRequest 任务列表分页查询请求
+// ListRequest is the task list paginated query request
 type ListRequest struct {
-	Search    string `json:"search" binding:"omitempty" example:"测试"`
+	Search    string `json:"search" binding:"omitempty" example:"test"`
 	PageIndex int    `json:"pageIndex" binding:"required,min=1" example:"1"`
 	PageSize  int    `json:"pageSize" binding:"required,min=1" example:"10"`
 }
 
-// ScheduledTask 计划任务模型
+// ScheduledTask is the scheduled task model
 type ScheduledTask struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
-	TaskID         string             `bson:"id" json:"id"`                         // 关联的任务ID
-	Name           string             `bson:"name" json:"name"`                     // 任务名称
-	Type           string             `bson:"type" json:"type"`                     // 任务类型
-	LastTime       string             `bson:"lastTime" json:"lastTime"`             // 上次执行时间
-	NextTime       string             `bson:"nextTime" json:"nextTime"`             // 下次执行时间
-	State          bool               `bson:"scheduledTasks" json:"state"`          // 是否启用
-	Node           []string           `bson:"node" json:"node"`                     // 节点列表
-	Cycle          string             `bson:"-" json:"cycle"`                       // 周期描述（计算字段）
-	AllNode        bool               `bson:"allNode" json:"allNode"`               // 是否所有节点
-	RunnerID       string             `bson:"runner_id" json:"runner_id"`           // 运行器ID
-	Project        []string           `bson:"project" json:"project"`               // 项目列表
-	TargetSource   string             `bson:"targetSource" json:"targetSource"`     // 目标来源
-	Day            int                `bson:"day" json:"day"`                       // 天数
-	Minute         int                `bson:"minute" json:"minute"`                 // 分钟
-	Hour           int                `bson:"hour" json:"hour"`                     // 小时
-	Search         string             `bson:"search" json:"search"`                 // 搜索条件
-	CycleType      string             `bson:"cycleType" json:"cycleType"`           // 周期类型
-	ScheduledTasks bool               `bson:"scheduledTasks" json:"scheduledTasks"` // 是否计划任务
-	Target         string             `bson:"target" json:"target"`                 // 目标
-	Ignore         string             `bson:"ignore" json:"ignore"`                 // 忽略规则
-	Template       string             `bson:"template" json:"template"`             // 模板
-	Duplicates     string             `bson:"duplicates" json:"duplicates"`         // 去重规则
-	Week           int                `bson:"week" json:"week"`                     // 星期
+	TaskID         string             `bson:"id" json:"id"`                         // Associated task ID
+	Name           string             `bson:"name" json:"name"`                     // Task name
+	Type           string             `bson:"type" json:"type"`                     // Task type
+	LastTime       string             `bson:"lastTime" json:"lastTime"`             // Last execution time
+	NextTime       string             `bson:"nextTime" json:"nextTime"`             // Next execution time
+	State          bool               `bson:"scheduledTasks" json:"state"`          // Whether enabled
+	Node           []string           `bson:"node" json:"node"`                     // Node list
+	Cycle          string             `bson:"-" json:"cycle"`                       // Cycle description (computed field)
+	AllNode        bool               `bson:"allNode" json:"allNode"`               // Whether all nodes
+	RunnerID       string             `bson:"runner_id" json:"runner_id"`           // Runner ID
+	Project        []string           `bson:"project" json:"project"`               // Project list
+	TargetSource   string             `bson:"targetSource" json:"targetSource"`     // Target source
+	Day            int                `bson:"day" json:"day"`                       // Days
+	Minute         int                `bson:"minute" json:"minute"`                 // Minutes
+	Hour           int                `bson:"hour" json:"hour"`                     // Hours
+	Search         string             `bson:"search" json:"search"`                 // Search condition
+	CycleType      string             `bson:"cycleType" json:"cycleType"`           // Cycle type
+	ScheduledTasks bool               `bson:"scheduledTasks" json:"scheduledTasks"` // Whether it is a scheduled task
+	Target         string             `bson:"target" json:"target"`                 // Target
+	Ignore         string             `bson:"ignore" json:"ignore"`                 // Ignore rules
+	Template       string             `bson:"template" json:"template"`             // Template
+	Duplicates     string             `bson:"duplicates" json:"duplicates"`         // Deduplication rule
+	Week           int                `bson:"week" json:"week"`                     // Weekday
 }
 
-// ScheduledTaskListRequest 计划任务列表请求
+// ScheduledTaskListRequest is the scheduled task list request
 type ScheduledTaskListRequest struct {
-	Search    string `json:"search" binding:"omitempty" example:"测试"`
+	Search    string `json:"search" binding:"omitempty" example:"test"`
 	PageIndex int    `json:"pageIndex" binding:"omitempty,min=1" example:"1"`
 	PageSize  int    `json:"pageSize" binding:"omitempty,min=1" example:"10"`
 }
 
-// ScheduledTaskDetailRequest 计划任务详情请求
+// ScheduledTaskDetailRequest is the scheduled task detail request
 type ScheduledTaskDetailRequest struct {
 	ID string `json:"id" binding:"required" example:"507f1f77bcf86cd799439011"`
 }
 
-// ScheduledTaskDeleteRequest 计划任务删除请求
+// ScheduledTaskDeleteRequest is the scheduled task delete request
 type ScheduledTaskDeleteRequest struct {
 	IDs []string `json:"ids" binding:"required" example:"[\"507f1f77bcf86cd799439011\"]"`
 }
 
-// ScheduledTaskAddRequest 计划任务添加请求
+// ScheduledTaskAddRequest is the scheduled task add request
 type ScheduledTaskAddRequest struct {
-	Name           string   `json:"name" binding:"required" example:"定时扫描任务"`
+	Name           string   `json:"name" binding:"required" example:"scheduled scan task"`
 	Type           string   `json:"type" binding:"omitempty" example:"scan"`
 	Node           []string `json:"node" binding:"required" example:"[\"node1\", \"node2\"]"`
 	AllNode        bool     `json:"allNode" binding:"omitempty" example:"true"`
@@ -164,10 +164,10 @@ type ScheduledTaskAddRequest struct {
 	Week           int      `json:"week" binding:"omitempty" example:"1"`
 }
 
-// ScheduledTaskUpdateRequest 计划任务更新请求
+// ScheduledTaskUpdateRequest is the scheduled task update request
 type ScheduledTaskUpdateRequest struct {
 	ID             string   `json:"id" binding:"required" example:"507f1f77bcf86cd799439011"`
-	Name           string   `json:"name" binding:"omitempty" example:"定时扫描任务"`
+	Name           string   `json:"name" binding:"omitempty" example:"scheduled scan task"`
 	Type           string   `json:"type" binding:"omitempty" example:"scan"`
 	Node           []string `json:"node" binding:"omitempty" example:"[\"node1\", \"node2\"]"`
 	AllNode        bool     `json:"allNode" binding:"omitempty" example:"true"`
@@ -186,7 +186,7 @@ type ScheduledTaskUpdateRequest struct {
 	Week           int      `json:"week" binding:"omitempty" example:"1"`
 }
 
-// PageMonitoringTask 页面监控任务模型
+// PageMonitoringTask is the page monitoring task model
 type PageMonitoringTask struct {
 	ID      primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	URL     string             `bson:"url" json:"url"`
@@ -197,24 +197,24 @@ type PageMonitoringTask struct {
 	Time    string             `bson:"time" json:"time"`
 }
 
-// PageMonitoringListRequest 页面监控列表请求
+// PageMonitoringListRequest is the page monitoring list request
 type PageMonitoringListRequest struct {
 	Search    string `json:"search" binding:"omitempty" example:"example.com"`
 	PageIndex int    `json:"pageIndex" binding:"omitempty,min=1" example:"1"`
 	PageSize  int    `json:"pageSize" binding:"omitempty,min=1" example:"10"`
 }
 
-// PageMonitoringAddRequest 页面监控添加请求
+// PageMonitoringAddRequest is the page monitoring add request
 type PageMonitoringAddRequest struct {
 	URL string `json:"url" binding:"required" example:"https://example.com"`
 }
 
-// PageMonitoringDeleteRequest 页面监控删除请求
+// PageMonitoringDeleteRequest is the page monitoring delete request
 type PageMonitoringDeleteRequest struct {
 	IDs []string `json:"ids" binding:"required" example:"[\"507f1f77bcf86cd799439011\"]"`
 }
 
-// PageMonitoringUpdateRequest 页面监控更新请求
+// PageMonitoringUpdateRequest is the page monitoring update request
 type PageMonitoringUpdateRequest struct {
 	Hour    int      `json:"hour" binding:"omitempty" example:"24"`
 	Node    []string `json:"node" binding:"omitempty" example:"[\"node1\"]"`

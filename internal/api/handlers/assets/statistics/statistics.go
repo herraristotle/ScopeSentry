@@ -16,9 +16,9 @@ func init() {
 }
 
 // GetAssetStatisticsData godoc
-// @Summary 获取资产统计数据
-// @Description 获取各类资产的统计数量
-// @Tags 资产统计
+// @Summary Get asset statistics
+// @Description Get the counts of each type of asset
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -34,13 +34,13 @@ func GetAssetStatisticsData(c *gin.Context) {
 }
 
 // GetAssetPortStatistics godoc
-// @Summary 获取端口统计
-// @Description 获取资产端口分布统计
-// @Tags 资产统计
+// @Summary Get port statistics
+// @Description Get the port distribution statistics of assets
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body statistics.PortStatisticsRequest true "查询参数"
+// @Param request body statistics.PortStatisticsRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=statistics.PortStatisticsResponse}
 // @Router /api/assets/statistics/port [post]
 func GetAssetPortStatistics(c *gin.Context) {
@@ -60,13 +60,13 @@ func GetAssetPortStatistics(c *gin.Context) {
 }
 
 // GetAssetTitleStatistics godoc
-// @Summary 获取标题统计
-// @Description 获取资产标题分布统计
-// @Tags 资产统计
+// @Summary Get title statistics
+// @Description Get the title distribution statistics of assets
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body statistics.TitleStatisticsRequest true "查询参数"
+// @Param request body statistics.TitleStatisticsRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=statistics.TitleStatisticsResponse}
 // @Router /api/v1/assets/statistics/title [post]
 func GetAssetTitleStatistics(c *gin.Context) {
@@ -85,13 +85,13 @@ func GetAssetTitleStatistics(c *gin.Context) {
 }
 
 // GetAssetServiceStatistics godoc
-// @Summary 获取服务类型统计
-// @Description 获取资产服务类型分布统计
-// @Tags 资产统计
+// @Summary Get service type statistics
+// @Description Get the service type distribution statistics of assets
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body statistics.TypeStatisticsRequest true "查询参数"
+// @Param request body statistics.TypeStatisticsRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=statistics.TypeStatisticsResponse}
 // @Router /api/assets/statistics/service [post]
 func GetAssetServiceStatistics(c *gin.Context) {
@@ -110,13 +110,13 @@ func GetAssetServiceStatistics(c *gin.Context) {
 }
 
 // GetAssetIconStatistics godoc
-// @Summary 获取图标统计
-// @Description 获取资产图标分布统计
-// @Tags 资产统计
+// @Summary Get icon statistics
+// @Description Get the icon distribution statistics of assets
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body statistics.IconStatisticsRequest true "查询参数"
+// @Param request body statistics.IconStatisticsRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=statistics.IconStatisticsResponse}
 // @Router /api/assets/statistics/icon [post]
 func GetAssetIconStatistics(c *gin.Context) {
@@ -136,13 +136,13 @@ func GetAssetIconStatistics(c *gin.Context) {
 }
 
 // GetAssetAppStatistics godoc
-// @Summary 获取应用统计
-// @Description 获取资产应用分布统计
-// @Tags 资产统计
+// @Summary Get application statistics
+// @Description Get the application distribution statistics of assets
+// @Tags Asset Statistics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body statistics.AppStatisticsRequest true "查询参数"
+// @Param request body statistics.AppStatisticsRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=statistics.AppStatisticsResponse}
 // @Router /api/assets/statistics/app [post]
 func GetAssetAppStatistics(c *gin.Context) {

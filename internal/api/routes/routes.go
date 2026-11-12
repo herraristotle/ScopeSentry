@@ -22,62 +22,62 @@ import (
 	apikeyRoutes "github.com/Autumn-27/ScopeSentry/internal/api/routes/apikey"
 )
 
-// loggerWithSkipPaths 自定义日志中间件，支持跳过指定前缀的路径
+// loggerWithSkipPaths is a custom logging middleware that skips paths with the given prefixes
 func loggerWithSkipPaths(skipPrefixes []string) gin.HandlerFunc {
-	// 创建默认的日志中间件
+	// Create the default logging middleware
 	defaultLogger := gin.Logger()
 
 	return func(c *gin.Context) {
-		// 检查路径是否需要跳过
+		// Check whether the path should be skipped
 		path := c.Request.URL.Path
 		for _, prefix := range skipPrefixes {
 			if strings.HasPrefix(path, prefix) {
-				// 如果路径需要跳过，直接执行下一个中间件，不记录日志
+				// If the path should be skipped, run the next middleware without logging
 				c.Next()
 				return
 			}
 		}
 
-		// 如果路径不需要跳过，执行默认的日志中间件
+		// Otherwise run the default logging middleware
 		defaultLogger(c)
 	}
 }
 
-// SetupRouter 设置路由
+// SetupRouter sets up the router
 func SetupRouter() *gin.Engine {
 	router := gin.New()
 
-	// 配置日志中间件，跳过 /assets 和 /uploads 路径的日志
+	// Configure the logging middleware to skip logs for /assets and /uploads paths
 	router.Use(loggerWithSkipPaths([]string{"/assets", "/uploads", "/images"}))
 
-	// 添加恢复中间件
+	// Add the recovery middleware
 	router.Use(gin.Recovery())
 
-	// 添加全局中间件
+	// Add global middleware
 	router.Use(middleware.I18nMiddleware())
 
-	// 注册API路由
+	// Register API routes
 	api := router.Group("/api")
 	{
-		// 注册用户路由
+		// Register user routes
 		user.RegisterUserRoutes(api)
 
-		// 注册system路由
+		// Register system routes
 		system.RegisterSystemRoutes(api)
 
-		// 注册configuration路由
+		// Register configuration routes
 		confRoutes.RegisterConfigurationRoutes(api)
 
-		// 注册asset路由
+		// Register asset routes
 		assets.RegisterAssetsRoutes(api)
 
-		// 注册fingerprint路由
+		// Register fingerprint routes
 		fingerprint.RegisterFingerprintRoutes(api)
 
-		// 注册SensitiveRule路由
+		// Register SensitiveRule routes
 		sroutes.RegisterSensitiveRuleRoutes(api)
 
-		// 注册节点路由
+		// Register node routes
 		node.RegisterNodeRoutes(api)
 
 		task.RegisterTaskRoutes(api)
@@ -90,14 +90,14 @@ func SetupRouter() *gin.Engine {
 
 		plugin.RegisterPluginRoutes(api)
 
-		// 注册字典路由
+		// Register dictionary routes
 		dictRoutes.RegisterDictionaryRoutes(api)
 
-		// 注册 API Key 管理路由
+		// Register API Key management routes
 		apikeyRoutes.RegisterApiKeyRoutes(api)
 	}
 
 	return router
 }
 
-// 中间件组合函数
+// Middleware composition helpers

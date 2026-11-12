@@ -26,9 +26,9 @@ func RegisterPlugin(source, hash string) {
 		return
 	}
 	cycle := loadPlugin.Cycle()
-	// 计划任务不为空
+	// Scheduled task is not empty
 	if cycle != "" {
-		// 如果是1 表示运行1次
+		// If it is "1", run only once
 		if cycle == "1" {
 			return
 		}

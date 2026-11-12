@@ -103,7 +103,7 @@ func (r *repository) GetTargets(ctx context.Context, ids []string) (string, erro
 		return "", fmt.Errorf("failed to decode targets: %w", err)
 	}
 
-	// 将所有target拼接成一个字符串
+	// Concatenate all targets into a single string
 	var builder strings.Builder
 	for i, result := range results {
 		builder.WriteString(strings.TrimRightFunc(result.Target, unicode.IsSpace))
@@ -312,9 +312,9 @@ func (r *repository) DeleteProjectAsset(ctx context.Context, ids []string) error
 	return nil
 }
 
-// UpdateAssetsProject 更新资产项目关联
+// UpdateAssetsProject updates the asset-project association
 func (r *repository) UpdateAssetsProject(ctx context.Context, rootDomains []string, projectID string, change bool) error {
-	// 资产集合列表
+	// List of asset collections
 
 	for _, collectionName := range constants.AssetDBNames {
 		if change {
@@ -333,7 +333,7 @@ func (r *repository) UpdateAssetsProject(ctx context.Context, rootDomains []stri
 	return nil
 }
 
-// assetAddProject 添加资产到项目
+// assetAddProject adds assets to a project
 func (r *repository) assetAddProject(ctx context.Context, rootDomains []string, collectionName, projectID string) error {
 	collection := mongodb.DB.Collection(collectionName)
 
@@ -363,7 +363,7 @@ func (r *repository) assetAddProject(ctx context.Context, rootDomains []string, 
 	return nil
 }
 
-// assetUpdateProject 更新资产项目关联
+// assetUpdateProject updates the asset-project association
 func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []string, collectionName, projectID string) error {
 	collection := mongodb.DB.Collection(collectionName)
 
@@ -385,7 +385,7 @@ func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []strin
 		}
 	}
 
-	// 先清空不符合条件的项目关联
+	// First clear project associations that no longer match
 	updateQuery := bson.M{"$set": bson.M{"project": ""}}
 	result, err := collection.UpdateMany(ctx, query, updateQuery)
 	if err != nil {
@@ -396,11 +396,11 @@ func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []strin
 		zap.String("collection", collectionName),
 		zap.Int64("modified_count", result.ModifiedCount))
 
-	// 然后添加符合条件的项目关联
+	// Then add associations that match the criteria
 	return r.assetAddProject(ctx, rootDomains, collectionName, projectID)
 }
 
-// CountProjectAssets 统计所有资产集合中 project 字段命中该项目的文档总数。
+// CountProjectAssets counts, across all asset collections, the documents whose project field matches the given project.
 func (r *repository) CountProjectAssets(ctx context.Context, projectID string) (int64, error) {
 	var total int64
 	for _, collectionName := range constants.AssetDBNames {
@@ -413,7 +413,7 @@ func (r *repository) CountProjectAssets(ctx context.Context, projectID string) (
 	return total, nil
 }
 
-// SetAssetCount 把统计结果写回项目文档的 AssetCount 字段。
+// SetAssetCount writes the count back to the project document's AssetCount field.
 func (r *repository) SetAssetCount(ctx context.Context, projectID string, count int64) error {
 	id, err := primitive.ObjectIDFromHex(projectID)
 	if err != nil {
@@ -425,7 +425,7 @@ func (r *repository) SetAssetCount(ctx context.Context, projectID string, count 
 	return nil
 }
 
-// buildRootDomainQuery 构建RootDomain查询条件
+// buildRootDomainQuery builds the query conditions for RootDomain
 func (r *repository) buildRootDomainQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {
@@ -458,7 +458,7 @@ func (r *repository) buildRootDomainQuery(rootDomains []string, isUpdate bool) b
 	}
 }
 
-// buildAppQuery 构建app查询条件
+// buildAppQuery builds the query conditions for app
 func (r *repository) buildAppQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {
@@ -491,7 +491,7 @@ func (r *repository) buildAppQuery(rootDomains []string, isUpdate bool) bson.M {
 	}
 }
 
-// buildMpQuery 构建mp查询条件
+// buildMpQuery builds the query conditions for mp
 func (r *repository) buildMpQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {

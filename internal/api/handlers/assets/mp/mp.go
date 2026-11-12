@@ -16,15 +16,15 @@ func init() {
 }
 
 // GetMPData godoc
-// @Summary 获取小程序数据
-// @Description 获取小程序数据列表
-// @Tags 小程序管理
+// @Summary Get mini-program data
+// @Description Get the mini-program data list
+// @Tags Mini-Program Management
 // @Accept json
 // @Produce json
-// @Param request body models.SearchRequest true "请求参数"
-// @Success 200 {object} response.Response{data=models.MPResponse} "成功"
-// @Failure 400 {object} response.Response "请求错误"
-// @Failure 500 {object} response.Response "服务器错误"
+// @Param request body models.SearchRequest true "Request parameters"
+// @Success 200 {object} response.Response{data=models.MPResponse} "Success"
+// @Failure 400 {object} response.Response "Bad request"
+// @Failure 500 {object} response.Response "Server error"
 // @Router /api/assets/mp [post]
 func GetMPData(c *gin.Context) {
 	var req models.SearchRequest

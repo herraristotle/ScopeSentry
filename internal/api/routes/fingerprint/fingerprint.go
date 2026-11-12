@@ -15,7 +15,7 @@ import (
 )
 
 func RegisterFingerprintRoutes(api *gin.RouterGroup) {
-	// 定义指纹路由组
+	// Define the fingerprint route group
 	fingerprintRoutes := models.RouteGroup{
 		Path: "/fingerprint",
 		Routes: []models.Route{
@@ -58,6 +58,6 @@ func RegisterFingerprintRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册指纹路由组
+	// Register the fingerprint route group
 	common.RegisterRouteGroup(api, fingerprintRoutes)
 }

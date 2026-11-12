@@ -42,7 +42,7 @@ const (
 	collNotification = "notification"
 )
 
-// GetSubfinderContent 读取 SubfinderApiConfig
+// GetSubfinderContent reads SubfinderApiConfig
 func (s *Service) GetSubfinderContent(ctx *gin.Context) (string, error) {
 	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "SubfinderApiConfig"}, bson.M{"_id": 0})
 	if err != nil {
@@ -54,17 +54,17 @@ func (s *Service) GetSubfinderContent(ctx *gin.Context) (string, error) {
 	return "", nil
 }
 
-// SaveSubfinderContent 保存 SubfinderApiConfig 并通知节点刷新
+// SaveSubfinderContent saves SubfinderApiConfig and notifies nodes to refresh
 func (s *Service) SaveSubfinderContent(ctx *gin.Context, content string) error {
 	if err := s.repo.Upsert(ctx.Request.Context(), collConfig, bson.M{"name": "SubfinderApiConfig"}, bson.M{"name": "SubfinderApiConfig", "value": content}); err != nil {
 		return err
 	}
-	// 通知所有节点刷新 subfinder 配置
+	// Notify all nodes to refresh the subfinder config
 	_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "subfinder"})
 	return nil
 }
 
-// GetRadContent 读取 RadConfig
+// GetRadContent reads RadConfig
 func (s *Service) GetRadContent(ctx *gin.Context) (string, error) {
 	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "RadConfig"}, bson.M{"_id": 0})
 	if err != nil {
@@ -76,7 +76,7 @@ func (s *Service) GetRadContent(ctx *gin.Context) (string, error) {
 	return "", nil
 }
 
-// SaveRadContent 保存 RadConfig 并通知节点刷新
+// SaveRadContent saves RadConfig and notifies nodes to refresh
 func (s *Service) SaveRadContent(ctx *gin.Context, content string) error {
 	if err := s.repo.Upsert(ctx.Request.Context(), collConfig, bson.M{"name": "RadConfig"}, bson.M{"name": "RadConfig", "value": content}); err != nil {
 		return err
@@ -85,7 +85,7 @@ func (s *Service) SaveRadContent(ctx *gin.Context, content string) error {
 	return nil
 }
 
-// GetSystemData 返回 type=system 的所有键值
+// GetSystemData returns all key-value pairs with type=system
 func (s *Service) GetSystemData(ctx *gin.Context) (map[string]interface{}, error) {
 	list, err := s.repo.FindMany(ctx.Request.Context(), collConfig, bson.M{"type": "system"}, nil)
 	if err != nil {
@@ -102,7 +102,7 @@ func (s *Service) GetSystemData(ctx *gin.Context) (map[string]interface{}, error
 	return out, nil
 }
 
-// SaveSystemData 保存 system 配置，并通知节点
+// SaveSystemData saves the system config and notifies nodes
 func (s *Service) SaveSystemData(ctx *gin.Context, kv map[string]interface{}) error {
 	for k, v := range kv {
 		doc := bson.M{"type": "system", "name": k, "value": v}
@@ -111,23 +111,23 @@ func (s *Service) SaveSystemData(ctx *gin.Context, kv map[string]interface{}) er
 		}
 	}
 	timezone, _ := kv["timezone"].(string)
-	modulesConfig := fmt.Sprintf("%v", kv["ModulesConfig"]) // 兼容字符串或其他类型
+	modulesConfig := fmt.Sprintf("%v", kv["ModulesConfig"]) // Compatible with string or other types
 	msg := timezone + "[*]" + modulesConfig
 	_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "system", Content: msg})
 	return nil
 }
 
-// GetDeduplicationConfig 查询去重配置与下一次运行时间（若有）
+// GetDeduplicationConfig queries the deduplication config and the next run time (if any)
 func (s *Service) GetDeduplicationConfig(ctx *gin.Context) (map[string]interface{}, error) {
 	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "deduplication"}, bson.M{"_id": 0})
 	if err != nil {
-		// 若不存在，返回空 map
+		// If it does not exist, return an empty map
 		return map[string]interface{}{}, nil
 	}
 	return doc, nil
 }
 
-// SaveDeduplicationConfig 保存去重配置；如需要立即运行，透传到节点或调度器（此处仅保存与刷新）
+// SaveDeduplicationConfig saves the deduplication config; if an immediate run is needed it is passed through to the node or scheduler (here it only saves and refreshes)
 func (s *Service) SaveDeduplicationConfig(ctx *gin.Context, cfg models.DepConfig) error {
 	cfg.Name = "deduplication"
 	runNow := cfg.RunNow
@@ -135,7 +135,7 @@ func (s *Service) SaveDeduplicationConfig(ctx *gin.Context, cfg models.DepConfig
 	if err := s.repo.Upsert(ctx.Request.Context(), collConfig, bson.M{"name": "deduplication"}, cfg); err != nil {
 		return err
 	}
-	// 这里按需可扩展调用内部调度器或消息下发；当前版本仅保存
+	// This can be extended as needed to call an internal scheduler or dispatch messages; the current version only saves
 	if runNow {
 		go func() {
 			err := s.dedupService.DoAssetDeduplication()
@@ -148,7 +148,7 @@ func (s *Service) SaveDeduplicationConfig(ctx *gin.Context, cfg models.DepConfig
 	return nil
 }
 
-// GetNotificationList 获取通知列表
+// GetNotificationList gets the notification list
 func (s *Service) GetNotificationList(ctx *gin.Context) ([]models.Notification, error) {
 	var notifications []models.Notification
 	err := s.repo.Find(ctx.Request.Context(), collNotification, bson.M{}, nil, &notifications)
@@ -158,7 +158,7 @@ func (s *Service) GetNotificationList(ctx *gin.Context) ([]models.Notification, 
 	return notifications, nil
 }
 
-// AddNotification 新增通知并刷新节点
+// AddNotification adds a notification and refreshes nodes
 func (s *Service) AddNotification(ctx *gin.Context, data models.Notification) error {
 	_, err := s.repo.InsertOne(ctx.Request.Context(), collNotification, data)
 	if err != nil {
@@ -168,7 +168,7 @@ func (s *Service) AddNotification(ctx *gin.Context, data models.Notification) er
 	return nil
 }
 
-// UpdateNotification 更新通知并刷新节点
+// UpdateNotification updates a notification and refreshes nodes
 func (s *Service) UpdateNotification(ctx *gin.Context, data models.UpdateNotification) error {
 	if data.ID == "" {
 		return fmt.Errorf("missing id")
@@ -187,12 +187,12 @@ func (s *Service) UpdateNotification(ctx *gin.Context, data models.UpdateNotific
 	return nil
 }
 
-// DeleteNotifications 批量删除通知并刷新节点
+// DeleteNotifications batch-deletes notifications and refreshes nodes
 func (s *Service) DeleteNotifications(ctx *gin.Context, ids []string) error {
 	if len(ids) == 0 {
 		return nil
 	}
-	// 将 string 转换为 ObjectID
+	// Convert the string to ObjectID
 	objectIDs := make([]primitive.ObjectID, 0, len(ids))
 	for _, id := range ids {
 		objID, err := primitive.ObjectIDFromHex(id)
@@ -209,7 +209,7 @@ func (s *Service) DeleteNotifications(ctx *gin.Context, ids []string) error {
 	return nil
 }
 
-// GetNotificationConfig 读取通知配置
+// GetNotificationConfig reads the notification config
 func (s *Service) GetNotificationConfig(ctx *gin.Context) (map[string]interface{}, error) {
 	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "notification"}, bson.M{})
 	if err != nil {
@@ -221,7 +221,7 @@ func (s *Service) GetNotificationConfig(ctx *gin.Context) (map[string]interface{
 	return doc, nil
 }
 
-// UpdateNotificationConfig 更新通知配置并刷新节点
+// UpdateNotificationConfig updates the notification config and refreshes nodes
 func (s *Service) UpdateNotificationConfig(ctx *gin.Context, data map[string]interface{}) error {
 	if data == nil {
 		return nil

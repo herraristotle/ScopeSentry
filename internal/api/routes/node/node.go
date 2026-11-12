@@ -14,11 +14,11 @@ import (
 )
 
 func RegisterNodeRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+	// Define the route group
 	nodeRoutes := models.RouteGroup{
 		Path: "/node",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+			// Routes requiring authentication and user:read permission
 			{
 				Method:      "GET",
 				Path:        "",
@@ -64,6 +64,6 @@ func RegisterNodeRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
+	// Register the route group
 	common.RegisterRouteGroup(api, nodeRoutes)
 }

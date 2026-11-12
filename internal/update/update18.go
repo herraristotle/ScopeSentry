@@ -34,7 +34,7 @@ func Update18() {
 	//batchSize := int64(1000)
 	//var lastID primitive.ObjectID
 	//ctx := context.Background()
-	//// 将非http资产的metadata 字段转换为banner
+	//// Convert the metadata field of non-http assets to banner
 	//for {
 	//	filter := bson.M{"type": "other"}
 	//	if !lastID.IsZero() {
@@ -61,16 +61,16 @@ func Update18() {
 	//		id := doc["_id"].(primitive.ObjectID)
 	//		lastID = id
 	//
-	//		// 取出 metadata 字段（Binary 类型）
+	//		// Extract the metadata field (Binary type)
 	//		metadataRaw, ok := doc["metadata"].(primitive.Binary)
 	//		if !ok {
 	//			continue
 	//		}
 	//
-	//		// 转换为 ASCII
+	//		// Convert to ASCII
 	//		asciiStr := strconv.QuoteToASCII(string(metadataRaw.Data))
 	//
-	//		// 构造批量更新的操作
+	//		// Construct the bulk update operations
 	//		update := mongo.NewUpdateOneModel().
 	//			SetFilter(bson.M{"_id": id}).
 	//			SetUpdate(bson.M{
@@ -84,7 +84,7 @@ func Update18() {
 	//	cursor.Close(ctx)
 	//
 	//	if len(bulkModels) > 0 {
-	//		// 执行批量更新
+	//		// Execute the bulk update
 	//		bulkWriteResult, err := collection.BulkWrite(ctx, bulkModels)
 	//		if err != nil {
 	//			logger.Error(fmt.Sprintf("BulkWrite error: %v", err))
@@ -93,15 +93,15 @@ func Update18() {
 	//	}
 	//
 	//	if count == 0 {
-	//		break // 没有更多数据，退出
+	//		break // No more data; exit
 	//	}
 	//}
-	// http资产更改banner字段
+	// Change the banner field of http assets
 	//filter := bson.M{"type": "http"}
 	//pipeline := []bson.M{
 	//	{
 	//		"$set": bson.M{
-	//			"banner": "$rawheaders", // 这里 $rawheaders 会被解析为字段引用
+	//			"banner": "$rawheaders", // Here $rawheaders is resolved as a field reference
 	//		},
 	//	},
 	//	{
@@ -116,7 +116,7 @@ func Update18() {
 
 	//logger.Info(fmt.Sprintf("Matched %d documents and modified %d documents\n", result.MatchedCount, result.ModifiedCount))
 
-	// 资产bodyhash索引
+	// Asset bodyhash index
 	asset := mongodb.DB.Collection("asset")
 	indexes := []mongo.IndexModel{
 		{Keys: bson.D{{"bodyhash", 1}}},
@@ -125,7 +125,7 @@ func Update18() {
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create asset indexes: %v", err))
 	}
-	// 敏感信息索引
+	// Sensitive information index
 	SensitiveBody := mongodb.DB.Collection("SensitiveBody")
 	_, err = SensitiveBody.Indexes().CreateOne(context.Background(), mongo.IndexModel{
 		Keys: bson.D{{"md5", 1}},
@@ -133,7 +133,7 @@ func Update18() {
 	if err != nil {
 		fmt.Errorf("failed to create SensitiveBody index: %v", err)
 	}
-	// 创建icon集合索引
+	// Create icon collection indexes
 	icon := mongodb.DB.Collection("icon")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"fav3", 1}}, Options: options.Index().SetUnique(true)},
@@ -143,7 +143,7 @@ func Update18() {
 		logger.Error(fmt.Sprintf("failed to create icon indexes: %v", err))
 	}
 
-	// 创建http res body集合索引
+	// Create http res body collection indexes
 	httpBody := mongodb.DB.Collection("HttpBody")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"hash", 1}}, Options: options.Index().SetUnique(true)},
@@ -153,7 +153,7 @@ func Update18() {
 		logger.Error(fmt.Sprintf("failed to create httpBody indexes: %v", err))
 	}
 
-	// 创建http截图索引
+	// Create http screenshot indexes
 	httpScreenshot := mongodb.DB.Collection("screenshot")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"hash", 1}}, Options: options.Index().SetUnique(true)},
@@ -165,7 +165,7 @@ func Update18() {
 
 	ChangeAsset()
 
-	// 创建vulDetail索引
+	// Create vulDetail indexes
 	vulnerabilityDetail := mongodb.DB.Collection("vulnerabilityDetail")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"hash", 1}}},
@@ -175,10 +175,10 @@ func Update18() {
 		logger.Error(fmt.Sprintf("failed to create vulnerabilityDetail indexes: %v", err))
 	}
 
-	// 将vul的req\res迁移到vulnerabilityDetail
+	// Migrate vul's req/res to vulnerabilityDetail
 	MigrateVulnerabilityDetails()
 
-	// 创建ip资产临时集合索引
+	// Create IP asset temporary collection indexes
 	ipAssetTmp := mongodb.DB.Collection("IPAssetTmp")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"ip", 1}, {"port", 1}, {"domain", 1}}, Options: options.Index().SetUnique(true)},
@@ -188,7 +188,7 @@ func Update18() {
 		logger.Error(fmt.Sprintf("failed to create ipAssetTmp indexes: %v", err))
 	}
 
-	// 创建ip资产集合索引
+	// Create IP asset collection indexes
 	ipAsset := mongodb.DB.Collection("IPAsset")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"time", -1}}},
@@ -207,7 +207,7 @@ func Update18() {
 		logger.Error(fmt.Sprintf("failed to create ipAsset indexes: %v", err))
 	}
 
-	// 创建task相关索引
+	// Create task-related indexes
 	task := mongodb.DB.Collection("task")
 	indexes = []mongo.IndexModel{
 		{Keys: bson.D{{"creatTime", -1}}},
@@ -322,12 +322,12 @@ func ChangeAsset() {
 
 		var hash string
 
-		// 处理http类型的Body，计算hash并插入HttpBody集合
+		// Process http-type Body, compute the hash and insert into the HttpBody collection
 		if asset.Type == "http" {
 			if asset.Body != "" {
 				hash = helper.HashXX64String(asset.Body)
 				asset.ResponseBodyHash = hash
-				// 插入HttpBody集合（使用upsert避免重复）
+				// Insert into the HttpBody collection (using upsert to avoid duplicates)
 				doc := bson.M{
 					"hash":    hash,
 					"content": asset.Body,
@@ -343,12 +343,12 @@ func ChangeAsset() {
 				}
 			}
 		} else {
-			// 对于非http类型
+			// For non-http types
 			bar.Add(1)
 			continue
 		}
 
-		// 处理IconContent，解码并写入文件
+		// Process IconContent: decode and write to a file
 		if asset.IconContent != "" && asset.FaviconMMH3 != "" {
 			iconData, err := base64.StdEncoding.DecodeString(asset.IconContent)
 			if err != nil {
@@ -361,16 +361,16 @@ func ChangeAsset() {
 			}
 		}
 
-		// 处理Screenshot，去除前缀并解码写入文件
+		// Process Screenshot: strip the prefix, decode and write to a file
 		if asset.Screenshot != "" {
-			// 确定用于文件名的hash值：优先使用ResponseBodyHash，如果是http类型且ResponseBodyHash为空则使用计算的hash
+			// Determine the hash used for the file name: prefer ResponseBodyHash; for http types with an empty ResponseBodyHash, use the computed hash
 			screenshotHash := asset.ResponseBodyHash
 			if screenshotHash == "" && asset.Type == "http" && hash != "" {
 				screenshotHash = hash
 			}
 			if screenshotHash != "" {
 				screenshotBase64 := asset.Screenshot
-				// 删除 data:image/png;base64, 前缀
+				// Remove the data:image/png;base64, prefix
 				if strings.HasPrefix(screenshotBase64, "data:image/png;base64,") {
 					screenshotBase64 = strings.TrimPrefix(screenshotBase64, "data:image/png;base64,")
 				}
@@ -386,7 +386,7 @@ func ChangeAsset() {
 			}
 		}
 
-		// 准备批量更新操作
+		// Prepare the bulk update operations
 		updateDoc := bson.M{
 			"$unset": bson.M{
 				"body":        "",
@@ -394,7 +394,7 @@ func ChangeAsset() {
 				"screenshot":  "",
 			},
 		}
-		// 只有在hash不为空时才更新bodyhash字段
+		// Only update the bodyhash field when the hash is non-empty
 		if hash != "" {
 			updateDoc["$set"] = bson.M{
 				"bodyhash": hash,
@@ -405,7 +405,7 @@ func ChangeAsset() {
 			SetUpdate(updateDoc)
 		bulkModels = append(bulkModels, update)
 
-		// 当收集到1000条记录时，执行批量更新
+		// When 1000 records have been collected, execute the bulk update
 		if len(bulkModels) >= batchSize {
 			if len(bulkModels) > 0 {
 				_, err := collection.BulkWrite(ctx, bulkModels)
@@ -415,14 +415,14 @@ func ChangeAsset() {
 					logger.Info(fmt.Sprintf("Bulk updated %d assets", len(bulkModels)))
 				}
 			}
-			// 清空批量操作列表
+			// Clear the bulk operation list
 			bulkModels = []mongo.WriteModel{}
 		}
 
 		bar.Add(1)
 	}
 
-	// 处理剩余的批量更新
+	// Process the remaining bulk updates
 	if len(bulkModels) > 0 {
 		_, err := collection.BulkWrite(ctx, bulkModels)
 		if err != nil {
@@ -444,13 +444,13 @@ func ChangeAsset() {
 
 }
 
-// MigrateVulnerabilityDetails 将vulnerability集合中的request、response迁移到vulnerabilityDetail集合
+// MigrateVulnerabilityDetails migrates request/response fields from the vulnerability collection to the vulnerabilityDetail collection
 func MigrateVulnerabilityDetails() {
 	ctx := context.Background()
 	vulnerabilityCollection := mongodb.DB.Collection("vulnerability")
 	vulnerabilityDetailCollection := mongodb.DB.Collection("vulnerabilityDetail")
 
-	// 查询所有漏洞记录
+	// Query all vulnerability records
 	filter := bson.M{}
 	totalCount, err := vulnerabilityCollection.CountDocuments(ctx, filter)
 	if err != nil {
@@ -490,22 +490,22 @@ func MigrateVulnerabilityDetails() {
 			continue
 		}
 
-		// 跳过没有request和response的记录
+		// Skip records without request and response
 		if vul.Request == "" && vul.Response == "" {
 			bar.Add(1)
 			continue
 		}
 
-		// 如果已经迁移过（已有hash），跳过
+		// If already migrated (hash present), skip
 		if vul.Hash != "" {
 			bar.Add(1)
 			continue
 		}
 
-		// 生成16位随机字符串作为hash
+		// Generate a 16-character random string as the hash
 		hash := random.GenerateRandomString(16)
 
-		// 准备插入vulnerabilityDetail的文档
+		// Prepare the document to insert into vulnerabilityDetail
 		detailDoc := bson.M{
 			"hash": hash,
 			"req":  vul.Request,
@@ -514,7 +514,7 @@ func MigrateVulnerabilityDetails() {
 		insertDetail := mongo.NewInsertOneModel().SetDocument(detailDoc)
 		bulkDetailModels = append(bulkDetailModels, insertDetail)
 
-		// 准备更新vulnerability的文档
+		// Prepare the document to update in vulnerability
 		updateDoc := bson.M{
 			"$set": bson.M{
 				"hash": hash,
@@ -529,9 +529,9 @@ func MigrateVulnerabilityDetails() {
 			SetUpdate(updateDoc)
 		bulkUpdateModels = append(bulkUpdateModels, update)
 
-		// 当收集到足够记录时，执行批量操作
+		// When enough records have been collected, execute the bulk operations
 		if len(bulkDetailModels) >= batchSize {
-			// 批量插入vulnerabilityDetail
+			// Bulk insert into vulnerabilityDetail
 			if len(bulkDetailModels) > 0 {
 				_, err := vulnerabilityDetailCollection.BulkWrite(ctx, bulkDetailModels)
 				if err != nil {
@@ -542,7 +542,7 @@ func MigrateVulnerabilityDetails() {
 				bulkDetailModels = []mongo.WriteModel{}
 			}
 
-			// 批量更新vulnerability
+			// Bulk update the vulnerability
 			if len(bulkUpdateModels) > 0 {
 				_, err := vulnerabilityCollection.BulkWrite(ctx, bulkUpdateModels)
 				if err != nil {
@@ -557,7 +557,7 @@ func MigrateVulnerabilityDetails() {
 		bar.Add(1)
 	}
 
-	// 处理剩余的批量操作
+	// Process the remaining bulk operations
 	if len(bulkDetailModels) > 0 {
 		_, err := vulnerabilityDetailCollection.BulkWrite(ctx, bulkDetailModels)
 		if err != nil {
@@ -586,17 +586,17 @@ func MigrateVulnerabilityDetails() {
 	_ = CompactVulnerabilityCollection()
 }
 
-// CompactAssetCollection 压缩 asset 集合以回收磁盘空间
-// 注意：此操作会阻塞集合的写入操作，建议在业务低峰期执行
-// compact 命令需要管理员权限，且只能在单节点或副本集的从节点上执行
+// CompactAssetCollection compacts the asset collection to reclaim disk space
+// Note: this operation blocks writes to the collection; it is recommended to run it during off-peak hours
+// The compact command requires admin privileges and can only be run on a standalone node or a replica-set secondary
 func CompactAssetCollection() error {
 	ctx := context.Background()
 
 	logger.Info("Starting compact operation for asset collection...")
 	logger.Info("Warning: This operation may block write operations on the collection.")
 
-	// 执行 compact 命令
-	// 注意：compact 命令需要在数据库级别执行，而不是集合级别
+	// Run the compact command
+	// Note: the compact command must be executed at the database level, not the collection level
 	cmd := bson.M{
 		"compact": "asset",
 	}
@@ -611,17 +611,17 @@ func CompactAssetCollection() error {
 	return nil
 }
 
-// CompactVulnerabilityCollection 压缩 vulnerability 集合以回收磁盘空间
-// 注意：此操作会阻塞集合的写入操作，建议在业务低峰期执行
-// compact 命令需要管理员权限，且只能在单节点或副本集的从节点上执行
+// CompactVulnerabilityCollection compacts the vulnerability collection to reclaim disk space
+// Note: this operation blocks writes to the collection; it is recommended to run it during off-peak hours
+// The compact command requires admin privileges and can only be run on a standalone node or a replica-set secondary
 func CompactVulnerabilityCollection() error {
 	ctx := context.Background()
 
 	logger.Info("Starting compact operation for vulnerability collection...")
 	logger.Info("Warning: This operation may block write operations on the collection.")
 
-	// 执行 compact 命令
-	// 注意：compact 命令需要在数据库级别执行，而不是集合级别
+	// Run the compact command
+	// Note: the compact command must be executed at the database level, not the collection level
 	cmd := bson.M{
 		"compact": "vulnerability",
 	}

@@ -36,7 +36,7 @@ func NewService() Service {
 
 func (s *service) GetSensitiveInfo(ctx context.Context, query models.SearchRequest) ([]models.Sensitive, error) {
 	query.Index = "SensitiveResult"
-	// 构建查询条件
+	// Build query conditions
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (s *service) GetSensitiveInfo(ctx context.Context, query models.SearchReque
 
 //func (s *service) GetSensitiveInfo(ctx context.Context, query models.SearchRequest) ([]models.SensitiveInfo, error) {
 //	query.Index = "SensitiveResult"
-//	// 构建查询条件
+//	// Build query conditions
 //	searchQuery, err := helper.GetSearchQuery(query)
 //	if err != nil {
 //		return nil, err
@@ -87,10 +87,10 @@ func buildAggregatePipeline(query bson.M, pageIndex, pageSize int) mongo.Pipelin
 	skip := (pageIndex - 1) * pageSize
 
 	pipeline := mongo.Pipeline{
-		// 1. 搜索条件匹配（尽可能提前筛选数据）
+		// 1. Match search conditions (filter data as early as possible)
 		{{"$match", query}},
 
-		// 2. 精确投影：只取后续需要参与 group 的字段，减少内存压力
+		// 2. Exact projection: take only the fields needed for the later group stage, reducing memory pressure
 		{{"$project", bson.M{
 			"url":    1,
 			"time":   1,
@@ -102,13 +102,13 @@ func buildAggregatePipeline(query bson.M, pageIndex, pageSize int) mongo.Pipelin
 			"status": 1,
 		}}},
 
-		// 3. 按时间（或其他）排序
-		{{"$sort", bson.D{{"time", -1}}}}, // 避免 "$_id" 作为默认排序字段
+		// 3. Sort by time (or another field)
+		{{"$sort", bson.D{{"time", -1}}}}, // Avoid "$_id" as the default sort field
 
-		// 4. 分组：聚合每个 URL 对应的所有记录
+		// 4. Group: aggregate all records belonging to each URL
 		{{"$group", bson.D{
 			{"_id", "$url"},
-			{"time", bson.D{{"$first", "$time"}}}, // 最新时间
+			{"time", bson.D{{"$first", "$time"}}}, // Latest time
 			{"url", bson.D{{"$first", "$url"}}},
 			{"body_id", bson.D{{"$last", bson.D{{"$toString", "$md5"}}}}},
 			{"children", bson.D{{"$push", bson.M{
@@ -122,14 +122,14 @@ func buildAggregatePipeline(query bson.M, pageIndex, pageSize int) mongo.Pipelin
 			}}}},
 		}}},
 
-		// 5. 再次排序（按每组的时间降序）
+		// 5. Sort again (by each group's time descending)
 		{{"$sort", bson.D{{"time", -1}}}},
 
-		// 6. 分页（注意 skip 太大性能会下降，考虑基于 last_id 方式做游标分页）
+		// 6. Paginate (note: a large skip degrades performance; consider cursor-based pagination using last_id)
 		{{"$skip", skip}},
 		{{"$limit", pageSize}},
 
-		// 7. 最终输出字段
+		// 7. Final output fields
 		{{"$project", bson.M{
 			"id":       "$_id",
 			"url":      1,
@@ -144,7 +144,7 @@ func buildAggregatePipeline(query bson.M, pageIndex, pageSize int) mongo.Pipelin
 
 func (s *service) GetSensitiveInfoNumber(ctx context.Context, query models.SearchRequest) (int64, int64, error) {
 	query.Index = "SensitiveResult"
-	// 构建查询条件
+	// Build query conditions
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
 		return 0, 0, err
@@ -165,7 +165,7 @@ func (s *service) GetSensitiveInfoNumber(ctx context.Context, query models.Searc
 	//	return totalCount, 0, err
 	//}
 	//var urlTotal int64
-	//// 解析结果
+	//// Parse results
 	//if len(rawResults) > 0 {
 	//	switch val := rawResults[0]["total"].(type) {
 	//	case int32:
@@ -197,7 +197,7 @@ func (s *service) GetSIDStatistics(ctx *gin.Context, query models.SearchRequest)
 			delete(query.Filter, "sname")
 		}
 	}
-	// 构建查询条件
+	// Build query conditions
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
 		return nil, err
@@ -212,8 +212,8 @@ func (s *service) GetSIDStatistics(ctx *gin.Context, query models.SearchRequest)
 			"color": bson.M{"$first": "$color"},
 		}}},
 		{{Key: "$sort", Value: bson.M{
-			"count": -1, // 先按 count 排序
-			"_id":   1,  // count 相同按 _id 排序，保证稳定顺序
+			"count": -1, // Sort by count first
+			"_id":   1,  // when count is equal, sort by _id to ensure a stable order
 		}}},
 		{{Key: "$project", Value: bson.M{
 			"name":  "$_id",

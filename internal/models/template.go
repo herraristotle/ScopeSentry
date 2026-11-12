@@ -1,6 +1,6 @@
 package models
 
-// Template 扫描模板
+// Template is the scan template
 type ScanTemplate struct {
 	ID                  string     `bson:"_id,omitempty" json:"id"`
 	Ignore              string     `bson:"ignore" json:"ignore"`
@@ -46,13 +46,13 @@ type Parameters struct {
 	PassiveScan         map[string]string `bson:"PassiveScan" json:"PassiveScan"`
 }
 
-// TemplateList 模板列表
+// TemplateList is the template list
 type TemplateList struct {
 	List  []ScanTemplate `json:"list"`
 	Total int64          `json:"total"`
 }
 
-// TemplateListItem 模板列表项
+// TemplateListItem is a template list item
 type TemplateListItem struct {
 	ID   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`

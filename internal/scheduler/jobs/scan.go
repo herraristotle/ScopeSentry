@@ -26,7 +26,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// scanService 处理计划任务数据访问
+// scanService handles scheduled task data access
 type scanService struct {
 	collection               *mongo.Collection
 	pageMonitoringCollection *mongo.Collection
@@ -48,7 +48,7 @@ func init() {
 }
 
 func Scan(params string, nextTime string) error {
-	// 获取计划任务数据
+	// Get the scheduled task data
 	ID, err := primitive.ObjectIDFromHex(params)
 	if err != nil {
 		return err

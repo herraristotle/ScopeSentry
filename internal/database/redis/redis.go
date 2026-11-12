@@ -12,14 +12,14 @@ import (
 var Client *redis.Client
 
 func init() {
-	// 创建 Redis 客户端
+	// Create the Redis client
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.GlobalConfig.Redis.IP, config.GlobalConfig.Redis.Port),
 		Password: config.GlobalConfig.Redis.Password,
 		DB:       0,
 	})
 
-	// 测试连接
+	// Test the connection
 	if err := client.Ping(context.Background()).Err(); err != nil {
 		logger.Error(fmt.Sprintf("failed to connect to Redis: %v", err))
 		return

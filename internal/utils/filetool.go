@@ -17,63 +17,63 @@ import (
 )
 
 func EnsureDir(path string) error {
-	// 检查路径状态
+	// Check the path status
 	info, err := os.Stat(path)
 
-	// 如果路径不存在
+	// If the path does not exist
 	if os.IsNotExist(err) {
-		// 自动创建多层目录
+		// Automatically create nested directories
 		err := os.MkdirAll(path, 0755)
 		if err != nil {
-			return fmt.Errorf("创建目录失败: %w", err)
+			return fmt.Errorf("failed to create directory: %w", err)
 		}
 		return nil
 	}
 
-	// 路径存在，但不是目录
+	// Path exists but is not a directory
 	if err == nil && !info.IsDir() {
-		return fmt.Errorf("路径已存在但不是目录: %s", path)
+		return fmt.Errorf("path already exists but is not a directory: %s", path)
 	}
 
-	// 已存在且是目录
+	// Already exists and is a directory
 	return nil
 }
 
 func WriteFile(filePath string, content []byte) error {
-	// os.Create 会清空已存在的文件内容，相当于覆盖写
+	// os.Create empties an existing file's content, equivalent to overwriting it
 	file, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("创建文件失败: %w", err)
+		return fmt.Errorf("failed to create file: %w", err)
 	}
 	defer file.Close()
 
-	// 写入内容
+	// Write the content
 	_, err = file.Write(content)
 	if err != nil {
-		return fmt.Errorf("写入文件失败: %w", err)
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 
 	return nil
 }
 
 func DownloadFile(url string, savePath string, timeout time.Duration) error {
-	// 创建目录
+	// Create the directory
 	if err := os.MkdirAll(filepath.Dir(savePath), os.ModePerm); err != nil {
 		return err
 	}
 
 	client := &http.Client{
-		Timeout: timeout, // 整体超时（连接 + 下载）
+		Timeout: timeout, // Overall timeout (connect + download)
 	}
 
 	resp, err := client.Get(url)
 	if err != nil {
-		return fmt.Errorf("请求失败: %w", err)
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP 状态码异常: %d", resp.StatusCode)
+		return fmt.Errorf("unexpected HTTP status code: %d", resp.StatusCode)
 	}
 
 	out, err := os.Create(savePath)
@@ -87,7 +87,7 @@ func DownloadFile(url string, savePath string, timeout time.Duration) error {
 }
 
 func DeleteFile(filePath string) {
-	// 检查文件是否存在
+	// Check whether the file exists
 	if filePath == "" {
 		return
 	}
@@ -97,7 +97,7 @@ func DeleteFile(filePath string) {
 		return
 	}
 
-	// 文件存在，进行删除
+	// File exists, delete it
 	err := os.Remove(filePath)
 	if err != nil {
 		return

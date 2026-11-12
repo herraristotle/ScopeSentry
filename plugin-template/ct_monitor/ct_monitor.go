@@ -31,7 +31,7 @@ func GetName() string {
 	return "CT Monitor"
 }
 
-// Cycle 运行周期
+// Cycle run cycle
 func Cycle() string {
 	return "1"
 }
@@ -40,31 +40,31 @@ func Install() error {
 	return nil
 }
 
-// 排除非关注域名
+// Exclude domains we do not care about
 var blacklist = []string{
 	"google.com",
 }
 
-// 排除包含字符串的域名
+// Exclude domains containing these strings
 var subdomainBlacklist = []string{
 	".prod.",
 }
 var CTSDK *ct.CTWatcherSDK
 var OP options.PluginOption
 
-// 已处理的子域名列表，用于去重
+// List of already processed subdomains, used for deduplication
 var (
 	processedSubdomains = make(map[string]struct{})
 	subdomainMu         sync.RWMutex
 )
 
 func Execute(op options.PluginOption) error {
-	// 获取插件上下文
+	// Get the plugin context
 	ctx := utils.GetContext(op.PluginHash)
 
-	// 监控日志配置
+	// Monitoring log configuration
 	opts := &types.SDKOptions{
-		// CT日志服务器配置
+		// CT log server configuration
 		LogServers: []*types.LogServerConfig{
 			{
 				URL:           "https://ct.googleapis.com/logs/us1/argon2026h1/",
@@ -131,7 +131,7 @@ func Execute(op options.PluginOption) error {
 			//	MaxRetries:    3,
 			//},
 		},
-		// 域名匹配器配置
+		// Domain matcher configuration
 		DomainMatcher: &types.DomainMatcherConfig{
 			EnableBloomFilter: true,
 			BloomFilterSize:   1000000,
@@ -141,20 +141,20 @@ func Execute(op options.PluginOption) error {
 			CaseSensitive:     false,
 			MaxDomainLength:   253,
 		},
-		// 性能配置
+		// Performance configuration
 		Performance: &types.PerformanceConfig{
 			MaxWorkers:        10,
 			ChannelBufferSize: 100,
 			ProcessingTimeout: 5 * time.Second,
 			BatchProcessSize:  50,
 		},
-		// Redis配置
+		// Redis configuration
 		Redis: &types.RedisConfig{
 			KeyPrefix: "ct_watcher:",
 		},
 	}
 
-	// 获取关注的域名，排除黑名单，只返回domain字段
+	// Get the domains of interest, excluding the blacklist; only the domain field is returned
 	filter := bson.M{
 		"domain": bson.M{
 			"$nin": blacklist,
@@ -166,27 +166,27 @@ func Execute(op options.PluginOption) error {
 		return err
 	}
 
-	// 将返回的所有domains转成字符串数组
+	// Convert all returned domains into a string slice
 	domains := make([]string, 0, len(rootDomains))
 	for _, doc := range rootDomains {
 		if domain, ok := doc["domain"].(string); ok {
 			domains = append(domains, domain)
 		}
 	}
-	// 设置关注的域名
+	// Set the domains of interest
 	opts.Domains = domains
 
-	// 创建SDK实例
+	// Create the SDK instance
 	sdk, err := ct.NewCTWatcherSDK(opts)
 	if err != nil {
-		log.Fatalf("创建SDK失败: %v", err)
+		log.Fatalf("Failed to create SDK: %v", err)
 	}
 	defer sdk.Close()
 
 	CTSDK = sdk
 	OP = op
 
-	// 判断扫描模板是否创建
+	// Check whether the scan template has been created
 	taskTemplateId := ""
 	ctTmp, err := op.TemplateService.List(context.Background(), 1, 20, "CT_Monitor")
 	if err != nil {
@@ -194,7 +194,7 @@ func Execute(op options.PluginOption) error {
 	}
 	if ctTmp != nil {
 		if len(ctTmp.List) == 0 {
-			// 模板未创建 进行创建模板
+			// Template not created yet; create it now
 			template := models.ScanTemplate{
 				Name:         "CT_Monitor",
 				AssetMapping: []string{"3a0d994a12305cb15a5cb7104d819623"}, // httpx
@@ -220,45 +220,45 @@ func Execute(op options.PluginOption) error {
 		}
 	}
 
-	// 注册子域名发现回调
+	// Register the subdomain discovery callback
 	sdk.OnSubdomainFound(func(event ct_models.SubdomainEvent) {
-		// 检查子域名是否已经处理过（使用读锁，支持并发读取）
+		// Check whether the subdomain has already been processed (read lock, supports concurrent reads)
 		subdomainMu.RLock()
 		_, exists := processedSubdomains[event.Subdomain]
 		subdomainMu.RUnlock()
 
 		if exists {
-			// 已存在，跳过处理
+			// Already exists; skip processing
 			return
 		}
-		// 排除域名
+		// Exclude domain
 		for _, domain := range subdomainBlacklist {
 			if strings.Contains(event.Subdomain, domain) {
 				return
 			}
 		}
-		// 标记为已处理（使用写锁）
+		// Mark as processed (write lock)
 		subdomainMu.Lock()
 		processedSubdomains[event.Subdomain] = struct{}{}
 		subdomainMu.Unlock()
 
-		// 发现子域名后 放进redis中（使用Set类型自动去重）
+		// After a subdomain is discovered, store it in Redis (the Set type deduplicates automatically)
 		subdomainKey := "ct_watcher:subdomains"
 		err := op.CommonRepo.SAdd(ctx, subdomainKey, event.Subdomain)
 		if err != nil {
-			op.Log(fmt.Sprintf("[错误] 存储子域名到Redis失败: %s, 错误: %v", event.Subdomain, err), "e")
+			op.Log(fmt.Sprintf("[ERROR] Failed to store subdomain in Redis: %s, error: %v", event.Subdomain, err), "e")
 		}
-		op.Log(fmt.Sprintf("[发现子域名] %s -> %s | 证书索引: %d | 时间: %s\n",
+		op.Log(fmt.Sprintf("[Subdomain Found] %s -> %s | Certificate Index: %d | Time: %s\n",
 			fmt.Sprintf("<color value=\"#ff6b6b\" bold>%s</color>", event.RootDomain),
 			fmt.Sprintf("<color value=\"#ff6b6b\" bold>%s</color>", event.Subdomain),
 			event.Certificate.Index,
 			event.DiscoveredAt.Format("2006-01-02 15:04:05")))
-		// 发送通知
-		notificationMsg := fmt.Sprintf("发现新的子域名: \n%v", event.Subdomain)
+		// Send notification
+		notificationMsg := fmt.Sprintf("New subdomain discovered: \n%v", event.Subdomain)
 		op.Notification(notificationMsg)
 	})
 
-	// 注册错误回调
+	// Register the error callback
 	sdk.OnError(func(err error, context map[string]interface{}) {
 		errorType := "unknown"
 		if ctxType, ok := context["error_type"]; ok {
@@ -266,40 +266,40 @@ func Execute(op options.PluginOption) error {
 				errorType = et
 			}
 		}
-		op.Log(fmt.Sprintf("[错误] 类型: %s | 消息: %v\n", errorType, err), "e")
+		op.Log(fmt.Sprintf("[ERROR] Type: %s | Message: %v\n", errorType, err), "e")
 	})
 
-	// 启动SDK
-	op.Log("启动CT日志监听器...")
+	// Start the SDK
+	op.Log("Starting CT log listener...")
 	if err := sdk.Start(ctx); err != nil {
-		log.Fatalf("启动SDK失败: %v", err)
-		op.Log(fmt.Sprintf("启动SDK失败: %v", err), "e")
+		log.Fatalf("Failed to start SDK: %v", err)
+		op.Log(fmt.Sprintf("Failed to start SDK: %v", err), "e")
 		return err
 	}
-	op.Log("CT监听器已启动，正在监听子域名发现...")
-	// 启动状态监控协程
+	op.Log("CT listener started, monitoring for subdomain discoveries...")
+	// Start the status monitoring goroutine
 	go func() {
 		ticker := time.NewTicker(10 * time.Minute)
 		defer ticker.Stop()
 
-		// 用于计算增量QPS的变量
+		// Variables used to compute the incremental QPS
 		var lastProcessedCount int64 = 0
 		var lastReportTime = time.Now()
 
-		// 状态报告函数
+		// Status report function
 		reportStatus := func() {
 			currentTime := time.Now()
 			status := sdk.GetStatus()
 			stats := sdk.GetStats()
 
-			// 计算总体平均QPS
+			// Compute the overall average QPS
 			uptimeSeconds := status.Uptime.Seconds()
 			avgQps := float64(0)
 			if uptimeSeconds > 0 {
 				avgQps = float64(status.ProcessedCertificates) / uptimeSeconds
 			}
 
-			// 计算增量QPS（最近30秒内的实际处理速度）
+			// Compute the incremental QPS (actual processing rate over the last 30 seconds)
 			timeDiff := currentTime.Sub(lastReportTime).Seconds()
 			countDiff := status.ProcessedCertificates - lastProcessedCount
 			incrementalQps := float64(0)
@@ -307,39 +307,39 @@ func Execute(op options.PluginOption) error {
 				incrementalQps = float64(countDiff) / timeDiff
 			}
 
-			// 更新上一次的状态
+			// Update the previous state
 			lastProcessedCount = status.ProcessedCertificates
 			lastReportTime = currentTime
 
-			// 构建状态报告日志
+			// Build the status report log
 			var logContent string
-			logContent += "\n=== 监听器状态报告 ===\n"
-			logContent += fmt.Sprintf("运行时间: %v\n", status.Uptime)
-			logContent += fmt.Sprintf("总处理证书数: %d\n", status.ProcessedCertificates)
-			logContent += fmt.Sprintf("总发现子域名数: %d\n", status.DiscoveredSubdomains)
-			logContent += fmt.Sprintf("平均QPS: %.2f certs/sec\n", avgQps)
-			logContent += fmt.Sprintf("增量QPS: %.2f certs/sec (最近30秒)\n", incrementalQps)
-			logContent += fmt.Sprintf("活跃监听器数: %d\n", status.ActiveWatchers)
-			logContent += fmt.Sprintf("域名总数: %d\n", stats.TotalDomains)
+			logContent += "\n=== Listener Status Report ===\n"
+			logContent += fmt.Sprintf("Uptime: %v\n", status.Uptime)
+			logContent += fmt.Sprintf("Total certificates processed: %d\n", status.ProcessedCertificates)
+			logContent += fmt.Sprintf("Total subdomains discovered: %d\n", status.DiscoveredSubdomains)
+			logContent += fmt.Sprintf("Average QPS: %.2f certs/sec\n", avgQps)
+			logContent += fmt.Sprintf("Incremental QPS: %.2f certs/sec (last 30 seconds)\n", incrementalQps)
+			logContent += fmt.Sprintf("Active watchers: %d\n", status.ActiveWatchers)
+			logContent += fmt.Sprintf("Total domains: %d\n", stats.TotalDomains)
 
-			// 显示每个监听器的处理统计
+			// Show per-watcher processing statistics
 			if len(status.WatcherStatuses) > 0 {
 				totalWatcherProcessed := int64(0)
 				for url, watcherStatus := range status.WatcherStatuses {
-					logContent += fmt.Sprintf("\n监听器: %s\n", url)
-					logContent += fmt.Sprintf("  状态: %s\n", watcherStatus.Status)
-					logContent += fmt.Sprintf("  处理证书数: %d\n", watcherStatus.ProcessedCount)
-					logContent += fmt.Sprintf("  最后索引: %d\n", watcherStatus.LastIndex)
-					logContent += fmt.Sprintf("  错误次数: %d\n", watcherStatus.ErrorCount)
+					logContent += fmt.Sprintf("\nWatcher: %s\n", url)
+					logContent += fmt.Sprintf("  Status: %s\n", watcherStatus.Status)
+					logContent += fmt.Sprintf("  Certificates processed: %d\n", watcherStatus.ProcessedCount)
+					logContent += fmt.Sprintf("  Last index: %d\n", watcherStatus.LastIndex)
+					logContent += fmt.Sprintf("  Error count: %d\n", watcherStatus.ErrorCount)
 					totalWatcherProcessed += watcherStatus.ProcessedCount
 				}
-				logContent += fmt.Sprintf("\n监听器总处理证书数: %d\n", totalWatcherProcessed)
+				logContent += fmt.Sprintf("\nTotal certificates processed by watchers: %d\n", totalWatcherProcessed)
 			}
 			logContent += "========================\n\n"
 			op.Log(logContent)
 		}
 
-		// 立即执行一次状态报告
+		// Run one status report immediately
 		reportStatus()
 
 		for {
@@ -352,7 +352,7 @@ func Execute(op options.PluginOption) error {
 		}
 	}()
 
-	// 从redis中获取子域名进行创建任务
+	// Fetch subdomains from Redis to create tasks
 	go func() {
 		ticker := time.NewTicker(1 * time.Hour)
 		defer ticker.Stop()
@@ -365,44 +365,44 @@ func Execute(op options.PluginOption) error {
 			}
 		}
 	}()
-	// 等待上下文取消，监控结束
+	// Wait for the context to be canceled; monitoring ends
 	<-ctx.Done()
-	op.Log("CT监听器已停止")
+	op.Log("CT listener stopped")
 	return nil
 }
 
-// processSubdomains 处理Redis中的子域名
+// processSubdomains processes the subdomains stored in Redis
 func processSubdomains(ctx context.Context, op options.PluginOption, taskTemplateId string) {
 	subdomainKey := "ct_watcher:subdomains"
 
-	// 检查Set是否为空
+	// Check whether the Set is empty
 	count, err := op.CommonRepo.SCard(ctx, subdomainKey)
 	if err != nil {
-		op.Log(fmt.Sprintf("[错误] 检查子域名Set失败: %v", err), "e")
+		op.Log(fmt.Sprintf("[ERROR] Failed to check subdomain Set: %v", err), "e")
 		return
 	}
 
-	// 如果为空，直接返回
+	// If empty, return immediately
 	if count == 0 {
-		op.Log("Redis中的子域名Set为空，跳过处理")
+		op.Log("Subdomain Set in Redis is empty, skipping processing")
 		return
 	}
 
-	// 取出所有子域名
+	// Retrieve all subdomains
 	subdomains, err := op.CommonRepo.SMembers(ctx, subdomainKey)
 	if err != nil {
-		op.Log(fmt.Sprintf("[错误] 获取子域名列表失败: %v", err), "e")
+		op.Log(fmt.Sprintf("[ERROR] Failed to get subdomain list: %v", err), "e")
 		return
 	}
 
-	op.Log(fmt.Sprintf("从Redis中取出 %d 个子域名，准备创建任务", len(subdomains)))
+	op.Log(fmt.Sprintf("Retrieved %d subdomains from Redis, preparing to create a task", len(subdomains)))
 	target := ""
 	for _, subdomain := range subdomains {
 		if subdomain != "" {
 			target += subdomain + "\n"
 		}
 	}
-	// 创建任务
+	// Create the task
 	if target != "" {
 		task := models.Task{
 			Name:           fmt.Sprintf("[ct monitor]-%v[plugin]", helper.GetNowTimeString()),
@@ -419,16 +419,16 @@ func processSubdomains(ctx context.Context, op options.PluginOption, taskTemplat
 			return
 		}
 
-		// 成功创建任务后，从Redis中删除已处理的子域名
+		// After the task is created successfully, delete the processed subdomains from Redis
 		members := make([]interface{}, len(subdomains))
 		for i, subdomain := range subdomains {
 			members[i] = subdomain
 		}
 		err = op.CommonRepo.SRem(ctx, subdomainKey, members...)
 		if err != nil {
-			op.Log(fmt.Sprintf("[错误] 删除Redis中的子域名失败: %v", err), "e")
+			op.Log(fmt.Sprintf("[ERROR] Failed to delete subdomains from Redis: %v", err), "e")
 		} else {
-			op.Log(fmt.Sprintf("成功从Redis中删除 %d 个已处理的子域名", len(subdomains)))
+			op.Log(fmt.Sprintf("Successfully deleted %d processed subdomains from Redis", len(subdomains)))
 		}
 	}
 
@@ -439,7 +439,7 @@ func TaskEnd(task models.Task, plgHash string) error {
 		OP.Log("<UNK>CTSDK is null<UNK>...")
 		return fmt.Errorf("CTSDK is null")
 	}
-	// 插件创建的 一般都是已经有数据的不需要再创建了
+	// Tasks created by the plugin usually already have data, so no need to create again
 	if strings.Contains(task.Name, "[plugin]") {
 		return nil
 	}
@@ -452,7 +452,7 @@ func TaskEnd(task models.Task, plgHash string) error {
 		return err
 	}
 
-	// 将返回的所有domains转成字符串数组
+	// Convert all returned domains into a string slice
 	domains := make([]string, 0, len(rootDomains))
 	for _, doc := range rootDomains {
 		if domain, ok := doc["domain"].(string); ok {
@@ -464,6 +464,6 @@ func TaskEnd(task models.Task, plgHash string) error {
 		OP.Log(fmt.Sprintf("<UNK>CTSDK add domain error<UNK>: %v", err), "e")
 		return err
 	}
-	OP.Log(fmt.Sprintf("CT监控增加关注域名 %v 个", len(domains)))
+	OP.Log(fmt.Sprintf("CT monitor added %v domains of interest", len(domains)))
 	return nil
 }

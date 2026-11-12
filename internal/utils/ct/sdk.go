@@ -4,7 +4,7 @@
 // @contact   : rainy-autumn@outlook.com
 // @time      : 2025/01/24 21:00
 // -------------------------------------------
-// CT日志监听SDK - 主要接口实现
+// CT log monitoring SDK - main interface implementation
 // ============================================
 
 package ct
@@ -20,45 +20,45 @@ import (
 	"github.com/Autumn-27/ScopeSentry/internal/utils/ct/types"
 )
 
-// CTWatcherSDK CT日志监听器SDK
+// CTWatcherSDK is the CT log watcher SDK
 type CTWatcherSDK struct {
-	// 配置
+	// Configuration
 	opts *types.SDKOptions
 
-	// 核心组件
+	// Core components
 	domainMatcher     *DomainMatcher
 	streamProcessor   *StreamProcessor
 	checkpointSaver   *AutoCheckpointSaver
 	checkpointManager *RedisCheckpointManager
 
-	// 监听器管理
+	// Watcher management
 	watchers map[string]*CTWatcher
 	wg       sync.WaitGroup
 	mu       sync.RWMutex
 
-	// 状态管理
+	// State management
 	isRunning int32
 	status    *models.SDKStatus
 	ctx       context.Context
 	cancel    context.CancelFunc
 
-	// 事件处理
+	// Event handling
 	eventBus *models.EventBus
 
-	// 回调函数
+	// Callbacks
 	subdomainCallbacks []models.SubdomainCallback
 	errorCallbacks     []models.ErrorCallback
 }
 
-// NewCTWatcherSDK 创建新的CT监听器SDK
+// NewCTWatcherSDK creates a new CT watcher SDK
 func NewCTWatcherSDK(opts *types.SDKOptions) (*CTWatcherSDK, error) {
 	if opts == nil {
 		opts = types.DefaultSDKOptions()
 	}
 
-	// 验证配置
+	// Validate the configuration
 	if err := opts.Validate(); err != nil {
-		return nil, fmt.Errorf("配置验证失败: %w", err)
+		return nil, fmt.Errorf("configuration validation failed: %w", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -74,32 +74,32 @@ func NewCTWatcherSDK(opts *types.SDKOptions) (*CTWatcherSDK, error) {
 		errorCallbacks:     make([]models.ErrorCallback, 0),
 	}
 
-	// 初始化Redis检查点管理器
+	// Initialize the Redis checkpoint manager
 	checkpointManager, err := NewRedisCheckpointManager(opts.Redis.KeyPrefix)
 	if err != nil {
 		cancel()
-		return nil, fmt.Errorf("初始化Redis检查点管理器失败: %w", err)
+		return nil, fmt.Errorf("failed to initialize the Redis checkpoint manager: %w", err)
 	}
 	sdk.checkpointManager = checkpointManager
 
-	// 初始化自动检查点保存器
+	// Initialize the automatic checkpoint saver
 	sdk.checkpointSaver = NewAutoCheckpointSaver(checkpointManager, 10*time.Minute)
 
-	// 初始化域名匹配器
+	// Initialize the domain matcher
 	sdk.domainMatcher = NewDomainMatcher(opts.DomainMatcher)
 
-	// 初始化流处理器
+	// Initialize the stream processor
 	sdk.streamProcessor = NewStreamProcessor(sdk.domainMatcher, sdk.eventBus)
 
-	// 添加初始域名
+	// Add the initial domains
 	for _, domain := range opts.Domains {
 		if err := sdk.domainMatcher.AddDomain(domain); err != nil {
-			// 记录警告但不中断初始化
+			// Log a warning but do not abort initialization
 			continue
 		}
 	}
 
-	// 注册事件处理器
+	// Register the event handlers
 	sdk.eventBus.Subscribe(models.EventTypeSubdomainDiscovered, &SubdomainEventHandler{sdk: sdk})
 	sdk.eventBus.Subscribe(models.EventTypeCertificateProcessed, &CertificateEventHandler{sdk: sdk})
 	sdk.eventBus.Subscribe(models.EventTypeErrorOccurred, &ErrorEventHandler{sdk: sdk})
@@ -107,41 +107,41 @@ func NewCTWatcherSDK(opts *types.SDKOptions) (*CTWatcherSDK, error) {
 	return sdk, nil
 }
 
-// Start 启动SDK
+// Start starts the SDK
 func (sdk *CTWatcherSDK) Start(ctx context.Context) error {
 	if !atomic.CompareAndSwapInt32(&sdk.isRunning, 0, 1) {
-		return fmt.Errorf("SDK已在运行")
+		return fmt.Errorf("SDK is already running")
 	}
 
 	sdk.status.StartTime = time.Now()
 	sdk.status.IsRunning = true
 
-	// 创建派生上下文
+	// Create the derived context
 	sdkCtx, cancel := context.WithCancel(ctx)
 	sdk.cancel = cancel
 
-	// 为每个配置的日志服务器创建监听器
+	// Create a watcher for each configured log server
 	for _, logServer := range sdk.opts.LogServers {
 		if err := sdk.addWatcher(logServer); err != nil {
-			// 记录错误但继续创建其他监听器
-			sdk.handleError(fmt.Errorf("创建监听器失败 [%s]: %w", logServer.URL, err), nil)
+			// Log the error but continue creating the other watchers
+			sdk.handleError(fmt.Errorf("failed to create watcher [%s]: %w", logServer.URL, err), nil)
 			continue
 		}
 	}
 
-	// 启动检查点保存器
+	// Start the checkpoint saver
 	if err := sdk.checkpointSaver.Start(); err != nil {
 		atomic.StoreInt32(&sdk.isRunning, 0)
-		return fmt.Errorf("启动检查点保存器失败: %w", err)
+		return fmt.Errorf("failed to start the checkpoint saver: %w", err)
 	}
 
 	if len(sdk.watchers) == 0 {
 		atomic.StoreInt32(&sdk.isRunning, 0)
 		sdk.checkpointSaver.Stop()
-		return fmt.Errorf("没有成功创建任何监听器")
+		return fmt.Errorf("no watcher was created successfully")
 	}
 
-	// 等待上下文取消或所有监听器退出
+	// Wait for context cancellation or all watchers to exit
 	go func() {
 		<-sdkCtx.Done()
 		sdk.stopInternal()
@@ -150,7 +150,7 @@ func (sdk *CTWatcherSDK) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止SDK
+// Stop stops the SDK
 func (sdk *CTWatcherSDK) Stop() error {
 	if !atomic.CompareAndSwapInt32(&sdk.isRunning, 1, 0) {
 		return nil
@@ -160,53 +160,53 @@ func (sdk *CTWatcherSDK) Stop() error {
 	return nil
 }
 
-// stopInternal 内部停止方法
+// stopInternal is the internal stop method
 func (sdk *CTWatcherSDK) stopInternal() {
 	sdk.mu.Lock()
 	defer sdk.mu.Unlock()
 
-	// 停止所有监听器
+	// Stop all watchers
 	for url, watcher := range sdk.watchers {
 		if err := watcher.Stop(); err != nil {
-			sdk.handleError(fmt.Errorf("停止监听器失败 [%s]: %w", url, err), nil)
+			sdk.handleError(fmt.Errorf("failed to stop watcher [%s]: %w", url, err), nil)
 		}
 	}
 
-	// 停止检查点保存器
+	// Stop the checkpoint saver
 	sdk.checkpointSaver.Stop()
 
-	// 关闭检查点管理器
+	// Close the checkpoint manager
 	sdk.checkpointManager.Close()
 
 	sdk.status.IsRunning = false
 }
 
-// AddDomains 动态添加关注的域名
+// AddDomains dynamically adds domains to watch
 func (sdk *CTWatcherSDK) AddDomains(domains []string) error {
 	for _, domain := range domains {
 		if err := sdk.domainMatcher.AddDomain(domain); err != nil {
-			return fmt.Errorf("添加域名失败 [%s]: %w", domain, err)
+			return fmt.Errorf("failed to add domain [%s]: %w", domain, err)
 		}
 	}
 	return nil
 }
 
-// RemoveDomains 动态移除关注的域名
+// RemoveDomains dynamically removes watched domains
 func (sdk *CTWatcherSDK) RemoveDomains(domains []string) error {
 	for _, domain := range domains {
 		if err := sdk.domainMatcher.RemoveDomain(domain); err != nil {
-			return fmt.Errorf("移除域名失败 [%s]: %w", domain, err)
+			return fmt.Errorf("failed to remove domain [%s]: %w", domain, err)
 		}
 	}
 	return nil
 }
 
-// GetWatchedDomains 获取当前关注的域名
+// GetWatchedDomains fetches the currently watched domains
 func (sdk *CTWatcherSDK) GetWatchedDomains() []string {
 	return sdk.domainMatcher.GetAllDomains()
 }
 
-// GetStatus 获取SDK状态
+// GetStatus fetches the SDK status
 func (sdk *CTWatcherSDK) GetStatus() *types.Status {
 	sdk.mu.RLock()
 	defer sdk.mu.RUnlock()
@@ -222,7 +222,7 @@ func (sdk *CTWatcherSDK) GetStatus() *types.Status {
 		WatcherStatuses:       make(map[string]*models.LogStatus),
 	}
 
-	// 更新监听器状态
+	// Update the watcher statuses
 	for url, watcher := range sdk.watchers {
 		watcherStatus := watcher.GetStatus()
 		status.WatcherStatuses[url] = &models.LogStatus{
@@ -238,7 +238,7 @@ func (sdk *CTWatcherSDK) GetStatus() *types.Status {
 	return status
 }
 
-// GetStats 获取统计信息
+// GetStats fetches statistics
 func (sdk *CTWatcherSDK) GetStats() *models.DomainMatcherStats {
 	if sdk.domainMatcher == nil {
 		return &models.DomainMatcherStats{}
@@ -247,33 +247,33 @@ func (sdk *CTWatcherSDK) GetStats() *models.DomainMatcherStats {
 	return sdk.domainMatcher.GetStats()
 }
 
-// OnSubdomainFound 注册子域名发现回调
+// OnSubdomainFound registers the subdomain discovery callback
 func (sdk *CTWatcherSDK) OnSubdomainFound(callback models.SubdomainCallback) error {
 	if callback == nil {
-		return fmt.Errorf("回调函数不能为空")
+		return fmt.Errorf("callback must not be empty")
 	}
 
 	sdk.subdomainCallbacks = append(sdk.subdomainCallbacks, callback)
 	return nil
 }
 
-// OnError 注册错误回调
+// OnError registers the error callback
 func (sdk *CTWatcherSDK) OnError(callback models.ErrorCallback) error {
 	if callback == nil {
-		return fmt.Errorf("回调函数不能为空")
+		return fmt.Errorf("callback must not be empty")
 	}
 
 	sdk.errorCallbacks = append(sdk.errorCallbacks, callback)
 	return nil
 }
 
-// addWatcher 添加监听器
+// addWatcher adds a watcher
 func (sdk *CTWatcherSDK) addWatcher(logServer *types.LogServerConfig) error {
 	sdk.mu.Lock()
 	defer sdk.mu.Unlock()
 
 	if _, exists := sdk.watchers[logServer.URL]; exists {
-		return fmt.Errorf("监听器已存在: %s", logServer.URL)
+		return fmt.Errorf("watcher already exists: %s", logServer.URL)
 	}
 
 	watcher := NewCTWatcher(
@@ -285,16 +285,16 @@ func (sdk *CTWatcherSDK) addWatcher(logServer *types.LogServerConfig) error {
 
 	sdk.watchers[logServer.URL] = watcher
 
-	// 启动监听器
+	// Start the watcher
 	if err := watcher.Start(); err != nil {
 		delete(sdk.watchers, logServer.URL)
-		return fmt.Errorf("启动监听器失败: %w", err)
+		return fmt.Errorf("failed to start watcher: %w", err)
 	}
 
 	return nil
 }
 
-// SubdomainEventHandler 子域名事件处理器
+// SubdomainEventHandler is the subdomain event handler
 type SubdomainEventHandler struct {
 	sdk *CTWatcherSDK
 }
@@ -303,12 +303,12 @@ func (h *SubdomainEventHandler) HandleEvent(event models.Event) error {
 	if subdomainEvent, ok := event.(*models.SubdomainDiscoveredEvent); ok {
 		atomic.AddInt64(&h.sdk.status.TotalDiscoveredSubdomains, 1)
 
-		// 触发用户注册的回调
+		// Trigger the user-registered callbacks
 		for _, callback := range h.sdk.subdomainCallbacks {
 			go func(cb models.SubdomainCallback) {
 				defer func() {
 					if r := recover(); r != nil {
-						h.sdk.handleError(fmt.Errorf("子域名回调执行失败: %v", r), nil)
+						h.sdk.handleError(fmt.Errorf("subdomain callback execution failed: %v", r), nil)
 					}
 				}()
 				cb(subdomainEvent.SubdomainEvent)
@@ -318,7 +318,7 @@ func (h *SubdomainEventHandler) HandleEvent(event models.Event) error {
 	return nil
 }
 
-// CertificateEventHandler 证书处理事件处理器
+// CertificateEventHandler is the certificate processing event handler
 type CertificateEventHandler struct {
 	sdk *CTWatcherSDK
 }
@@ -327,13 +327,13 @@ func (h *CertificateEventHandler) HandleEvent(event models.Event) error {
 	if certEvent, ok := event.(*models.CertificateProcessedEvent); ok {
 		atomic.AddInt64(&h.sdk.status.TotalProcessedCertificates, 1)
 
-		// 这里可以添加证书处理回调，如果将来需要的话
-		_ = certEvent // 暂时未使用，避免编译警告
+		// Certificate processing callbacks can be added here if needed in the future
+		_ = certEvent // Currently unused, avoids a compile warning
 	}
 	return nil
 }
 
-// ErrorEventHandler 错误事件处理器
+// ErrorEventHandler is the error event handler
 type ErrorEventHandler struct {
 	sdk *CTWatcherSDK
 }
@@ -342,12 +342,12 @@ func (h *ErrorEventHandler) HandleEvent(event models.Event) error {
 	if errorEvent, ok := event.(*models.ErrorOccurredEvent); ok {
 		atomic.AddInt64(&h.sdk.status.TotalErrors, 1)
 
-		// 触发用户注册的回调
+		// Trigger the user-registered callbacks
 		for _, callback := range h.sdk.errorCallbacks {
 			go func(cb models.ErrorCallback) {
 				defer func() {
 					if r := recover(); r != nil {
-						h.sdk.handleError(fmt.Errorf("错误回调执行失败: %v", r), nil)
+						h.sdk.handleError(fmt.Errorf("error callback execution failed: %v", r), nil)
 					}
 				}()
 				cb(fmt.Errorf(errorEvent.ErrorMessage), map[string]interface{}{
@@ -360,7 +360,7 @@ func (h *ErrorEventHandler) HandleEvent(event models.Event) error {
 	return nil
 }
 
-// handleError 处理内部错误
+// handleError handles internal errors
 func (sdk *CTWatcherSDK) handleError(err error, context map[string]interface{}) {
 	errorEvent := &models.ErrorOccurredEvent{
 		BaseEvent: models.BaseEvent{
@@ -378,12 +378,12 @@ func (sdk *CTWatcherSDK) handleError(err error, context map[string]interface{}) 
 	sdk.eventBus.Publish(errorEvent)
 }
 
-// IsRunning 检查SDK是否正在运行
+// IsRunning checks whether the SDK is running
 func (sdk *CTWatcherSDK) IsRunning() bool {
 	return atomic.LoadInt32(&sdk.isRunning) == 1
 }
 
-// Close 关闭SDK并释放资源
+// Close closes the SDK and releases resources
 func (sdk *CTWatcherSDK) Close() error {
 	if sdk.IsRunning() {
 		sdk.Stop()

@@ -7,5 +7,5 @@
 package response
 
 type DataResponse struct {
-	List interface{} `json:"list"` // 使用 interface{} 作为通用字段类型
+	List interface{} `json:"list"` // Use interface{} as a generic field type
 }

@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Repository 定义模板仓库接口
+// Repository defines the template repository interface
 type Repository interface {
 	Find(ctx context.Context, filter bson.M, opts *options.FindOptions) ([]models.ScanTemplate, error)
 	FindOne(ctx context.Context, filter bson.M, opts *options.FindOneOptions) (*models.ScanTemplate, error)
@@ -26,14 +26,14 @@ type repository struct {
 	collection *mongo.Collection
 }
 
-// NewRepository 创建模板仓库实例
+// NewRepository creates a template repository instance
 func NewRepository() Repository {
 	return &repository{
 		collection: mongodb.DB.Collection("ScanTemplates"),
 	}
 }
 
-// Find 查询多个文档
+// Find returns multiple matching documents
 func (r *repository) Find(ctx context.Context, filter bson.M, opts *options.FindOptions) ([]models.ScanTemplate, error) {
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *repository) Find(ctx context.Context, filter bson.M, opts *options.Find
 	return results, nil
 }
 
-// FindOne 查询单个文档
+// FindOne returns a single matching document
 func (r *repository) FindOne(ctx context.Context, filter bson.M, opts *options.FindOneOptions) (*models.ScanTemplate, error) {
 	var result models.ScanTemplate
 	err := r.collection.FindOne(ctx, filter, opts).Decode(&result)
@@ -63,7 +63,7 @@ func (r *repository) FindOne(ctx context.Context, filter bson.M, opts *options.F
 	return &result, nil
 }
 
-// Count 统计文档数量
+// Count returns the number of matching documents
 func (r *repository) Count(ctx context.Context, filter bson.M) (int64, error) {
 	count, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
@@ -73,7 +73,7 @@ func (r *repository) Count(ctx context.Context, filter bson.M) (int64, error) {
 	return count, nil
 }
 
-// InsertOne 插入单个文档
+// InsertOne inserts a single document
 func (r *repository) InsertOne(ctx context.Context, document interface{}) (string, error) {
 	result, err := r.collection.InsertOne(ctx, document)
 	if err != nil {
@@ -85,7 +85,7 @@ func (r *repository) InsertOne(ctx context.Context, document interface{}) (strin
 	return "", nil
 }
 
-// UpdateOne 更新单个文档
+// UpdateOne updates a single document
 func (r *repository) UpdateOne(ctx context.Context, filter bson.M, update bson.M) error {
 	_, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
@@ -95,7 +95,7 @@ func (r *repository) UpdateOne(ctx context.Context, filter bson.M, update bson.M
 	return nil
 }
 
-// DeleteMany 删除多个文档
+// DeleteMany deletes multiple documents
 func (r *repository) DeleteMany(ctx context.Context, filter bson.M) error {
 	_, err := r.collection.DeleteMany(ctx, filter)
 	if err != nil {

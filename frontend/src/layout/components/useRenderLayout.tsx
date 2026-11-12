@@ -17,22 +17,22 @@ const appStore = useAppStore()
 
 const pageLoading = computed(() => appStore.getPageLoading)
 
-// 标签页
+// Tags view
 const tagsView = computed(() => appStore.getTagsView)
 
-// 菜单折叠
+// Menu collapse
 const collapse = computed(() => appStore.getCollapse)
 
 // logo
 const logo = computed(() => appStore.logo)
 
-// 固定头部
+// Fixed header
 const fixedHeader = computed(() => appStore.getFixedHeader)
 
-// 是否是移动端
+// Whether it is mobile
 const mobile = computed(() => appStore.getMobile)
 
-// 固定菜单
+// Fixed menu
 const fixedMenu = computed(() => appStore.getFixedMenu)
 
 export const useRenderLayout = () => {

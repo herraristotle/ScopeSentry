@@ -1,0 +1,1 @@
+import{cW as e,dn as t,b5 as a}from"./index-BykQle8X.js";const l=({atEndEdge:l,atStartEdge:n,layout:o},s)=>{let d,r=0;const u=e=>e<0&&n.value||e>0&&l.value;return{hasReachedEdge:u,onWheel:l=>{e(d);let{deltaX:n,deltaY:c}=l;l.shiftKey&&0!==c&&(n=c,c=0);const h="horizontal"===o.value?n:c;u(h)||(r+=h,t()||0===h||l.preventDefault(),d=a(()=>{s(r),r=0}))}}};export{l as u};

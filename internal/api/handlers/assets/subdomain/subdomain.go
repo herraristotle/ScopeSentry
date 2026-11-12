@@ -14,12 +14,12 @@ func init() {
 }
 
 // GetSubdomains godoc
-// @Summary 获取子域名列表
-// @Description 获取子域名列表，支持分页、排序和过滤
-// @Tags 子域名
+// @Summary Get subdomain list
+// @Description Get the subdomain list, supporting pagination, sorting, and filtering
+// @Tags Subdomain
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.Subdomain}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse

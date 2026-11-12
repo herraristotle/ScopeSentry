@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElSwitch, ElMessage } from 'element-plus'
+import { ElSwitch } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { computed, ref, watch } from 'vue'
@@ -14,58 +14,58 @@ const appStore = useAppStore()
 
 const { t } = useI18n()
 
-// 面包屑
+// Breadcrumb
 const breadcrumb = ref(appStore.getBreadcrumb)
 
 const breadcrumbChange = (show: boolean) => {
   appStore.setBreadcrumb(show)
 }
 
-// 面包屑图标
+// Breadcrumb icon
 const breadcrumbIcon = ref(appStore.getBreadcrumbIcon)
 
 const breadcrumbIconChange = (show: boolean) => {
   appStore.setBreadcrumbIcon(show)
 }
 
-// 折叠图标
+// Collapse icon
 const hamburger = ref(appStore.getHamburger)
 
 const hamburgerChange = (show: boolean) => {
   appStore.setHamburger(show)
 }
 
-// 全屏图标
+// Fullscreen icon
 const screenfull = ref(appStore.getScreenfull)
 
 const screenfullChange = (show: boolean) => {
   appStore.setScreenfull(show)
 }
 
-// 尺寸图标
+// Size icon
 const size = ref(appStore.getSize)
 
 const sizeChange = (show: boolean) => {
   appStore.setSize(show)
 }
 
-// 多语言图标
+// Language icon
 const locale = ref(appStore.getLocale)
 
 const localeChange = (show: boolean) => {
   appStore.setLocale(show)
 }
 
-// 标签页
+// Tags view
 const tagsView = ref(appStore.getTagsView)
 
 const tagsViewChange = (show: boolean) => {
-  // 切换标签栏显示时，同步切换标签栏的高度
+  // When toggling the tags bar visibility, sync the tags bar height as well
   setCssVar('--tags-view-height', show ? '35px' : '0px')
   appStore.setTagsView(show)
 }
 
-// 标签页图标
+// Tags view icon
 const tagsViewIcon = ref(appStore.getTagsViewIcon)
 
 const tagsViewIconChange = (show: boolean) => {
@@ -79,35 +79,35 @@ const logoChange = (show: boolean) => {
   appStore.setLogo(show)
 }
 
-// 菜单手风琴
+// Menu accordion
 const uniqueOpened = ref(appStore.getUniqueOpened)
 
 const uniqueOpenedChange = (uniqueOpened: boolean) => {
   appStore.setUniqueOpened(uniqueOpened)
 }
 
-// 固定头部
+// Fixed header
 const fixedHeader = ref(appStore.getFixedHeader)
 
 const fixedHeaderChange = (show: boolean) => {
   appStore.setFixedHeader(show)
 }
 
-// 页脚
+// Footer
 const footer = ref(appStore.getFooter)
 
 const footerChange = (show: boolean) => {
   appStore.setFooter(show)
 }
 
-// 灰色模式
+// Grey mode
 const greyMode = ref(appStore.getGreyMode)
 
 const greyModeChange = (show: boolean) => {
   appStore.setGreyMode(show)
 }
 
-// // 动态路由
+// // Dynamic routing
 // const dynamicRouter = ref(!!appStore.getDynamicRouter)
 
 // const dynamicRouterChange = (show: boolean) => {
@@ -115,7 +115,7 @@ const greyModeChange = (show: boolean) => {
 //   appStore.setDynamicRouter(show)
 // }
 
-// // 服务端动态路由
+// // Server-side dynamic routing
 // const serverDynamicRouter = ref(appStore.getServerDynamicRouter)
 
 // const serverDynamicRouterChange = (show: boolean) => {
@@ -123,7 +123,7 @@ const greyModeChange = (show: boolean) => {
 //   appStore.setServerDynamicRouter(show)
 // }
 
-// 固定菜单
+// Fixed menu
 const fixedMenu = ref(appStore.getFixedMenu)
 
 const fixedMenuChange = (show: boolean) => {

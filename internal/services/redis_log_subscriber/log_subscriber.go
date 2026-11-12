@@ -28,11 +28,11 @@ import (
 )
 
 var (
-	// GET_LOG_NAME 存储需要获取日志的节点名称列表
+	// GET_LOG_NAME stores the list of node names whose logs need to be fetched
 	GET_LOG_NAME []string
 	logNameMutex sync.RWMutex
 
-	// LOG_INFO 存储每个节点的日志信息
+	// LOG_INFO stores log information for each node
 	LOG_INFO     map[string][]string
 	logInfoMutex sync.RWMutex
 )
@@ -46,25 +46,25 @@ func init() {
 	projectService = project.NewService()
 }
 
-// SubscribeLogChannel 订阅 Redis 日志通道并处理消息
+// SubscribeLogChannel subscribes to the Redis log channel and processes messages
 func SubscribeLogChannel() {
 	channelName := "logs"
 	logger.Info("Subscribed to channel", zap.String("channel", channelName))
 
 	for {
 		trySubscribe(channelName)
-		// 如果连接失败，等待1秒后重试
+		// If the connection fails, wait and retry
 		time.Sleep(2 * time.Second)
 	}
 }
 
-// trySubscribe 尝试订阅 Redis 通道
+// trySubscribe attempts to subscribe to a Redis channel
 func trySubscribe(channelName string) {
 	ctx := context.Background()
 	pubsub := redisdb.Client.Subscribe(ctx, channelName)
 	defer pubsub.Close()
 
-	// 验证订阅
+	// Verify the subscription
 	_, err := pubsub.Receive(ctx)
 	if err != nil {
 		logger.Error("Failed to subscribe to channel", zap.String("channel", channelName), zap.Error(err))
@@ -87,9 +87,9 @@ var (
 	logCountersMu sync.Mutex
 )
 
-// handleMessage 处理接收到的消息
+// handleMessage processes a received message
 func handleMessage(ctx context.Context, payload string) error {
-	// 解析 JSON 数据
+	// Parse the JSON data
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(payload), &data); err != nil {
 		return fmt.Errorf("failed to parse message: %w", err)
@@ -105,7 +105,7 @@ func handleMessage(ctx context.Context, payload string) error {
 		return fmt.Errorf("invalid log content in message")
 	}
 
-	//// 检查节点是否在 GET_LOG_NAME 中
+	//// Check whether the node is in GET_LOG_NAME
 	//logNameMutex.RLock()
 	//inList := contains(GET_LOG_NAME, logName)
 	//logNameMutex.RUnlock()
@@ -119,7 +119,7 @@ func handleMessage(ctx context.Context, payload string) error {
 	//	logInfoMutex.Unlock()
 	//}
 	logger.Info(fmt.Sprintf("%s %s", logName, logContent))
-	// 如果包含 "Register Success"，检查节点任务
+	// If it contains "Register Success", check the node's tasks
 	if strings.Contains(logContent, "Register Success") {
 		if err := checkNodeTask(ctx, logName); err != nil {
 			logger.Error("Failed to check node task", zap.String("node", logName), zap.Error(err))
@@ -131,16 +131,16 @@ func handleMessage(ctx context.Context, payload string) error {
 			if err != nil {
 				return
 			}
-			// 任务产物已落库:自愈项目资产关联并回填 AssetCount(见 issue #338)。
-			// 扫描结果入库不携带 project 字段,若不在任务结束处补盖章,
-			// MCP/API 按项目过滤将始终拿不到数据。
+			// Task artifacts have been persisted: self-heal project asset associations and backfill AssetCount (see issue #338).
+			// Scan results are persisted without a project field; if the association is not stamped at task end,
+			// MCP/API filtering by project will never return data.
 			if err := projectService.RefreshProjectAssociations(context.Background()); err != nil {
 				logger.Error("Failed to refresh project asset associations", zap.Error(err))
 			}
 		}()
 	}
 
-	// 将日志推送到 Redis list
+	// Push the log to a Redis list
 	logKey := fmt.Sprintf("log:%s", logName)
 	if err := redisdb.Client.RPush(ctx, logKey, logContent).Err(); err != nil {
 		return fmt.Errorf("failed to push log to Redis: %w", err)
@@ -149,10 +149,10 @@ func handleMessage(ctx context.Context, payload string) error {
 	logCountersMu.Lock()
 	defer logCountersMu.Unlock()
 
-	// 更新本地计数器
+	// Update the local counter
 	logCounters[logName]++
 	if logCounters[logName] > config.GlobalConfig.Log.TotalLogs {
-		// 超过限制，直接清理 Redis，并重置本地计数器
+		// Over the limit: clear Redis directly and reset the local counter
 		if err := redisdb.Client.Del(ctx, logKey).Err(); err != nil {
 			logger.Error("Failed to delete log key", zap.String("key", logKey), zap.Error(err))
 		}
@@ -162,9 +162,9 @@ func handleMessage(ctx context.Context, payload string) error {
 	return nil
 }
 
-// checkNodeTask 检查节点任务并推送任务数据
+// checkNodeTask checks the node's tasks and pushes task data
 func checkNodeTask(ctx context.Context, nodeName string) error {
-	// 查询未完成且状态为1的任务
+	// Query unfinished tasks with status 1
 	filter := bson.M{
 		"progress": bson.M{"$ne": 100},
 		"status":   1,
@@ -190,26 +190,26 @@ func checkNodeTask(ctx context.Context, nodeName string) error {
 		return nil
 	}
 
-	// 获取任务服务
+	// Get the task service
 	taskService := common.NewService()
 
-	// 处理每个任务
+	// Process each task
 	for _, taskDoc := range tasks {
-		// 获取任务模板数据
+		// Get the task template data
 		scanTemplate, err := taskService.GetScanTemplate(context.Background(), &taskDoc)
 		if err != nil {
 			logger.Error("Failed to get scan template", zap.String("task_id", taskDoc.ID.Hex()), zap.Error(err))
 			continue
 		}
 
-		// 将任务数据序列化为 JSON
+		// Serialize the task data to JSON
 		taskDataJSON, err := json.Marshal(scanTemplate)
 		if err != nil {
 			logger.Error("Failed to marshal task data", zap.String("task_id", taskDoc.ID.Hex()), zap.Error(err))
 			continue
 		}
 
-		// 推送到 Redis
+		// Push to Redis
 		nodeTaskKey := fmt.Sprintf("NodeTask:%s", nodeName)
 		if err := redisdb.Client.RPush(ctx, nodeTaskKey, taskDataJSON).Err(); err != nil {
 			logger.Error("Failed to push node task", zap.String("node", nodeName), zap.Error(err))
@@ -220,7 +220,7 @@ func checkNodeTask(ctx context.Context, nodeName string) error {
 	return nil
 }
 
-// contains 检查字符串切片是否包含指定字符串
+// contains checks whether a string slice contains the given string
 func contains(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
@@ -230,7 +230,7 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-// AddLogName 添加需要获取日志的节点名称
+// AddLogName adds a node name whose logs need to be fetched
 func AddLogName(name string) {
 	logNameMutex.Lock()
 	defer logNameMutex.Unlock()
@@ -240,7 +240,7 @@ func AddLogName(name string) {
 	}
 }
 
-// RemoveLogName 移除需要获取日志的节点名称
+// RemoveLogName removes a node name whose logs need to be fetched
 func RemoveLogName(name string) {
 	logNameMutex.Lock()
 	defer logNameMutex.Unlock()
@@ -253,7 +253,7 @@ func RemoveLogName(name string) {
 	}
 }
 
-// GetLogInfo 获取节点的日志信息
+// GetLogInfo gets the log information of a node
 func GetLogInfo(name string) []string {
 	logInfoMutex.RLock()
 	defer logInfoMutex.RUnlock()
@@ -265,7 +265,7 @@ func GetLogInfo(name string) []string {
 	return logs
 }
 
-// PopLogInfo 弹出节点的日志信息
+// PopLogInfo pops the log information of a node
 func PopLogInfo(name string) string {
 	logInfoMutex.Lock()
 	defer logInfoMutex.Unlock()

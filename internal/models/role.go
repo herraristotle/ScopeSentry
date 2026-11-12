@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Role 角色模型
+// Role role model
 type Role struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name        string             `bson:"name" json:"name" binding:"required"`
@@ -17,14 +17,14 @@ type Role struct {
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }
 
-// RoleCreate 创建角色请求
+// RoleCreate role creation request
 type RoleCreate struct {
 	Name        string   `json:"name" binding:"required"`
 	Description string   `json:"description"`
 	Permissions []string `json:"permissions" binding:"required"`
 }
 
-// RoleUpdate 更新角色请求
+// RoleUpdate role update request
 type RoleUpdate struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`

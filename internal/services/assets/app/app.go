@@ -26,7 +26,7 @@ func NewService() Service {
 }
 
 func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*models.AppResponse, error) {
-	// 构建查询条件
+	// Build query conditions
 	query.Index = "app"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*mod
 	}
 	filter := bson.M(searchQuery)
 
-	// 获取总数
+	// Get the total count
 	totalCount, err := s.repo.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
@@ -47,13 +47,13 @@ func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*mod
 		}, nil
 	}
 
-	// 设置分页和排序选项
+	// Set pagination and sorting options
 	opts := options.Find().
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
 		SetLimit(int64(query.PageSize)).
 		SetSort(bson.D{{"time", -1}})
 
-	// 查询数据
+	// Query data
 	results, err := s.repo.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)

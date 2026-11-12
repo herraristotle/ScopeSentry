@@ -19,8 +19,8 @@ import (
 
 var nodeService node.Service
 
-// GetNode @Summary      获取节点数据
-// @Description  获取所有在线节点的数据
+// GetNode @Summary      Get node data
+// @Description  Get the data of all online nodes
 // @Tags         node
 // @Accept       json
 // @Produce      json
@@ -39,8 +39,8 @@ func GetNode(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: result}, "")
 }
 
-// GetNodeOnline @Summary      获取在线节点
-// @Description  获取所有在线节点的数据
+// GetNodeOnline @Summary      Get online nodes
+// @Description  Get the data of all online nodes
 // @Tags         node
 // @Accept       json
 // @Produce      json
@@ -56,7 +56,7 @@ func GetNodeOnline(c *gin.Context) {
 		return
 	}
 
-	// 仅返回 name 字段
+	// Return only the name field
 	names := make([]string, 0, len(result))
 	for _, item := range result {
 		names = append(names, item.Name)
@@ -65,7 +65,7 @@ func GetNodeOnline(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: names}, "")
 }
 
-// NodeConfigUpdateRequest 节点配置更新请求
+// NodeConfigUpdateRequest node config update request
 type NodeConfigUpdateRequest struct {
 	Name          string `json:"name" binding:"required"`
 	OldName       string `json:"oldName" binding:"omitempty"`
@@ -73,12 +73,12 @@ type NodeConfigUpdateRequest struct {
 	State         bool   `json:"state" binding:"required"`
 }
 
-// ConfigUpdate 更新节点配置
-// @Summary 更新节点配置
+// ConfigUpdate update node config
+// @Summary Update node config
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeConfigUpdateRequest true "节点配置"
+// @Param data body NodeConfigUpdateRequest true "Node config"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -105,17 +105,17 @@ func ConfigUpdate(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// NodeDeleteRequest 删除节点请求
+// NodeDeleteRequest node delete request
 type NodeDeleteRequest struct {
 	Names []string `json:"names" binding:"required"`
 }
 
-// Delete 删除节点
-// @Summary 删除节点
+// Delete delete nodes
+// @Summary Delete nodes
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeDeleteRequest true "节点名称列表"
+// @Param data body NodeDeleteRequest true "List of node names"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -138,17 +138,17 @@ func Delete(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// NodeLogRequest 节点日志请求
+// NodeLogRequest node log request
 type NodeLogRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// GetLogs 获取节点日志
-// @Summary 获取节点日志
+// GetLogs gets node logs
+// @Summary Get node logs
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response{data=object{logs=string}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -168,12 +168,12 @@ func GetLogs(c *gin.Context) {
 	response.Success(c, gin.H{"logs": logs}, "")
 }
 
-// GetNodePlugin 获取节点插件信息
-// @Summary 获取节点插件信息
+// GetNodePlugin gets node plugin information
+// @Summary Get node plugin information
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response{data=object{list=[]models.NodePluginInfo}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -193,12 +193,12 @@ func GetNodePlugin(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: plugins}, "")
 }
 
-// RestartNode 重启节点
-// @Summary 重启节点
+// RestartNode restarts a node
+// @Summary Restart node
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
