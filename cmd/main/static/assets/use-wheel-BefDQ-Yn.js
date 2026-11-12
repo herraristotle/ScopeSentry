@@ -1,0 +1,1 @@
+import{cP as e,dh as t,a_ as a}from"./index-DN3Q43vk.js";const l=({atEndEdge:l,atStartEdge:o,layout:s},d)=>{let n,r=0;const u=e=>e<0&&o.value||e>0&&l.value;return{hasReachedEdge:u,onWheel:l=>{e(n);let{deltaX:o,deltaY:h}=l;l.shiftKey&&0!==h&&(o=h,h=0);const c="horizontal"===s.value?o:h;u(c)||(r+=c,t()||0===c||l.preventDefault(),n=a(()=>{d(r),r=0}))}}};export{l as u};

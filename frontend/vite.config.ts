@@ -11,6 +11,7 @@ import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite"
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { createStyleImportPlugin, ElementPlusResolve } from 'vite-plugin-style-import'
 import UnoCSS from 'unocss/vite'
+import { englishOnly } from './build/plugins/english-only'
 
 // https://vitejs.dev/config/
 const root = process.cwd()
@@ -77,6 +78,9 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         title: env.VITE_APP_TITLE
       }),
       UnoCSS(),
+      // The app is English-only: strip the non-English locale payloads that
+      // dependencies embed in their published bundles.
+      englishOnly(),
       // sveltekit(),
     ],
 
@@ -140,7 +144,6 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         'vue',
         'vue-router',
         'vue-types',
-        'element-plus/es/locale/lang/zh-cn',
         'element-plus/es/locale/lang/en',
         '@iconify/iconify',
         '@vueuse/core',

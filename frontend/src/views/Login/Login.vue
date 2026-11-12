@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { LoginForm } from './components'
 import { ThemeSwitch } from '@/components/ThemeSwitch'
-import { LocaleDropdown } from '@/components/LocaleDropdown'
 import { underlineToHump } from '@/utils'
 import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
@@ -59,7 +58,6 @@ const toRegister = () => {
 
             <div class="flex justify-end items-center space-x-10px">
               <ThemeSwitch />
-              <LocaleDropdown class="lt-xl:text-white dark:text-white" />
             </div>
           </div>
           <Transition appear enter-active-class="animate__animated animate__bounceInRight">

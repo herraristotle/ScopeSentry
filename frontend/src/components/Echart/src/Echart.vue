@@ -56,7 +56,9 @@ const styles = computed(() => {
 
 const initChart = () => {
   if (unref(elRef) && props.options) {
-    echartRef = echarts.init(unref(elRef) as HTMLElement)
+    // Force the English locale so chart tooltips and toolbox labels are not localized
+    // to the viewer's browser language.
+    echartRef = echarts.init(unref(elRef) as HTMLElement, undefined, { locale: 'EN' })
     echartRef?.setOption(unref(options))
   }
 }

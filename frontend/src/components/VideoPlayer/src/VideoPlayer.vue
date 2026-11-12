@@ -23,6 +23,8 @@ const intiPlayer = () => {
   if (!unref(videoEl)) return
   new Player({
     autoplay: false,
+    // Pin the player UI to English instead of following the browser language.
+    lang: 'en',
     ...props,
     el: unref(videoEl)
   })

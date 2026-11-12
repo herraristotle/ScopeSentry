@@ -4,7 +4,6 @@ import {
   BarChart,
   LineChart,
   PieChart,
-  MapChart,
   PictorialBarChart,
   RadarChart
 } from 'echarts/charts'
@@ -32,7 +31,6 @@ echarts.use([
   BarChart,
   LineChart,
   PieChart,
-  MapChart,
   CanvasRenderer,
   PictorialBarChart,
   RadarChart

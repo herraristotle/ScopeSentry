@@ -59,7 +59,7 @@ type PageResponse struct {
 func getLocale(c *gin.Context) string {
 	locale := c.GetHeader("Accept-Language")
 	if locale == "" {
-		locale = "zh-CN" // Default to Chinese
+		locale = "en-US" // Default to English
 	}
 	return locale
 }

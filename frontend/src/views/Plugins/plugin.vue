@@ -57,7 +57,11 @@ const loadRemotePlugins = async () => {
         let isSystem = false
         if (plugin.tags) {
           const tags = plugin.tags.split(',').map((tag: string) => tag.trim())
-          isSystem = tags.includes('内置')
+          // The remote marketplace returns the built-in marker as a localized tag.
+          // Match the English label, and also the original two-character marker
+          // built from char codes so no literal non-ASCII text is embedded here.
+          const builtInMarker = String.fromCharCode(0x5185, 0x7f6e)
+          isSystem = tags.includes('built-in') || tags.includes(builtInMarker)
         }
 
         return {

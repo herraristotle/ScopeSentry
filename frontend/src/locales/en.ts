@@ -224,7 +224,7 @@ export default {
     footer: 'Footer',
     uniqueOpened: 'Unique opened',
     tagsViewIcon: 'Tags view icon',
-    // 开启动态路由
+    // Enable dynamic routing
     dynamicRouter: 'Enable dynamic router',
     serverDynamicRouter: 'Server dynamic router',
     reExperienced: 'Please exit the login experience again',
@@ -446,7 +446,7 @@ export default {
     screenshot: 'Screenshot',
     Chart: 'Chart',
     sensitiveNumber: 'sensitive information',
-    // ===== 新加多语言字段 =====
+    // ===== Added i18n fields =====
     iconSelected: 'Selected Icons',
     confirm: 'Confirm'
     // ====================
@@ -749,25 +749,25 @@ export default {
     subitem: 'Subitem',
     formValidation: 'Form validation',
     verifyReset: 'Verify reset',
-    // 富文本编辑器
+    // Rich text editor
     richText: 'Rich text',
     jsonEditor: 'JSON Editor',
     form: 'Form',
-    // 远程加载
+    // Remote loading
     remoteLoading: 'Remote loading',
-    // 聚焦
+    // Focus
     focus: 'Focus',
     treeSelect: 'Tree Select',
     showCheckbox: 'Show Checkbox',
     selectAnyLevel: 'Select Any Level',
     multiple: 'Multiple',
     filterable: 'Filterable',
-    // 自定义节点内容
+    // Custom node content
     customContent: 'Custom content',
-    // 懒加载
+    // Lazy loading
     lazyLoad: 'Lazy load',
     upload: 'Upload',
-    // 用户头像
+    // User avatar
     userAvatar: 'User avatar',
     iconPicker: 'Icon picker'
   },
@@ -854,9 +854,9 @@ export default {
     center: 'center',
     right: 'right',
     dynamicOptions: 'Dynamic options',
-    // 删除单选框
+    // Remove radio
     deleteRadio: 'Delete radio',
-    // 还原单选框
+    // Restore radio
     restoreRadio: 'Restore radio',
     loading: 'Loading',
     reset: 'Reset'
