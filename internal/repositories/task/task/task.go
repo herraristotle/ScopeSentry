@@ -40,6 +40,7 @@ type Repository interface {
 	// Added Redis operation methods
 	Exists(ctx context.Context, key string) (bool, error)
 	SCard(ctx context.Context, key string) (int64, error)
+	CountProgressKeys(ctx context.Context, taskId string) (int64, error)
 	Get(ctx context.Context, key string) (string, error)
 	Del(ctx context.Context, keys ...string) error
 }
@@ -228,6 +229,31 @@ func (r *repository) Exists(ctx context.Context, key string) (bool, error) {
 		return false, fmt.Errorf("failed to check key existence: %w", err)
 	}
 	return result > 0, nil
+}
+
+// CountProgressKeys counts targets that have actually started the pipeline.
+//
+// The scanner writes one "TaskInfo:progress:<task>:<target>" hash per target as
+// soon as that target begins, and "TaskInfo:tmp:<task>" only when a target has
+// finished every module. Counting the progress hashes therefore gives partial
+// progress while a task is still running, instead of reporting 0% until the
+// whole task completes.
+func (r *repository) CountProgressKeys(ctx context.Context, taskId string) (int64, error) {
+	keys, err := r.redisClient.Keys(ctx, fmt.Sprintf("TaskInfo:progress:%s:*", taskId)).Result()
+	if err != nil {
+		return 0, fmt.Errorf("failed to count progress keys: %w", err)
+	}
+	// Only keys that actually carry a start time count; a bare key can be left
+	// behind by an interrupted write.
+	var started int64
+	for _, key := range keys {
+		n, err := r.redisClient.Exists(ctx, key).Result()
+		if err != nil || n == 0 {
+			continue
+		}
+		started++
+	}
+	return started, nil
 }
 
 // SCard gets the number of elements in a set

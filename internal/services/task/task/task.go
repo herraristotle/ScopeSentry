@@ -512,21 +512,41 @@ func (s *service) ProcessTaskProgress(ctx context.Context, task models.Task) err
 	tmpKey := fmt.Sprintf("TaskInfo:tmp:%s", taskID)
 	timeKey := fmt.Sprintf("TaskInfo:time:%s", taskID)
 
+	// TaskNum is the number of targets; without it a division below yields +Inf
+	// and int(+Inf) is undefined, which is how a running task ended up at 0%.
+	if task.TaskNum <= 0 {
+		return nil
+	}
+
+	// A target is only added to the tmp set once every module has finished, so
+	// counting it alone reports 0% for the entire run. Targets that have started
+	// are counted from their per-target progress key instead.
+	started, err := s.taskRepo.CountProgressKeys(ctx, taskID)
+	if err != nil {
+		return fmt.Errorf("failed to count started targets: %w", err)
+	}
+
 	// Check whether a temporary statistics key exists in Redis
 	exists, err := s.taskRepo.Exists(ctx, tmpKey)
 	if err != nil {
 		return fmt.Errorf("failed to check tmp key existence: %w", err)
 	}
 
-	if exists {
+	if started > 0 || exists {
 		// Get the number of elements in the collection
 		count, err := s.taskRepo.SCard(ctx, tmpKey)
 		if err != nil {
 			return fmt.Errorf("failed to get set cardinality: %w", err)
 		}
 
-		// Compute the progress
-		progressTmp := float64(count) / float64(task.TaskNum)
+		// Finished targets count fully; every other started target counts as a
+		// fraction of the pipeline (0.5 is a deliberate midpoint, since the
+		// scanner does not report per-module completion to the server).
+		partial := float64(started - count)
+		if partial < 0 {
+			partial = 0
+		}
+		progressTmp := (float64(count) + partial*0.5) / float64(task.TaskNum)
 		progressTmp = math.Round(progressTmp*100*10) / 10 // keep one decimal place
 
 		// Ensure the progress does not exceed 100

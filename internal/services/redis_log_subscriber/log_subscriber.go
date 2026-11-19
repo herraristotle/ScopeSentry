@@ -125,7 +125,10 @@ func handleMessage(ctx context.Context, payload string) error {
 			logger.Error("Failed to check node task", zap.String("node", logName), zap.Error(err))
 		}
 	}
-	if strings.Contains(logContent, "Task end") {
+	// Recompute progress on per-target completion too. Waiting for "Task end"
+	// meant a running task reported 0% until every target had finished.
+	if strings.Contains(logContent, "module end scanning the target") ||
+		strings.Contains(logContent, "Task end") {
 		go func() {
 			err := taskService.TaskProgress(context.Background())
 			if err != nil {
