@@ -48,10 +48,12 @@ const loadRemotePlugins = async () => {
         let needUpdate = false
 
         if (isInstalled && localPlugin) {
-          const localVersion = localPlugin.version || ''
-          const remoteVersion = plugin.version || ''
-          needUpdate =
-            localVersion !== remoteVersion && remoteVersion !== null && remoteVersion !== ''
+          // Seeded plugins record "1.0" while the marketplace publishes "v1.0",
+          // so a raw string compare flagged every built-in plugin as outdated.
+          const norm = (v: string) => (v || '').trim().replace(/^v/i, '')
+          const localVersion = norm(localPlugin.version)
+          const remoteVersion = norm(plugin.version)
+          needUpdate = remoteVersion !== '' && localVersion !== remoteVersion
         }
 
         let isSystem = false
