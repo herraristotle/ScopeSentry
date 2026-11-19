@@ -115,6 +115,12 @@ func CreateDatabase() error {
 			"type":  "rad",
 		})
 
+		configCollection.InsertOne(context.Background(), bson.M{
+			"name":  "SearchApiConfig",
+			"value": constants.SearchApiConfig,
+			"type":  "searchapi",
+		})
+
 		// Insert fingerprint version
 		configCollection.InsertOne(context.Background(), bson.M{
 			"name":  "FingerVersion",

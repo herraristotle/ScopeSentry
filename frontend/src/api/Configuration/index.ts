@@ -15,6 +15,24 @@ export const getRadConfigurationApi = () => {
   return request.get({ url: '/api/configuration/rad/data' })
 }
 
+export interface searchApiConfig {
+  fofa: { key: string }
+  shodan: { key: string }
+}
+
+export const getSearchApiConfigurationApi = (): Promise<IResponse<searchApiConfig>> => {
+  return request.get({ url: '/api/configuration/searchapi/data' })
+}
+
+export const saveSearchApiConfigurationApi = (
+  fofaKey: string,
+  shodanKey: string
+): Promise<IResponse<configRespData>> => {
+  return request.post({
+    url: '/api/configuration/searchapi/save',
+    data: { fofa: { key: fofaKey }, shodan: { key: shodanKey } }
+  })
+}
 export const saveRadConfigurationApi = (content: string): Promise<IResponse<configRespData>> => {
   return request.post({ url: '/api/configuration/rad/save', data: { content } })
 }

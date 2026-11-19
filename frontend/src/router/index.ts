@@ -354,6 +354,16 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'searchapi',
+        component: () => import('@/views/Configuration/SearchApi.vue'),
+        name: 'asset search configuration',
+        meta: {
+          title: t('router.searchapi'),
+          icon: 'mdi:magnify-scan',
+          noCache: true
+        }
+      },
+      {
         path: 'apikey',
         component: () => import('@/views/Configuration/ApiKey.vue'),
         name: 'apikey management',

@@ -62,6 +62,7 @@ import (
 )
 
 //go:embed static/*
+//go:embed static/assets/_*
 var embeddedFiles embed.FS
 
 func main() {

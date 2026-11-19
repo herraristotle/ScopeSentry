@@ -64,6 +64,28 @@ func (s *Service) SaveSubfinderContent(ctx *gin.Context, content string) error {
 	return nil
 }
 
+// GetSearchApiContent reads SearchApiConfig
+func (s *Service) GetSearchApiContent(ctx *gin.Context) (string, error) {
+	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "SearchApiConfig"}, bson.M{"_id": 0})
+	if err != nil {
+		return "", err
+	}
+	if v, ok := doc["value"].(string); ok {
+		return v, nil
+	}
+	return "", nil
+}
+
+// SaveSearchApiContent saves SearchApiConfig and notifies nodes to refresh
+func (s *Service) SaveSearchApiContent(ctx *gin.Context, content string) error {
+	if err := s.repo.Upsert(ctx.Request.Context(), collConfig, bson.M{"name": "SearchApiConfig"}, bson.M{"name": "SearchApiConfig", "value": content, "type": "searchapi"}); err != nil {
+		return err
+	}
+	// Notify all nodes to reload the FOFA and Shodan keys
+	_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "searchapi"})
+	return nil
+}
+
 // GetRadContent reads RadConfig
 func (s *Service) GetRadContent(ctx *gin.Context) (string, error) {
 	doc, err := s.repo.FindOne(ctx.Request.Context(), collConfig, bson.M{"name": "RadConfig"}, bson.M{"_id": 0})

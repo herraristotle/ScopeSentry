@@ -269,6 +269,7 @@ export default {
     subdomainDictionary: 'Subdomain',
     subfinder: 'Subfinder',
     rad: 'Rad',
+    searchapi: 'Asset Search',
     system: 'System',
     dirDictionary: 'Dir Scan',
     portDictionary: 'Port',
@@ -560,6 +561,11 @@ export default {
   configuration: {
     subfinder: 'subfinder configuration',
     rad: 'rad configuration',
+    searchapi: 'asset search configuration',
+    searchapiDesc:
+      'Keys for the FOFA and Shodan target-source plugins. Both are optional and can be used together; a plugin whose key is empty is skipped and logged.',
+    fofaKey: 'FOFA API key',
+    shodanKey: 'Shodan API key',
     system: 'system configuration',
     timezone: 'Timezone',
     maxTaskNum: 'Max Task Num',

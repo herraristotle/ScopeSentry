@@ -287,6 +287,28 @@ var Plugins = []models.Plugin{
 		Version:      "1.0",
 		Source:       "",
 	},
+	{
+		Module:       "TargetHandler",
+		Name:         "fofa",
+		Hash:         "bc2a2459e3d78bf920b7e9f622654711",
+		Parameter:    "-size 100",
+		Help:         "-size number of results to fetch (default 100) -query raw FOFA query, overrides the query derived from the target. The API key is set under Configuration > Asset Search.",
+		Introduction: "FOFA asset search: turns a target into every asset FOFA knows about it, feeding hosts, ports and services into the scan pipeline",
+		IsSystem:     true,
+		Version:      "1.0",
+		Source:       "",
+	},
+	{
+		Module:       "TargetHandler",
+		Name:         "shodan",
+		Hash:         "01c9b4541dadb820383f2632a359909e",
+		Parameter:    "-size 100",
+		Help:         "-size number of results to fetch, max 100 (default 100) -query raw Shodan query, overrides the query derived from the target. The API key is set under Configuration > Asset Search.",
+		Introduction: "Shodan asset search: turns a target into every host Shodan knows about it, feeding hosts, ports and services into the scan pipeline",
+		IsSystem:     true,
+		Version:      "1.0",
+		Source:       "",
+	},
 }
 
 var ScanTemplateDefault = models.ScanTemplate{
@@ -411,6 +433,11 @@ threatbook: []
 virustotal: []
 whoisxmlapi: []
 zoomeyeapi: []`
+
+// SearchApiConfig is the default credential document for the asset-search
+// plugins. Keys live here rather than in plugin parameters so they are not
+// copied into every scan template, task record or export.
+var SearchApiConfig = `{"fofa":{"key":""},"shodan":{"key":""}}`
 
 var RadConfig = `exec_path: ""                     # Path to the chrome executable
 disable_headless: false           # Disable headless mode

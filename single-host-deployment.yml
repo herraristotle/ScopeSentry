@@ -11,7 +11,7 @@ services:
     container_name: scopesentry-mongodb
     restart: always
     ports:
-      - "27017:27017"
+      - "27018:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -30,7 +30,7 @@ services:
     container_name: scopesentry-redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - ./data/redis/data:/data
@@ -43,7 +43,10 @@ services:
       - scopesentry-network
 
   scope-sentry:
-    image: autumn27/scopesentry:latest
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: scopesentry:local
     container_name: scope-sentry
     restart: always
     ports:
@@ -76,7 +79,10 @@ services:
       - scopesentry-network
 
   scopesentry-scan:
-    image: autumn27/scopesentry-scan:latest
+    build:
+      context: ../ScopeSentry-Scan
+      dockerfile: dockerfile
+    image: scopesentry-scan:local
     network_mode: host
     container_name: scopesentry-scan
     restart: always
@@ -88,12 +94,12 @@ services:
       NodeName: node-test
       TimeZoneName: Asia/Shanghai
       MONGODB_IP: 127.0.0.1
-      MONGODB_PORT: 27017
+      MONGODB_PORT: 27018
       MONGODB_DATABASE: ScopeSentry
       MONGODB_USER: ${MONGO_INITDB_ROOT_USERNAME}
       MONGODB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       REDIS_IP: 127.0.0.1
-      REDIS_PORT: 6379
+      REDIS_PORT: 6380
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     depends_on:
       redis:

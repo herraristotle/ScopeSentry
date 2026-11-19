@@ -27,6 +27,13 @@ func RegisterConfigurationRoutes(api *gin.RouterGroup) {
 				},
 			},
 			{
+				Path: "/searchapi",
+				Routes: []models.Route{
+					{Method: "GET", Path: "/data", Handler: confHandler.GetSearchApiData, Middlewares: common.WithAuth()},
+					{Method: "POST", Path: "/save", Handler: confHandler.SaveSearchApiData, Middlewares: common.WithAuth()},
+				},
+			},
+			{
 				Path: "/system",
 				Routes: []models.Route{
 					{Method: "GET", Path: "/data", Handler: confHandler.GetSystemData, Middlewares: common.WithAuth()},

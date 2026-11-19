@@ -78,6 +78,11 @@ func Update() error {
 			Update19()
 		}
 
+		// Registers the FOFA/Shodan asset-search plugins and their credential
+		// document. Idempotent, so it runs on every upgrade rather than being
+		// gated on a version bump.
+		Update21()
+
 		// Update the database record
 		_, err := configColl.UpdateOne(context.Background(), bson.M{"name": "version"}, bson.M{
 			"$set": bson.M{
