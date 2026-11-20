@@ -250,6 +250,13 @@ func createConfigFile() error {
 
 // handlePluginKey handles the plugin key
 func handlePluginKey() error {
+	// A container has no persistent volume for this file, so every recreation
+	// generated a new key and silently invalidated every scanner that had been
+	// registered with the old one. An explicit key wins over the generated file.
+	if key := os.Getenv("PLUGINKEY"); key != "" {
+		GlobalConfig.System.PluginKey = key
+		return nil
+	}
 	pluginKeyFile := "PLUGINKEY"
 	if _, err := os.Stat(pluginKeyFile); err == nil {
 		// File exists, read the key

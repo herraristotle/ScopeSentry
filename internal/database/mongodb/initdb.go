@@ -52,9 +52,15 @@ func CreateDatabase() error {
 
 		// Create the user collection
 		collection := db.Collection("user")
-		password, err := random.GeneratePassword(16)
-		if err != nil {
-			password = random.GenerateRandomString(16)
+		// An operator-supplied password wins, so a redeploy into a fresh
+		// database keeps the same login instead of printing a new one that
+		// nobody sees (the container log is usually gone by then).
+		password := os.Getenv("ADMIN_PASSWORD")
+		if password == "" {
+			password, err = random.GeneratePassword(16)
+			if err != nil {
+				password = random.GenerateRandomString(16)
+			}
 		}
 
 		// Print important information

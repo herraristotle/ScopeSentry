@@ -12,3 +12,4 @@ frontend/dist-pro/
 .cursor/
 data/
 PASSWORD
+.env
